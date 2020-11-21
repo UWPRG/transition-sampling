@@ -18,7 +18,10 @@ class CP2KEngine(AbstractEngine):
 
     @property
     def atoms(self) -> Sequence[str]:
-        pass
+        # TODO: How does this handle coordinates linked in a separate file?
+        # Return the first two places for each coordinate entry
+        coords = self.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
+        return [entry[0:2] for entry in coords]
 
     def set_positions(self, positions: np.ndarray) -> None:
         pass
@@ -37,7 +40,7 @@ class CP2KEngine(AbstractEngine):
                 parser = CP2KInputParser()
                 parser.parse(f)
         except Exception as e:
-            return False, str(e)
+            return False, f"cp2k_inputs: {str(e)}"
 
         # Otherwise let the base class validate
         return super().validate_inputs(inputs)
