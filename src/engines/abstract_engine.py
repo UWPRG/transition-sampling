@@ -46,7 +46,12 @@ class AbstractEngine(ABC):
 
         :param positions: The positions for atoms to be set to.
         :type positions: np.array with shape (n, 3)
+
+        :raises ValueError: If the there isn't one position for every atom
         """
+        if positions.shape[0] != len(self.atoms):
+            raise ValueError("There must be one position for every atom")
+
         pass
 
     @abstractmethod
@@ -58,7 +63,12 @@ class AbstractEngine(ABC):
 
         :param velocities: The positions for atoms to be set to.
         :type velocities: np.array with shape (n, 3)
+
+        :raises ValueError: If the there isn't one velocity for every atom
         """
+        if velocities.shape[0] != len(self.atoms):
+            raise ValueError("There must be one position for every atom")
+
         pass
 
     @abstractmethod

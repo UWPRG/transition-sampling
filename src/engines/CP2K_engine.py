@@ -24,9 +24,17 @@ class CP2KEngine(AbstractEngine):
         return [entry[0:2] for entry in coords]
 
     def set_positions(self, positions: np.ndarray) -> None:
+        super().set_positions(positions)
+
+        coords = self.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
+        for i in range(positions.shape[0]):
+            pos_str = ' '.join([str(p) for p in positions[i, :]])
+            coords[i] = f"{self.atoms[i]} {pos_str}"
+
         pass
 
     def set_velocities(self, velocities: np.ndarray) -> None:
+        super().set_velocities(velocities)
         pass
 
     def validate_inputs(self, inputs: dict) -> (bool, str):
