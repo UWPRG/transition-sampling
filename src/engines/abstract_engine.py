@@ -4,7 +4,7 @@ order to be used by the aimless shooting algorithm
 """
 
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
+from typing import Sequence
 import numpy as np
 
 
@@ -24,11 +24,11 @@ class AbstractEngine(ABC):
 
     @abstractmethod
     def __init__(self, inputs):
-        if not self.validate_inputs(inputs):
-            raise ValueError("Invalid inputs")
+        validation_res = self.validate_inputs(inputs)
+        if not validation_res[0]:
+            raise ValueError(f"Invalid inputs: {validation_res[1]}")
 
     @abstractmethod
-    @property
     def atoms(self) -> Sequence[str]:
         """
         Get a sequence of the string representations of the atoms in use by
@@ -62,7 +62,7 @@ class AbstractEngine(ABC):
         pass
 
     @abstractmethod
-    def validate_inputs(self, inputs: dict) -> bool:
+    def validate_inputs(self, inputs: dict) -> (bool, str):
         """
         Given a dictionary input, validate that it represents a well-formed
         input with all requirements for this engine
@@ -70,10 +70,16 @@ class AbstractEngine(ABC):
         :param inputs: dict of engine-specific inputs
         :type inputs: dict where the engine defines required fields
 
-        :return: True if input is valid. False otherwise
-        :rtype: bool
+        :return: True and an empty string if input is valid. False and the error
+         message otherwise
         """
-        pass
+        if "engine" not in inputs:
+            return False, "engine must be specified in inputs"
+
+        elif inputs["engine"].lower() != self.get_engine_str().lower():
+            return False, "engine name does not match instantiated engine"
+
+        return True, ""
 
     @abstractmethod
     async def run_shooting_point(self) -> ShootingResult:
@@ -89,8 +95,8 @@ class AbstractEngine(ABC):
         """
         pass
 
-    @abstractmethod
     @property
+    @abstractmethod
     def delta_t(self) -> float:
         """
         Get the time offset this engine is set to capture in seconds
@@ -99,8 +105,8 @@ class AbstractEngine(ABC):
         :rtype: float
         """
 
-    @abstractmethod
     @delta_t.setter
+    @abstractmethod
     def delta_t(self, value: float) -> None:
         """
         Set the value of the time offset of frame to save in seconds. If this
@@ -110,3 +116,13 @@ class AbstractEngine(ABC):
         :param value: Time offset in seconds
         :type value: float
         """
+
+    @abstractmethod
+    def get_engine_str(self) -> str:
+        """
+        Get the string representation of this engine. This is what's used to
+        validate with the JSON inputs
+
+        :return: String of the engine's representation
+        """
+        pass
