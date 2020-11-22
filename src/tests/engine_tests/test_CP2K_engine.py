@@ -8,9 +8,20 @@ ENG_STR = "cp2k"
 TEST_INPUT = "test_data/test_cp2k.inp"
 
 
-class DefinedCP2K:
-    def __init__(self):
-        self.engine
+class CP2KEngineTestCase(TestCase):
+    """
+    A valid CP2K engine that can be used throughout the tests without needing
+    new inputs
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.engine = None
+
+    def setUp(self) -> None:
+        self.engine = CP2KEngine({"engine": ENG_STR,
+                                  "cp2k_inputs": TEST_INPUT})
+        self.assertEqual(len(self.engine.atoms), 2)
 
 
 class TestCP2KEngineValidation(TestCase):
@@ -72,32 +83,69 @@ class TestCP2KEngineValidation(TestCase):
                              msg="Test input should be valid")
 
 
-class TestCP2KEngine(TestCase):
-    def test_atoms(self):
-        self.fail()
+class TestCP2KEngineAtoms(CP2KEngineTestCase):
+    def test_atoms_getting(self):
+        """
+        Test that atoms returns the correct sequence
+        """
+        # TODO: Maybe a better input file that has different atoms
+        self.assertSequenceEqual(self.engine.atoms, ["Ar", "Ar"])
 
-    def test_set_positions(self):
-        # placeholder
-        a = CP2KEngine(
-            {"engine": "cp2k", "cp2k_inputs": "test_data/test_cp2k.inp"})
-        b = np.array([[1.0021, 123.123, 1.2012], [2.123, 12323.12, 123.12]])
-        a.set_positions(b)
-        var = a.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
-        self.fail()
+    def test_atoms_setting(self):
+        """
+        Test that atoms cannot be set
+        """
+        with self.assertRaises(AttributeError,
+                               msg="Atoms should not be allowed assignment"):
+            self.engine.atoms = ['Co', 'O']
+
+
+class TestCP2KEnginePositions(CP2KEngineTestCase):
+    def test_set_positions_wrong_num_atoms(self):
+        """
+        Test there must be exactly one position for each atom
+        """
+        pos = np.array([[1.0021, 123.123, 1.2012]])
+
+        with self.assertRaises(ValueError, msg="There should be one row in "
+                                               "positions for each atom"):
+            self.engine.set_positions(pos)
+
+    def test_set_positions_wrong_num_dims(self):
+        """
+        Test that an x, y, and z are required for each atom
+        """
+        pos = np.array([[1.0021, 123.123],
+                        [8.12, 6.12381]])
+
+        with self.assertRaises(ValueError,
+                               msg="There should be an x,y,z for each atom"):
+            self.engine.set_positions(pos)
+
+    def test_set_positions_valid(self):
+        """
+        Assign valid positions and check the internal representation of them
+        """
+        pos = np.array([[1.0021, 123.123, 6.23123],
+                        [8.12, 6.12381, 0.1232]])
+
+        self.engine.set_positions(pos)
+
+        # Internal Representation of stored positions for CP2K
+        stored_pos = self.engine.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
+
+        # Iterate over each stored and assigned position to compare
+        for s, p in zip(stored_pos, pos):
+            # Convert string representation to list of floats
+            split_list = [float(num) for num in s[3:].split()]
+            # Convert numpy array to list for assertListEquals
+            p = p.tolist()
+            self.assertListEqual(p, split_list, "Positions were not equal")
 
     def test_set_velocities(self):
         self.fail()
 
-    def test_validate_inputs(self):
-        self.fail()
-
     def test_run_shooting_point(self):
-        self.fail()
-
-    def test_delta_t(self):
-        self.fail()
-
-    def test_delta_t(self):
         self.fail()
 
     def test_get_engine_str(self):

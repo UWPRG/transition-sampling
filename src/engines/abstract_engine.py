@@ -52,6 +52,9 @@ class AbstractEngine(ABC):
         if positions.shape[0] != len(self.atoms):
             raise ValueError("There must be one position for every atom")
 
+        if positions.shape[1] != 3:
+            raise ValueError("Each position must have x,y,z defined")
+
         pass
 
     @abstractmethod
