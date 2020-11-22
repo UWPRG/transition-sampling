@@ -1,19 +1,18 @@
 from unittest import TestCase
-import tempfile, os, shutil
+import tempfile, shutil, os
 
 import numpy as np
 from engines import CP2KEngine
 
 ENG_STR = "cp2k"
-TEST_INPUT = "test_data/test_cp2k.inp"
+cur_dir = os.path.dirname(__file__)
+TEST_INPUT = os.path.join(cur_dir, "test_data/test_cp2k.inp")
 
 
 class CP2KEngineTestCase(TestCase):
     """
-    A valid CP2K engine that can be used throughout the tests without needing
-    new inputs
+    TestCase subclass that sets up a valid CP2K engine before each test
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.engine = None
@@ -143,10 +142,4 @@ class TestCP2KEnginePositions(CP2KEngineTestCase):
             self.assertListEqual(p, split_list, "Positions were not equal")
 
     def test_set_velocities(self):
-        self.fail()
-
-    def test_run_shooting_point(self):
-        self.fail()
-
-    def test_get_engine_str(self):
         self.fail()

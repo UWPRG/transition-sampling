@@ -12,28 +12,35 @@ class CP2KEngine(AbstractEngine):
     def __init__(self, inputs):
         super().__init__(inputs)
 
+        self._atoms = None
         with open(inputs["cp2k_inputs"]) as f:
             parser = CP2KInputParser()
             self.cp2k_inputs = parser.parse(f)
 
     @property
     def atoms(self) -> Sequence[str]:
-        # TODO: How does this handle coordinates linked in a separate file?
-        # Return the first two places for each coordinate entry
-        coords = self.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
-        return [entry[0:2] for entry in coords]
+        if self._atoms is None:
+            # TODO: How does this handle coordinates linked in a separate file?
+            # Return the first two places for each coordinate entry
+            coords = self.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
+            self._atoms = [entry[0:2] for entry in coords]
+
+        return self._atoms
 
     def set_positions(self, positions: np.ndarray) -> None:
+        # Check positions are valid by passing to base class
         super().set_positions(positions)
 
+        # coords stored as list of "El x y z" strings, same as CP2K .inp file
         coords = self.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
+
         for i in range(positions.shape[0]):
+            # Create the space separated string and append it to the atom
             pos_str = ' '.join([str(p) for p in positions[i, :]])
             coords[i] = f"{self.atoms[i]} {pos_str}"
 
-        pass
-
     def set_velocities(self, velocities: np.ndarray) -> None:
+        # Check velocities are valid by passing to base class
         super().set_velocities(velocities)
         pass
 

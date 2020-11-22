@@ -28,6 +28,7 @@ class AbstractEngine(ABC):
         if not validation_res[0]:
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
 
+    @property
     @abstractmethod
     def atoms(self) -> Sequence[str]:
         """
