@@ -1,7 +1,10 @@
+import os
+import shutil
+import tempfile
 from unittest import TestCase
-import tempfile, shutil, os
 
 import numpy as np
+
 from engines import CP2KEngine
 
 ENG_STR = "cp2k"

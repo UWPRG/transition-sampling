@@ -22,8 +22,7 @@ class CP2KEngine(AbstractEngine):
         if self._atoms is None:
             # TODO: How does this handle coordinates linked in a separate file?
             # Return the first two places for each coordinate entry
-            coords = self.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
-            self._atoms = [entry[0:2] for entry in coords]
+            self._atoms = [entry[0:2] for entry in self._get_coord()]
 
         return self._atoms
 
@@ -32,7 +31,7 @@ class CP2KEngine(AbstractEngine):
         super().set_positions(positions)
 
         # coords stored as list of "El x y z" strings, same as CP2K .inp file
-        coords = self.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
+        coords = self._get_coord()
 
         for i in range(positions.shape[0]):
             # Create the space separated string and append it to the atom
@@ -42,7 +41,13 @@ class CP2KEngine(AbstractEngine):
     def set_velocities(self, velocities: np.ndarray) -> None:
         # Check velocities are valid by passing to base class
         super().set_velocities(velocities)
-        pass
+
+        vel = self._get_velocity()
+
+        # Assign all the velocities
+        for i in range(velocities.shape[0]):
+            for j in range(3):
+                vel[i][j] = velocities[i, j]
 
     def validate_inputs(self, inputs: dict) -> (bool, str):
         if "cp2k_inputs" not in inputs:
@@ -73,3 +78,34 @@ class CP2KEngine(AbstractEngine):
 
     def get_engine_str(self) -> str:
         return "cp2k"
+
+    def _get_subsys(self) -> dict:
+        """
+        Gets the subsys section of the stored cp2k inputs
+        :return: Subsys dictionary
+        """
+        return self.cp2k_inputs["+force_eval"][0]["+subsys"]
+
+    def _get_coord(self) -> list:
+        """
+        Gets the coord section of the stored cp2k inputs. Represented as a list
+        of strings, where each string follows the .xyz format of
+        "El x y z"
+        :return: Coord list of strings
+        """
+        return self._get_subsys()["+coord"]["*"]
+
+    def _get_velocity(self) -> list:
+        """
+        Gets the velocity section of the stored cp2k inputs. Represented as a
+        list of lists, where the outer index is the atom and the inner index
+        is the floats of x, y, z. If this section hasn't been initialized in
+        subsys, it is created with the correct length and zeros for all entries
+        :return: Velocities as a list of lists
+        """
+        subsys = self._get_subsys()
+        if "+velocity" not in subsys:
+            subsys["+velocity"] = {"*": [[0, 0, 0] for i in range(len(self.atoms))]}
+
+        return subsys["+velocity"]["*"]
+
