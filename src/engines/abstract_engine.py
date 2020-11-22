@@ -71,7 +71,10 @@ class AbstractEngine(ABC):
         :raises ValueError: If the there isn't one velocity for every atom
         """
         if velocities.shape[0] != len(self.atoms):
-            raise ValueError("There must be one position for every atom")
+            raise ValueError("There must be one velocity for every atom")
+
+        if velocities.shape[1] != 3:
+            raise ValueError("Each velocity must have x,y,z defined")
 
         pass
 

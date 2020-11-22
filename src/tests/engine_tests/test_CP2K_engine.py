@@ -12,10 +12,13 @@ cur_dir = os.path.dirname(__file__)
 TEST_INPUT = os.path.join(cur_dir, "test_data/test_cp2k.inp")
 
 
+# Parsing the input into memory for every test makes these pretty slow ~1s each,
+# we may consider changing this if the number of tests becomes prohibitive
 class CP2KEngineTestCase(TestCase):
     """
     TestCase subclass that sets up a valid CP2K engine before each test
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.engine = None
@@ -60,7 +63,8 @@ class TestCP2KEngineValidation(TestCase):
         """
         Create an almost valid cp2k input by deleting a line
         """
-        # Copy the test input to a tmp file without the first line
+        # Copy the test input to a tmp file without the first line. Yes there
+        # could be comments here, but not in our test file
         with tempfile.NamedTemporaryFile() as temp_file:
             with open(TEST_INPUT, 'rb') as clean_input:
                 # Read the first line so it doesn't get copied
@@ -134,7 +138,8 @@ class TestCP2KEnginePositions(CP2KEngineTestCase):
         self.engine.set_positions(pos)
 
         # Internal Representation of stored positions for CP2K
-        stored_pos = self.engine.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
+        stored_pos = \
+            self.engine.cp2k_inputs["+force_eval"][0]["+subsys"]["+coord"]["*"]
 
         # Iterate over each stored and assigned position to compare
         for s, p in zip(stored_pos, pos):
@@ -144,5 +149,45 @@ class TestCP2KEnginePositions(CP2KEngineTestCase):
             p = p.tolist()
             self.assertListEqual(p, split_list, "Positions were not equal")
 
-    def test_set_velocities(self):
-        self.fail()
+
+class TestCP2KEngineVelocities(CP2KEngineTestCase):
+    def test_set_velocities_wrong_num_atoms(self):
+        """
+        Test there must be exactly one velocityector for each atom
+        """
+        vel = np.array([[1.0021, 123.123, 1.2012]])
+
+        with self.assertRaises(ValueError, msg="There should be one row in "
+                                               "velocities for each atom"):
+            self.engine.set_velocities(vel)
+
+    def test_set_velocities_wrong_num_dims(self):
+        """
+        Test that an x, y, and z component are required for each atom
+        """
+        vel = np.array([[1.0021, 123.123],
+                        [8.12, 6.12381]])
+
+        with self.assertRaises(ValueError,
+                               msg="There should be an x,y,z for each atom"):
+            self.engine.set_velocities(vel)
+
+    def test_set_positions_valid(self):
+        """
+        Assign valid velocities and check the internal representation of them
+        """
+        vel = np.array([[1.0021, 123.123, 6.23123],
+                        [8.12, 6.12381, 0.1232]])
+
+        self.engine.set_velocities(vel)
+
+        # Internal Representation of stored positions for CP2K
+        stored_vel = \
+            self.engine.cp2k_inputs["+force_eval"][0]["+subsys"]["+velocity"][
+                "*"]
+
+        # Iterate over each stored and assigned position to compare
+        for s, v in zip(stored_vel, vel):
+            # Convert numpy array to list for assertListEquals
+            v = v.tolist()
+            self.assertListEqual(v, s, "Velocities were not equal")
