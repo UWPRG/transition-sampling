@@ -26,23 +26,37 @@ class AbstractEngine(ABC):
 
     @abstractmethod
     def __init__(self, inputs: dict, working_dir: str = None):
-        """
-        Create an engine by passing the required inputs and a working directory.
-        Inputs are engine specific.
+        """Create an engine.
 
-        :param inputs: Dictionary of inputs required for the engine. See engine
-            specific documentation for more detail.
-        :param working_dir: The directory that all temporary input/output files
-            will be placed in.
+        Pass the required inputs and a working directory for the engine to write
+        files to. Inputs are engine specific.
+
+        Parameters
+        ----------
+        inputs
+            Dictionary of inputs required for the engine. See engine specific
+            documentation for more detail.
+        working_dir
+            The directory that all temporary input/output files will be placed
+            in. If not specified or is None, defaults to the current directory.
+
+        Raises
+        ------
+        ValueError
+            if inputs are not valid for the concrete engine class or if a given
+            working directory is not a real directory.
         """
         validation_res = self.validate_inputs(inputs)
         if not validation_res[0]:
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
 
-        # TODO: handle none case
         if working_dir is not None and not os.path.isdir(working_dir):
             raise ValueError(f"{working_dir} is not a directory")
-        self.working_dir = working_dir
+
+        if working_dir is None:
+            self.working_dir = "."
+        else:
+            self.working_dir = working_dir
 
     @property
     @abstractmethod
@@ -171,7 +185,7 @@ class AbstractEngine(ABC):
         """Set the time offset of this engine.
 
         Set the value of the time offset of frame to save in seconds. If this
-        isn't a multiple of the engine's timestep, the closest frame will be
+        isn't a multiple of the engine's time step, the closest frame will be
         taken.
 
         Parameters

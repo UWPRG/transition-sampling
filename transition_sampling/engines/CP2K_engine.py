@@ -18,7 +18,7 @@ from .abstract_engine import AbstractEngine, ShootingResult
 
 
 class CP2KEngine(AbstractEngine):
-    def __init__(self, inputs, working_dir=None):
+    def __init__(self, inputs: dict, working_dir: str = None):
         super().__init__(inputs, working_dir)
 
         self._atoms = None
@@ -76,11 +76,11 @@ class CP2KEngine(AbstractEngine):
         return super().validate_inputs(inputs)
 
     async def run_shooting_point(self) -> ShootingResult:
-        # random project name so we don't overwrite/appened anything
+        # random project name so we don't overwrite/append anything
         proj_name = uuid.uuid4().hex
 
-        tasks = self._launch_traj_fwd(proj_name), \
-                self._launch_traj_rev(proj_name)
+        tasks = (self._launch_traj_fwd(proj_name),
+                 self._launch_traj_rev(proj_name))
 
         # Wait until both tasks are complete
         result = await asyncio.gather(asyncio.gather(*tasks))
@@ -103,8 +103,8 @@ class CP2KEngine(AbstractEngine):
         projname
             Root project name
         """
-        # Flip the velocity. This could cause a problem if we ever parallelize
-        # this method with shared memory, but shouldn't be a problem with
+        # Flip the velocity. This could cause an issue if we ever parallelize
+        # this method with shared memory, but shouldn't be a problem with a
         # completely new proc or asyncio (current implementation)
         self.flip_velocity()
         return await self._launch_traj(projname + "_rev")
