@@ -28,6 +28,7 @@ class AbstractEngine(ABC):
         if not validation_res[0]:
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
 
+    @property
     @abstractmethod
     def atoms(self) -> Sequence[str]:
         """Get the atoms held by the engine.
@@ -57,6 +58,12 @@ class AbstractEngine(ABC):
         -------
         None
         """
+        if positions.shape[0] != len(self.atoms):
+            raise ValueError("There must be one position for every atom")
+
+        if positions.shape[1] != 3:
+            raise ValueError("Each position must have x,y,z defined")
+
         pass
 
     @abstractmethod
@@ -75,6 +82,12 @@ class AbstractEngine(ABC):
         -------
         None
         """
+        if velocities.shape[0] != len(self.atoms):
+            raise ValueError("There must be one velocity for every atom")
+
+        if velocities.shape[1] != 3:
+            raise ValueError("Each velocity must have x,y,z defined")
+
         pass
 
     @abstractmethod
@@ -83,9 +96,6 @@ class AbstractEngine(ABC):
 
         Given a dictionary input, validate that it represents a well-formed
         input with all requirements for this engine
-
-        :return: True and an empty string if input is valid. False and the error
-         message otherwise
 
         Parameters
         ----------
