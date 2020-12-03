@@ -1,0 +1,3 @@
+cp2k-input-tools~=0.5.1
+cp2k-output-tools~=0.3.1
+numpy
