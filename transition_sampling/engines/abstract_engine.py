@@ -3,8 +3,10 @@ Abstract class interface defining what methods a valid engine must define in
 order to be used by the aimless shooting algorithm
 """
 
+import os
 from abc import ABC, abstractmethod
 from typing import Sequence, Tuple
+
 import numpy as np
 
 
@@ -23,10 +25,24 @@ class ShootingResult:
 class AbstractEngine(ABC):
 
     @abstractmethod
-    def __init__(self, inputs):
+    def __init__(self, inputs: dict, working_dir: str = None):
+        """
+        Create an engine by passing the required inputs and a working directory.
+        Inputs are engine specific.
+
+        :param inputs: Dictionary of inputs required for the engine. See engine
+            specific documentation for more detail.
+        :param working_dir: The directory that all temporary input/output files
+            will be placed in.
+        """
         validation_res = self.validate_inputs(inputs)
         if not validation_res[0]:
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
+
+        # TODO: handle none case
+        if working_dir is not None and not os.path.isdir(working_dir):
+            raise ValueError(f"{working_dir} is not a directory")
+        self.working_dir = working_dir
 
     @property
     @abstractmethod
@@ -54,9 +70,10 @@ class AbstractEngine(ABC):
         positions : np.ndarray with shape (n, 3)
             The positions for atoms to be set to.
 
-        Returns
+        Raises
         -------
-        None
+        ValueError
+            If the array does not match the required specifications
         """
         if positions.shape[0] != len(self.atoms):
             raise ValueError("There must be one position for every atom")
@@ -78,9 +95,10 @@ class AbstractEngine(ABC):
         velocities : np.ndarray with shape (n, 3)
             The positions for atoms to be set to.
 
-        Returns
+        Raises
         -------
-        None
+        ValueError
+            If the array does not match the required specifications
         """
         if velocities.shape[0] != len(self.atoms):
             raise ValueError("There must be one velocity for every atom")
@@ -112,6 +130,12 @@ class AbstractEngine(ABC):
 
         elif inputs["engine"].lower() != self.get_engine_str().lower():
             return False, "engine name does not match instantiated engine"
+
+        elif "cmd" not in inputs:
+            return False, "cmd must be specified in inputs"
+
+        elif not isinstance(inputs["cmd"], str):
+            return False, "cmd must be a string of space separated cmdline args"
 
         return True, ""
 
