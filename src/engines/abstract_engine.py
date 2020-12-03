@@ -28,6 +28,7 @@ class AbstractEngine(ABC):
         if not validation_res[0]:
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
 
+    @property
     @abstractmethod
     def atoms(self) -> Sequence[str]:
         """
@@ -46,7 +47,15 @@ class AbstractEngine(ABC):
 
         :param positions: The positions for atoms to be set to.
         :type positions: np.array with shape (n, 3)
+
+        :raises ValueError: If the there isn't one position for every atom
         """
+        if positions.shape[0] != len(self.atoms):
+            raise ValueError("There must be one position for every atom")
+
+        if positions.shape[1] != 3:
+            raise ValueError("Each position must have x,y,z defined")
+
         pass
 
     @abstractmethod
@@ -58,7 +67,15 @@ class AbstractEngine(ABC):
 
         :param velocities: The positions for atoms to be set to.
         :type velocities: np.array with shape (n, 3)
+
+        :raises ValueError: If the there isn't one velocity for every atom
         """
+        if velocities.shape[0] != len(self.atoms):
+            raise ValueError("There must be one velocity for every atom")
+
+        if velocities.shape[1] != 3:
+            raise ValueError("Each velocity must have x,y,z defined")
+
         pass
 
     @abstractmethod
