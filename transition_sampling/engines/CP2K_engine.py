@@ -5,7 +5,7 @@ from typing import Sequence
 import numpy as np
 from cp2k_input_tools.parser import CP2KInputParser
 
-from engines.abstract_engine import AbstractEngine, ShootingResult
+from .abstract_engine import AbstractEngine, ShootingResult
 
 
 class CP2KEngine(AbstractEngine):
