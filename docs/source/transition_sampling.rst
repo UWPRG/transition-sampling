@@ -1,5 +1,5 @@
-transition\_sampling package
-============================
+transition\_sampling API
+========================
 
 Subpackages
 -----------
