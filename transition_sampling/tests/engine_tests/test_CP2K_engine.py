@@ -1,3 +1,4 @@
+import filecmp
 import os
 import shutil
 import tempfile
@@ -6,11 +7,12 @@ from unittest import TestCase
 import numpy as np
 
 from engines import CP2KEngine
-from engines.CP2K_engine import write_cp2k_input
+from engines.CP2K_engine import write_cp2k_input, CP2KOutputHandler
 
 ENG_STR = "cp2k"
-cur_dir = os.path.dirname(__file__)
-TEST_INPUT = os.path.join(cur_dir, "test_data/test_cp2k.inp")
+CUR_DIR = os.path.dirname(__file__)
+TEST_INPUT = os.path.join(CUR_DIR, "test_data/test_cp2k.inp")
+TEST_OUTPUT = os.path.join(CUR_DIR, "test_data/test_cp2k_warnings.out")
 TEST_CMD = "test cmd"
 
 
@@ -111,6 +113,27 @@ class TestCP2KEngineValidation(TestCase):
                                          "cp2k_inputs": TEST_INPUT,
                                          "cmd": TEST_CMD}),
                              msg="Test input should be valid")
+
+
+class TestCP2KEngineWorkingDirectory(TestCase):
+    def test_non_existing_dir_throws(self):
+        with self.assertRaises(ValueError,
+                               msg="Non-existent directory should fail"):
+            e = CP2KEngine({"engine": ENG_STR,
+                            "cp2k_inputs": TEST_INPUT,
+                            "cmd": TEST_CMD}, "NON_EXISTENT_DIR")
+
+    def test_no_working_dir_sets_current(self):
+        e = CP2KEngine({"engine": ENG_STR,
+                        "cp2k_inputs": TEST_INPUT,
+                        "cmd": TEST_CMD})
+        self.assertEqual(e.working_dir, ".", "expected to be current directory")
+
+    def test_working_dir_is_set(self):
+        e = CP2KEngine({"engine": ENG_STR,
+                        "cp2k_inputs": TEST_INPUT,
+                        "cmd": TEST_CMD}, CUR_DIR)
+        self.assertEqual(e.working_dir, CUR_DIR)
 
 
 class TestCP2KEngineAtoms(CP2KEngineTestCase):
@@ -250,6 +273,16 @@ class TestCP2KEngineVelocities(CP2KEngineTestCase):
 
             self._compare_velocities(vel, new_engine)
 
+    def test_flip_velocities(self):
+        """Test that flipping velocities works"""
+        vel = np.array([[1.0021, 123.123, 6.23123],
+                        [8.12, 6.12381, 0.1232]])
+
+        self.engine.set_velocities(vel)
+        self.engine.flip_velocity()
+
+        self._compare_velocities(-1 * vel, self.engine)
+
     def _compare_velocities(self, expected, engine):
         """
         Compare the expected values of a velocity to those actually stored by
@@ -266,3 +299,28 @@ class TestCP2KEngineVelocities(CP2KEngineTestCase):
             # Convert numpy array to list for assertListEquals
             v = v.tolist()
             self.assertListEqual(v, s, "Velocities were not equal")
+
+
+class TestCP2KOutputHandler(TestCase):
+
+    def setUp(self) -> None:
+        test_dir = os.path.join(CUR_DIR, "test_data/")
+        self.out_handler = CP2KOutputHandler("test_cp2k_warnings", test_dir)
+
+    def test_output_handler_builds_path(self):
+        """Test that output file name gets built correctly"""
+        self.assertEqual(self.out_handler.get_out_file(),
+                         TEST_OUTPUT)
+
+    def test_output_handler_copies_file(self):
+        with tempfile.NamedTemporaryFile() as temp_file:
+            self.out_handler.copy_out_file(temp_file.name)
+
+            self.assertTrue(filecmp.cmp(self.out_handler.get_out_file(),
+                                        temp_file.name), "files were not equal")
+
+    def test_output_handler_catches_warnings(self):
+        self.assertEqual(len(self.out_handler.check_warnings()), 1,
+                         "Warnings were not caught")
+
+
