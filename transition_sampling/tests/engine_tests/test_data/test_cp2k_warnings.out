@@ -1,0 +1,257 @@
+ DBCSR| Multiplication driver                                               XSMM
+ DBCSR| Multrec recursion limit                                              512
+ DBCSR| Multiplication stack size                                           1000
+ DBCSR| Maximum elements for images                                    UNLIMITED
+ DBCSR| Multiplicative factor virtual images                                   1
+ DBCSR| Multiplication size stacks                                             3
+ DBCSR| Number of 3D layers                                               SINGLE
+ DBCSR| Use MPI memory allocation                                              T
+ DBCSR| Use RMA algorithm                                                      F
+ DBCSR| Use Communication thread                                               T
+ DBCSR| Communication thread load                                             87
+
+
+  **** **** ******  **  PROGRAM STARTED AT               2020-12-03 14:27:35.337
+ ***** ** ***  *** **   PROGRAM STARTED ON                      n2155.hyak.local
+ **    ****   ******    PROGRAM STARTED BY                                lemmoi
+ ***** **    ** ** **   PROGRAM PROCESS ID                                 14738
+  **** **  *******  **  PROGRAM STARTED IN /gscratch/pfaendtner/lemmoi/transitio
+                                           n-sampling/transition_sampling/engine
+                                           s/tmp
+
+ CP2K| version string:                    CP2K version 6.0 (Development Version)
+ CP2K| source code revision number:                                  git:114ba9e
+ CP2K| cp2kflags: omp libint fftw3 libxc elpa=201605 elpa_qr parallel mpi3 scala
+ CP2K|            pack xsmm has_no_shared_glibc libderiv_max_am1=5 libint_max_am=6 max_contr=4 plumed2 mkl
+ CP2K| is freely available from                            https://www.cp2k.org/
+ CP2K| Program compiled at                           Fri Apr 6 10:52:09 PDT 2018
+ CP2K| Program compiled on                                      n2133.hyak.local
+ CP2K| Program compiled for                                   Linux-x86-64-intel
+ CP2K| Data directory path        /gscratch/pfaendtner/codes/cp2k/cp2k/cp2k/data
+ CP2K| Input file name        /gscratch/pfaendtner/lemmoi/transition-sampling/tr
+ 
+ GLOBAL| Force Environment number                                              1
+ GLOBAL| Basis set file name                                           BASIS_SET
+ GLOBAL| Potential file name                                           POTENTIAL
+ GLOBAL| MM Potential file name                                     MM_POTENTIAL
+ GLOBAL| Coordinate file name                                      __STD_INPUT__
+ GLOBAL| Method name                                                        CP2K
+ GLOBAL| Project name                       8eca04b682b54e9cad1f6f36ea4efc57_rev
+ GLOBAL| Preferred FFT library                                             FFTW3
+ GLOBAL| Preferred diagonalization lib.                                       SL
+ GLOBAL| Run type                                                             MD
+ GLOBAL| All-to-all communication in single precision                          F
+ GLOBAL| FFTs using library dependent lengths                                  F
+ GLOBAL| Global print level                                               MEDIUM
+ GLOBAL| Total number of message passing processes                             2
+ GLOBAL| Number of threads for this process                                    1
+ GLOBAL| This output is from process                                           0
+ GLOBAL| CPU model name :  Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz
+
+ MEMORY| system memory details [Kb]
+ MEMORY|                        rank 0           min           max       average
+ MEMORY| MemTotal            131316396     131316396     131316396     131316396
+ MEMORY| MemFree             117659004     117659004     117659500     117659252
+ MEMORY| Buffers                     0             0             0             0
+ MEMORY| Cached                 666264        666264        666264        666264
+ MEMORY| Slab                   403404        403404        403404        403404
+ MEMORY| SReclaimable           125620        125620        125620        125620
+ MEMORY| MemLikelyFree       118450888     118450888     118451384     118451136
+
+
+ *** Fundamental physical constants (SI units) ***
+
+ *** Literature: B. J. Mohr and B. N. Taylor,
+ ***             CODATA recommended values of the fundamental physical
+ ***             constants: 2006, Web Version 5.1
+ ***             http://physics.nist.gov/constants
+
+ Speed of light in vacuum [m/s]                             2.99792458000000E+08
+ Magnetic constant or permeability of vacuum [N/A**2]       1.25663706143592E-06
+ Electric constant or permittivity of vacuum [F/m]          8.85418781762039E-12
+ Planck constant (h) [J*s]                                  6.62606896000000E-34
+ Planck constant (h-bar) [J*s]                              1.05457162825177E-34
+ Elementary charge [C]                                      1.60217648700000E-19
+ Electron mass [kg]                                         9.10938215000000E-31
+ Electron g factor [ ]                                     -2.00231930436220E+00
+ Proton mass [kg]                                           1.67262163700000E-27
+ Fine-structure constant                                    7.29735253760000E-03
+ Rydberg constant [1/m]                                     1.09737315685270E+07
+ Avogadro constant [1/mol]                                  6.02214179000000E+23
+ Boltzmann constant [J/K]                                   1.38065040000000E-23
+ Atomic mass unit [kg]                                      1.66053878200000E-27
+ Bohr radius [m]                                            5.29177208590000E-11
+
+ *** Conversion factors ***
+
+ [u] -> [a.u.]                                              1.82288848426455E+03
+ [Angstrom] -> [Bohr] = [a.u.]                              1.88972613288564E+00
+ [a.u.] = [Bohr] -> [Angstrom]                              5.29177208590000E-01
+ [a.u.] -> [s]                                              2.41888432650478E-17
+ [a.u.] -> [fs]                                             2.41888432650478E-02
+ [a.u.] -> [J]                                              4.35974393937059E-18
+ [a.u.] -> [N]                                              8.23872205491840E-08
+ [a.u.] -> [K]                                              3.15774647902944E+05
+ [a.u.] -> [kJ/mol]                                         2.62549961709828E+03
+ [a.u.] -> [kcal/mol]                                       6.27509468713739E+02
+ [a.u.] -> [Pa]                                             2.94210107994716E+13
+ [a.u.] -> [bar]                                            2.94210107994716E+08
+ [a.u.] -> [atm]                                            2.90362800883016E+08
+ [a.u.] -> [eV]                                             2.72113838565563E+01
+ [a.u.] -> [Hz]                                             6.57968392072181E+15
+ [a.u.] -> [1/cm] (wave numbers)                            2.19474631370540E+05
+ [a.u./Bohr**2] -> [1/cm]                                   5.14048714338585E+03
+ 
+
+
+                      ************* ******** ***********   
+                     ************* **********************  
+                     ****     **** ****      ***********   
+                     ******** ****  *******     ****       
+                     *******  ****   *******   ****        
+                     ****     ****       ****  ****        
+                     ****     **** **********  ****        
+                      ****     **** ********    ****       
+                     FRONTIERS IN SIMULATION TECHNOLOGY    
+                                                           
+                        C.J. Mundy, S. Balasubramanian,    
+                     Ken Bagchi, J. Hutter, Ari Seitsonen  
+                      IFW Kuo, T. Laino, J. VandeVondele   
+                                 Version 1.0               
+
+                                                           
+
+
+ CELL| Volume [angstrom^3]:                                             5051.263
+ CELL| Vector a [angstrom]:      17.158     0.000     0.000    |a| =      17.158
+ CELL| Vector b [angstrom]:       0.000    17.158     0.000    |b| =      17.158
+ CELL| Vector c [angstrom]:       0.000     0.000    17.158    |c| =      17.158
+ CELL| Angle (b,c), alpha [degree]:                                       90.000
+ CELL| Angle (a,c), beta  [degree]:                                       90.000
+ CELL| Angle (a,b), gamma [degree]:                                       90.000
+ CELL| Numerically orthorhombic:                                             YES
+
+ CELL_REF| Volume [angstrom^3]:                                         5051.263
+ CELL_REF| Vector a [angstrom    17.158     0.000     0.000    |a| =      17.158
+ CELL_REF| Vector b [angstrom     0.000    17.158     0.000    |b| =      17.158
+ CELL_REF| Vector c [angstrom     0.000     0.000    17.158    |c| =      17.158
+ CELL_REF| Angle (b,c), alpha [degree]:                                   90.000
+ CELL_REF| Angle (a,c), beta  [degree]:                                   90.000
+ CELL_REF| Angle (a,b), gamma [degree]:                                   90.000
+ CELL_REF| Numerically orthorhombic:                                         YES
+ EWALD|                                                                 not used
+
+ CELL_TOP| Volume [angstrom^3]:                                         5051.263
+ CELL_TOP| Vector a [angstrom    17.158     0.000     0.000    |a| =      17.158
+ CELL_TOP| Vector b [angstrom     0.000    17.158     0.000    |b| =      17.158
+ CELL_TOP| Vector c [angstrom     0.000     0.000    17.158    |c| =      17.158
+ CELL_TOP| Angle (b,c), alpha [degree]:                                   90.000
+ CELL_TOP| Angle (a,c), beta  [degree]:                                   90.000
+ CELL_TOP| Angle (a,b), gamma [degree]:                                   90.000
+ CELL_TOP| Numerically orthorhombic:                                         YES
+ 
+ GENERATE|  Preliminary Number of Bonds generated:                             0
+ GENERATE|  Achieved consistency in connectivity generation.
+ CHARGE_INFO| Total Charge of the Classical System:                     0.000000
+ 
+ FORCEFIELD| WARNING: A non Critical ForceField parameter is missing! CP2K GOES!
+ FORCEFIELD| Non critical parameters are:Urey-Bradley,Torsions,Impropers, Opbends and 1-4
+ FORCEFIELD| All missing parameters will not contribute to the potential energy!
+ FORCEFIELD| Activate the print key FF_INFO to have a list of missing parameters
+ 
+
+ SPLINE_INFO| Generating 1 splines for NONBONDED14 interactions 
+              Due to 1 different atomic kinds
+  ...1
+ SPLINE_INFO| Number of unique splines computed:            1
+ SPLINE_INFO| Done
+
+ SPLINE_INFO| Generating 1 splines for NONBONDED interactions 
+              Due to 1 different atomic kinds
+  ...1
+ SPLINE_INFO| Number of unique splines computed:            1
+ SPLINE_INFO| Done
+
+
+ MOLECULE KIND INFORMATION
+
+
+ All atoms are their own molecule, skipping detailed information
+
+
+ MODULE FIST:  ATOMIC COORDINATES IN ANGSTROM
+
+  Atom  Kind  ATM_TYP       X           Y           Z          q(eff)       Mass
+
+     1    1   Ar        -8.000000    0.000000    0.000000      0.00      39.9480
+     2    1   Ar         0.000000    0.000000    0.000000      0.00      39.9480
+
+
+ 
+ MD| Molecular Dynamics Protocol 
+ MD| Ensemble Type                                                           NVE
+ MD| Number of Time Steps                                                     20
+ MD| Time Step [fs]                                                         5.00
+ MD| Temperature [K]                                                       85.00
+ MD| Temperature tolerance [K]                                              0.00
+ MD| Print MD information every                                        1 step(s)
+ MD| File type     Print frequency[steps]                             File names
+ MD| Coordinates            1     8eca04b682b54e9cad1f6f36ea4efc57_rev-pos-1.xyz
+ MD| Velocities             1     8eca04b682b54e9cad1f6f36ea4efc57_rev-vel-1.xyz
+ MD| Energies               1        8eca04b682b54e9cad1f6f36ea4efc57_rev-1.ener
+ MD| Dump                  20     8eca04b682b54e9cad1f6f36ea4efc57_rev-1.restart
+ 
+ ROT| Rotational Analysis Info 
+ ROT| Principal axes and moments of inertia in atomic units:
+ ROT|                                1                 2                 3
+ ROT| EIGENVALUES            0.000000000E+00   0.832152378E+07   0.832152378E+07
+ ROT|      X                     1.000000000       0.000000000       0.000000000
+ ROT|      Y                     0.000000000       1.000000000       0.000000000
+ ROT|      Z                     0.000000000       0.000000000       1.000000000
+ ROT| Numer of Rotovibrational vectors:     5
+ ROT| Linear Molecule detected..
+
+ Calculation of degrees of freedom
+                                                      Number of atoms:         2
+                                 Number of Intramolecular constraints:         0
+                                 Number of Intermolecular constraints:         0
+                                  Invariants(translation + rotations):         3
+                                                   Degrees of freedom:         3
+
+
+ Restraints Information
+                                  Number of Intramolecular restraints:         0
+                                  Number of Intermolecular restraints:         0
+ ************************** Velocities initialization **************************
+ Initial Temperature                                              296843266.98 K
+ COM velocity:           -0.012559821070      0.023656197863      0.134094372538
+ *******************************************************************************
+
+ MM DIPOLE [BERRY PHASE](A.U.)|                   0.000000   0.000000   0.000000
+ MM DIPOLE [BERRY PHASE](Debye)|                  0.000000   0.000000   0.000000
+ MM DIPOLE [BERRY PHASE] DERIVATIVE(A.U.)|        0.000000   0.000000   0.000000
+
+ ENERGY| Total FORCE_EVAL ( FIST ) energy (a.u.):             -0.000002339066347
+
+
+ *** WARNING in input/cp_parser_methods.F:1258 :: The input string          ***
+ *** </gscratch/pfaendtner/lemmoi/transition-sampling/transition_sampling/e ***
+ *** gines/plumed.dat> has more than     80 characters and is therefore     ***
+ *** too long to fit in the specified variable, File:                       ***
+ *** '/gscratch/pfaendtner/lemmoi/transition-sampling/transition_sampling/e ***
+ *** gines/tmp/8eca04b682b54e9cad1f6f36ea4efc57_rev.inp', Line: 16,         ***
+ *** Column: 11, Chunk:                                                     ***
+ *** </gscratch/pfaendtner/lemmoi/transition-sampling/transition_sampling/e ***
+ *** gines/plumed.dat>                                                      ***
+
+
+===================================================================================
+=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
+=   PID 14739 RUNNING AT n2155
+=   EXIT CODE: 6
+=   CLEANING UP REMAINING PROCESSES
+=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
+===================================================================================
+   Intel(R) MPI Library troubleshooting guide:
+      https://software.intel.com/node/561764
+===================================================================================

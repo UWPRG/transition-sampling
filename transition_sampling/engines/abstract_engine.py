@@ -3,8 +3,10 @@ Abstract class interface defining what methods a valid engine must define in
 order to be used by the aimless shooting algorithm
 """
 
+import os
 from abc import ABC, abstractmethod
 from typing import Sequence, Tuple
+
 import numpy as np
 
 
@@ -23,10 +25,38 @@ class ShootingResult:
 class AbstractEngine(ABC):
 
     @abstractmethod
-    def __init__(self, inputs):
+    def __init__(self, inputs: dict, working_dir: str = None):
+        """Create an engine.
+
+        Pass the required inputs and a working directory for the engine to write
+        files to. Inputs are engine specific.
+
+        Parameters
+        ----------
+        inputs
+            Dictionary of inputs required for the engine. See engine specific
+            documentation for more detail.
+        working_dir
+            The directory that all temporary input/output files will be placed
+            in. If not specified or is None, defaults to the current directory.
+
+        Raises
+        ------
+        ValueError
+            if inputs are not valid for the concrete engine class or if a given
+            working directory is not a real directory.
+        """
         validation_res = self.validate_inputs(inputs)
         if not validation_res[0]:
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
+
+        if working_dir is not None and not os.path.isdir(working_dir):
+            raise ValueError(f"{working_dir} is not a directory")
+
+        if working_dir is None:
+            self.working_dir = "."
+        else:
+            self.working_dir = working_dir
 
     @property
     @abstractmethod
@@ -54,9 +84,10 @@ class AbstractEngine(ABC):
         positions : np.ndarray with shape (n, 3)
             The positions for atoms to be set to.
 
-        Returns
+        Raises
         -------
-        None
+        ValueError
+            If the array does not match the required specifications
         """
         if positions.shape[0] != len(self.atoms):
             raise ValueError("There must be one position for every atom")
@@ -78,9 +109,10 @@ class AbstractEngine(ABC):
         velocities : np.ndarray with shape (n, 3)
             The positions for atoms to be set to.
 
-        Returns
+        Raises
         -------
-        None
+        ValueError
+            If the array does not match the required specifications
         """
         if velocities.shape[0] != len(self.atoms):
             raise ValueError("There must be one velocity for every atom")
@@ -112,6 +144,12 @@ class AbstractEngine(ABC):
 
         elif inputs["engine"].lower() != self.get_engine_str().lower():
             return False, "engine name does not match instantiated engine"
+
+        elif "cmd" not in inputs:
+            return False, "cmd must be specified in inputs"
+
+        elif not isinstance(inputs["cmd"], str):
+            return False, "cmd must be a string of space separated cmdline args"
 
         return True, ""
 
@@ -147,7 +185,7 @@ class AbstractEngine(ABC):
         """Set the time offset of this engine.
 
         Set the value of the time offset of frame to save in seconds. If this
-        isn't a multiple of the engine's timestep, the closest frame will be
+        isn't a multiple of the engine's time step, the closest frame will be
         taken.
 
         Parameters
