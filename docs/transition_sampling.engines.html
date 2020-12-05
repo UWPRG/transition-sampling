@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>transition_sampling.engines package &mdash; transition-sampling  documentation</title>
+  <title>transition_sampling.engines package &mdash; transition_sampling  documentation</title>
   
 
   
@@ -36,7 +36,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="transition_sampling package" href="transition_sampling.html" /> 
+    <link rel="prev" title="transition_sampling API" href="transition_sampling.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -50,7 +50,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> transition-sampling
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> transition_sampling
           
 
           
@@ -83,15 +83,19 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">transition_sampling</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="transition_sampling.html">transition_sampling package</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="transition_sampling.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">transition_sampling.engines package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engines/engines.html">MD Engines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="transition_sampling.html">transition_sampling API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="transition_sampling.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">transition_sampling.engines package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-transition_sampling.engines.CP2K_engine">transition_sampling.engines.CP2K_engine module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-transition_sampling.engines.abstract_engine">transition_sampling.engines.abstract_engine module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-transition_sampling.engines">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="transition_sampling.html#module-transition_sampling">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.html#module-transition_sampling">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -109,7 +113,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">transition-sampling</a>
+          <a href="index.html">transition_sampling</a>
         
       </nav>
 
@@ -140,9 +144,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="modules.html">transition_sampling</a> &raquo;</li>
-        
-          <li><a href="transition_sampling.html">transition_sampling package</a> &raquo;</li>
+          <li><a href="transition_sampling.html">transition_sampling API</a> &raquo;</li>
         
       <li>transition_sampling.engines package</li>
     
@@ -173,7 +175,7 @@
 <p>Engine implementation of CP2K</p>
 <dl class="py class">
 <dt id="transition_sampling.engines.CP2K_engine.CP2KEngine">
-<em class="property">class </em><code class="sig-prename descclassname">transition_sampling.engines.CP2K_engine.</code><code class="sig-name descname">CP2KEngine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.engines.CP2K_engine.CP2KEngine" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">transition_sampling.engines.CP2K_engine.</code><code class="sig-name descname">CP2KEngine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">working_dir</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.engines.CP2K_engine.CP2KEngine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#transition_sampling.engines.abstract_engine.AbstractEngine" title="transition_sampling.engines.abstract_engine.AbstractEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">transition_sampling.engines.abstract_engine.AbstractEngine</span></code></a></p>
 <dl class="py method">
 <dt id="transition_sampling.engines.CP2K_engine.CP2KEngine.atoms">
@@ -201,6 +203,17 @@ this engine. String representations are the same as the periodic table.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><em>The time offset of this engine</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="transition_sampling.engines.CP2K_engine.CP2KEngine.flip_velocity">
+<code class="sig-name descname">flip_velocity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.engines.CP2K_engine.CP2KEngine.flip_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify state by multiplying every velocity component by -1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -252,11 +265,11 @@ and columns represent (x, y, z) dimensions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>positions</strong> (<em>np.ndarray with shape</em><em> (</em><em>n</em><em>, </em><em>3</em><em>)</em>) – The positions for atoms to be set to.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the array does not match the required specifications</p>
 </dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>None</em></p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -271,11 +284,11 @@ atoms and columns represent (x, y, z) dimensions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>velocities</strong> (<em>np.ndarray with shape</em><em> (</em><em>n</em><em>, </em><em>3</em><em>)</em>) – The positions for atoms to be set to.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the array does not match the required specifications</p>
 </dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>None</em></p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -305,6 +318,73 @@ input with all requirements for this engine</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt id="transition_sampling.engines.CP2K_engine.CP2KOutputHandler">
+<em class="property">class </em><code class="sig-prename descclassname">transition_sampling.engines.CP2K_engine.</code><code class="sig-name descname">CP2KOutputHandler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">working_dir</span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.engines.CP2K_engine.CP2KOutputHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="transition_sampling.engines.CP2K_engine.CP2KOutputHandler.check_warnings">
+<code class="sig-name descname">check_warnings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.engines.CP2K_engine.CP2KOutputHandler.check_warnings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the output file for any warnings.</p>
+<p>Returns a list of warnings. The list is empty if there are none.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>A list of warnings from this output file</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="transition_sampling.engines.CP2K_engine.CP2KOutputHandler.copy_out_file">
+<code class="sig-name descname">copy_out_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_location</span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.engines.CP2K_engine.CP2KOutputHandler.copy_out_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy the output file to a new location</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_location</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The full path of the location to copy to</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="transition_sampling.engines.CP2K_engine.CP2KOutputHandler.get_out_file">
+<code class="sig-name descname">get_out_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.engines.CP2K_engine.CP2KOutputHandler.get_out_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full name of the output file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>Full path of output file</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="transition_sampling.engines.CP2K_engine.write_cp2k_input">
+<code class="sig-prename descclassname">transition_sampling.engines.CP2K_engine.</code><code class="sig-name descname">write_cp2k_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cp2k_inputs</span></em>, <em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.engines.CP2K_engine.write_cp2k_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the current state of cp2k inputs to the passed file name.</p>
+<p>Creates the standard cp2k input format. Overwrites anything present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cp2k_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Dictionary of cp2k inputs created by the parser</p></li>
+<li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The file to write the input to</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-transition_sampling.engines.abstract_engine">
 <span id="transition-sampling-engines-abstract-engine-module"></span><h2>transition_sampling.engines.abstract_engine module<a class="headerlink" href="#module-transition_sampling.engines.abstract_engine" title="Permalink to this headline">¶</a></h2>
@@ -312,7 +392,7 @@ input with all requirements for this engine</p>
 order to be used by the aimless shooting algorithm</p>
 <dl class="py class">
 <dt id="transition_sampling.engines.abstract_engine.AbstractEngine">
-<em class="property">class </em><code class="sig-prename descclassname">transition_sampling.engines.abstract_engine.</code><code class="sig-name descname">AbstractEngine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.engines.abstract_engine.AbstractEngine" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">transition_sampling.engines.abstract_engine.</code><code class="sig-name descname">AbstractEngine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">working_dir</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.engines.abstract_engine.AbstractEngine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <dl class="py method">
 <dt id="transition_sampling.engines.abstract_engine.AbstractEngine.atoms">
@@ -391,11 +471,11 @@ and columns represent (x, y, z) dimensions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>positions</strong> (<em>np.ndarray with shape</em><em> (</em><em>n</em><em>, </em><em>3</em><em>)</em>) – The positions for atoms to be set to.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the array does not match the required specifications</p>
 </dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>None</em></p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -410,11 +490,11 @@ atoms and columns represent (x, y, z) dimensions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>velocities</strong> (<em>np.ndarray with shape</em><em> (</em><em>n</em><em>, </em><em>3</em><em>)</em>) – The positions for atoms to be set to.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the array does not match the required specifications</p>
 </dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>None</em></p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -465,7 +545,7 @@ input with all requirements for this engine</p>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="transition_sampling.html" class="btn btn-neutral float-left" title="transition_sampling package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="transition_sampling.html" class="btn btn-neutral float-left" title="transition_sampling API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
