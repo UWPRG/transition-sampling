@@ -93,6 +93,18 @@ class TestAbstractEngineValidation(AbstractEngineTestCase):
                                msg="Invalid engine name should fail"):
             e = AbstractEngineMock(self.editable_inputs)
 
+    def test_plumed_file(self):
+        """Test that the plumed file is required"""
+        self.editable_inputs.pop("plumed_file")
+        with self.assertRaises(ValueError, msg="No plumed file should fail"):
+            e = AbstractEngineMock(self.editable_inputs)
+
+        # Non-matching engine name should fail
+        self.editable_inputs["plumed_file"] = "NONEXISTENT PLUMED FILE"
+        with self.assertRaises(ValueError,
+                               msg="non existent plumed file should fail"):
+            e = AbstractEngineMock(self.editable_inputs)
+
     def test_valid_input_words(self):
         """Test valid inputs are accepted
         """
