@@ -1,4 +1,5 @@
 import filecmp
+import copy
 import os
 import shutil
 import tempfile
@@ -25,16 +26,29 @@ class CP2KEngineTestCase(TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.engine = None
-
-    def setUp(self) -> None:
         self.engine = CP2KEngine({"engine": ENG_STR,
                                   "cp2k_inputs": TEST_INPUT,
                                   "cmd": TEST_CMD})
+
+        # Save the original inputs so we don't have to parse the input file
+        # every time
+        self.original_inputs = self.engine.cp2k_inputs
+
         self.assertEqual(len(self.engine.atoms), 2)
+
+    def setUp(self) -> None:
+        # Instead of parsing the input file, deep copy the original inputs for
+        # the beginning of each test.
+
+        # Drastically reduces test time (~1sec to ~ms)
+        self.engine.cp2k_inputs = copy.deepcopy(self.original_inputs)
 
 
 class TestCP2KEngineValidation(TestCase):
+    """
+    Tests for the actual parsing and construction of the cp2k inputs, which
+    cannot rely on the saved copy in memory.
+    """
     def test_engine_name(self):
         """
         Engine name should match cp2k to be used with cp2k class
