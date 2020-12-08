@@ -1,5 +1,5 @@
-import filecmp
 import copy
+import filecmp
 import os
 import shutil
 import tempfile
@@ -14,11 +14,15 @@ ENG_STR = "cp2k"
 CUR_DIR = os.path.dirname(__file__)
 TEST_INPUT = os.path.join(CUR_DIR, "test_data/test_cp2k.inp")
 TEST_OUTPUT = os.path.join(CUR_DIR, "test_data/test_cp2k_warnings.out")
+TEST_PLUMED_FILE = os.path.join(CUR_DIR, "test_data/test_plumed.dat")
 TEST_CMD = "test cmd"
 
+CORRECT_INPUTS = {"engine": ENG_STR,
+                  "cp2k_inputs": TEST_INPUT,
+                  "cmd": TEST_CMD,
+                  "plumed_file": TEST_PLUMED_FILE}
 
-# Parsing the input into memory for every test makes these pretty slow ~1s each,
-# we may consider changing this if the number of tests becomes prohibitive
+
 class CP2KEngineTestCase(TestCase):
     """
     TestCase subclass that sets up a valid CP2K engine before each test
@@ -26,13 +30,11 @@ class CP2KEngineTestCase(TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.engine = CP2KEngine({"engine": ENG_STR,
-                                  "cp2k_inputs": TEST_INPUT,
-                                  "cmd": TEST_CMD})
+        self.engine = CP2KEngine(CORRECT_INPUTS)
 
         # Save the original inputs so we don't have to parse the input file
         # every time
-        self.original_inputs = self.engine.cp2k_inputs
+        self.original_cp2k_inputs = self.engine.cp2k_inputs
 
         self.assertEqual(len(self.engine.atoms), 2)
 
@@ -41,7 +43,7 @@ class CP2KEngineTestCase(TestCase):
         # the beginning of each test.
 
         # Drastically reduces test time (~1sec to ~ms)
-        self.engine.cp2k_inputs = copy.deepcopy(self.original_inputs)
+        self.engine.cp2k_inputs = copy.deepcopy(self.original_cp2k_inputs)
 
 
 class TestCP2KEngineValidation(TestCase):
@@ -49,53 +51,28 @@ class TestCP2KEngineValidation(TestCase):
     Tests for the actual parsing and construction of the cp2k inputs, which
     cannot rely on the saved copy in memory.
     """
-    def test_engine_name(self):
-        """
-        Engine name should match cp2k to be used with cp2k class
-        """
-        # Invalid name will raise exception
-        with self.assertRaises(ValueError, msg="Empty engine name should fail"):
-            e = CP2KEngine({"engine": "",
-                            "cp2k_inputs": TEST_INPUT,
-                            "cmd": TEST_CMD})
 
-        # Valid engine name should pass
-        e = CP2KEngine({"engine": ENG_STR,
-                        "cp2k_inputs": TEST_INPUT,
-                        "cmd": TEST_CMD})
-        self.assertIsNotNone(e, f"{ENG_STR} should be valid")
-
-    def test_cmd(self):
+    def setUp(self) -> None:
+        """Setup a copy of the correct inputs for each test that can be modified
+        to test whatever it wants.
         """
-        Command should be a string
-        """
-        # Invalid name will raise exception
-        with self.assertRaises(ValueError, msg="Empty engine name should fail"):
-            e = CP2KEngine({"engine": ENG_STR,
-                            "cp2k_inputs": TEST_INPUT})
-
-        # Valid engine name should pass
-        e = CP2KEngine({"engine": ENG_STR,
-                        "cp2k_inputs": TEST_INPUT,
-                        "cmd": TEST_CMD})
-        self.assertIsNotNone(e, f"{TEST_CMD} should be valid")
+        self.editable_inputs = copy.deepcopy(CORRECT_INPUTS)
 
     def test_missing_input_file(self):
         """
         Check that missing input field or file fails
         """
         # Missing input field
+        self.editable_inputs.pop("cp2k_inputs")
         with self.assertRaises(ValueError,
                                msg="Missing input field should fail"):
-            e = CP2KEngine({"engine": ENG_STR,
-                            "cmd": TEST_CMD})
+            e = CP2KEngine(self.editable_inputs)
 
         # Input file does not exist
+        self.editable_inputs["cp2k_inputs"] = "non_existent_file"
         with self.assertRaises(ValueError,
                                msg="Non-existent input file should fail"):
-            e = CP2KEngine({"engine": ENG_STR,
-                            "cp2k_inputs": "non_existent_file",
-                            "cmd": TEST_CMD})
+            e = CP2KEngine(self.editable_inputs)
 
     def test_invalid_input_file(self):
         """
@@ -115,39 +92,15 @@ class TestCP2KEngineValidation(TestCase):
             # Check that the invalid temp file fails
             with self.assertRaises(ValueError,
                                    msg="Invalid CP2K input should fail"):
-                e = CP2KEngine({"engine": ENG_STR,
-                                "cp2k_inputs": temp_file.name,
-                                "cmd": TEST_CMD})
+                self.editable_inputs["cp2k_inputs"] = temp_file.name
+                e = CP2KEngine(self.editable_inputs)
 
     def test_valid_input_file(self):
         """
         Provided input file should be valid
         """
-        self.assertIsNotNone(CP2KEngine({"engine": ENG_STR,
-                                         "cp2k_inputs": TEST_INPUT,
-                                         "cmd": TEST_CMD}),
+        self.assertIsNotNone(CP2KEngine(CORRECT_INPUTS),
                              msg="Test input should be valid")
-
-
-class TestCP2KEngineWorkingDirectory(TestCase):
-    def test_non_existing_dir_throws(self):
-        with self.assertRaises(ValueError,
-                               msg="Non-existent directory should fail"):
-            e = CP2KEngine({"engine": ENG_STR,
-                            "cp2k_inputs": TEST_INPUT,
-                            "cmd": TEST_CMD}, "NON_EXISTENT_DIR")
-
-    def test_no_working_dir_sets_current(self):
-        e = CP2KEngine({"engine": ENG_STR,
-                        "cp2k_inputs": TEST_INPUT,
-                        "cmd": TEST_CMD})
-        self.assertEqual(e.working_dir, ".", "expected to be current directory")
-
-    def test_working_dir_is_set(self):
-        e = CP2KEngine({"engine": ENG_STR,
-                        "cp2k_inputs": TEST_INPUT,
-                        "cmd": TEST_CMD}, CUR_DIR)
-        self.assertEqual(e.working_dir, CUR_DIR)
 
 
 class TestCP2KEngineAtoms(CP2KEngineTestCase):
@@ -212,9 +165,10 @@ class TestCP2KEnginePositions(CP2KEngineTestCase):
         with tempfile.NamedTemporaryFile() as temp_file:
             write_cp2k_input(self.engine.cp2k_inputs, temp_file.name)
 
-            new_engine = CP2KEngine({"engine": ENG_STR,
-                                     "cp2k_inputs": temp_file.name,
-                                     "cmd": TEST_CMD})
+            # Load positions from the saved temp file
+            copied_inputs = copy.deepcopy(CORRECT_INPUTS)
+            copied_inputs["cp2k_inputs"] = temp_file.name
+            new_engine = CP2KEngine(copied_inputs)
 
             self._compare_positions(pos, new_engine)
 
@@ -281,9 +235,10 @@ class TestCP2KEngineVelocities(CP2KEngineTestCase):
         with tempfile.NamedTemporaryFile() as temp_file:
             write_cp2k_input(self.engine.cp2k_inputs, temp_file.name)
 
-            new_engine = CP2KEngine({"engine": ENG_STR,
-                                     "cp2k_inputs": temp_file.name,
-                                     "cmd": TEST_CMD})
+            # Load velocities from the saved temp file
+            copied_inputs = copy.deepcopy(CORRECT_INPUTS)
+            copied_inputs["cp2k_inputs"] = temp_file.name
+            new_engine = CP2KEngine(copied_inputs)
 
             self._compare_velocities(vel, new_engine)
 
@@ -336,5 +291,3 @@ class TestCP2KOutputHandler(TestCase):
     def test_output_handler_catches_warnings(self):
         self.assertEqual(len(self.out_handler.check_warnings()), 1,
                          "Warnings were not caught")
-
-
