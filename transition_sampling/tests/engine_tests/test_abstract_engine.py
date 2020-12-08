@@ -14,6 +14,12 @@ TEST_PLUMED_FILE = os.path.join(CUR_DIR, "test_data/test_plumed.dat")
 
 
 class AbstractEngineTestCase(TestCase):
+    """Sets up editable inputs.
+
+    Here we define one "correct" set of inputs. For each test, we deep copy it
+    to an "editable inputs" that are allowed to be modified in whatever way the
+    test needs.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.correct_inputs = {"engine": TEST_ENG_STR,
@@ -28,9 +34,8 @@ class AbstractEngineMock(AbstractEngine):
     """Class to test the methods given by AbstractEngine.
 
     Methods we don't care about testing are simply passed to allow full
-    implementation of the abstract class, otherwise, the base method is called.
+    implementation of the abstract class, otherwise the base method is called.
     """
-
     def __init__(self, inputs: dict, working_dir: str = None):
         super().__init__(inputs, working_dir)
 
@@ -87,6 +92,11 @@ class TestAbstractEngineValidation(AbstractEngineTestCase):
         with self.assertRaises(ValueError,
                                msg="Invalid engine name should fail"):
             e = AbstractEngineMock(self.editable_inputs)
+
+    def test_valid_input_words(self):
+        """Test valid inputs are accepted
+        """
+        self.assertIsNotNone(AbstractEngineMock(self.correct_inputs))
 
 
 class TestCP2KEngineWorkingDirectory(AbstractEngineTestCase):
