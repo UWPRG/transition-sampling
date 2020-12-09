@@ -2,6 +2,7 @@
 Collection of classes and methods for handling the committor sections of plumed
 used during the shooting point generation.
 """
+from __future__ import annotations
 
 import os
 import re
