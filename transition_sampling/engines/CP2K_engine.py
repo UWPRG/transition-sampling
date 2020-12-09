@@ -22,10 +22,12 @@ class CP2KEngine(AbstractEngine):
         super().__init__(inputs, working_dir)
 
         self._atoms = None
-        self.cmd = inputs["cmd"].split()
         with open(inputs["cp2k_inputs"]) as f:
             parser = CP2KInputParser()
             self.cp2k_inputs = parser.parse(f)
+
+        # Set up the free energy section to use plumed if not present
+        self._init_free_energy_section()
 
     @property
     def atoms(self) -> Sequence[str]:
@@ -128,6 +130,11 @@ class CP2KEngine(AbstractEngine):
         # Assign the unique project name
         self.cp2k_inputs["+global"]["project_name"] = projname
 
+        # Write the plumed file to the working directory location and set it
+        plumed_path = os.path.join(self.working_dir, f"{projname}_plumed.dat")
+        self.set_plumed_file(plumed_path)
+        self.plumed_handler.write_plumed(plumed_path, f"{projname}_plumed.out")
+
         # Write the input to the working directory location
         input_path = os.path.join(self.working_dir, f"{projname}.inp")
         write_cp2k_input(self.cp2k_inputs, input_path)
@@ -189,6 +196,17 @@ class CP2KEngine(AbstractEngine):
             for j in range(3):
                 vel[i][j] = -1 * vel[i][j]
 
+    def set_plumed_file(self, plumed_file_path: str) -> None:
+        """Set the plumed input file to the passed path
+
+        Parameters
+        ----------
+        plumed_file_path
+            The full path of the plumed input file
+        """
+        metadyn = self._get_metadyn()
+        metadyn["plumed_input_file"] = plumed_file_path
+
     def _get_subsys(self) -> dict:
         """Gets the subsys section of the stored cp2k inputs
 
@@ -200,7 +218,7 @@ class CP2KEngine(AbstractEngine):
         """
         return self.cp2k_inputs["+force_eval"][0]["+subsys"]
 
-    def _get_coord(self) -> Sequence[str]:
+    def _get_coord(self) -> list[str]:
         """Gets the coord section of the stored cp2k inputs.
 
         Coordinates are represented as a list of strings, where each string
@@ -214,7 +232,7 @@ class CP2KEngine(AbstractEngine):
         """
         return self._get_subsys()["+coord"]["*"]
 
-    def _get_velocity(self) -> list:
+    def _get_velocity(self) -> list[list[float, float, float]]:
         """Gets the velocity section of the stored cp2k inputs.
 
         Velocities are represented as a list of lists, where the outer index
@@ -231,9 +249,50 @@ class CP2KEngine(AbstractEngine):
         subsys = self._get_subsys()
         if "+velocity" not in subsys:
             subsys["+velocity"] = {
-                "*": [[0, 0, 0] for i in range(len(self.atoms))]}
+                "*": [[0, 0, 0] for _ in range(len(self.atoms))]}
 
         return subsys["+velocity"]["*"]
+
+    def _get_metadyn(self) -> dict:
+        """Gets the metadyn section of the stored cp2k inputs
+
+        This is a direct reference that can be used to modify the state. Note
+        that `_init_free_energy_section()` should be called before this to
+        ensure the needed dictionaries are set up.
+
+        Returns
+        -------
+        metadyn dictionary
+        """
+        # Try to read this section. If it wasn't setup, catch the key error, set
+        # it up, and return again.
+        try:
+            return self.cp2k_inputs["+motion"]["+free_energy"]["+metadyn"]
+        except KeyError as e:
+            self._init_free_energy_section()
+            return self.cp2k_inputs["+motion"]["+free_energy"]["+metadyn"]
+
+    def _init_free_energy_section(self) -> None:
+        """Set up the free energy section of the cp2k input to use plumed.
+
+        The plumed file path needs to be under motion/freeenergy/metadyn, so if
+        this section was not present in the input it needs to be created and set
+        to use plumed. Performs a merge, the only setting that will be
+        explicitly overwritten is a "used_plumed"
+        """
+        motion_sect = self.cp2k_inputs["+motion"]
+
+        if "+free_energy" in motion_sect:
+            # If metadynamics section isn't present, create it
+            if "+metadyn" not in motion_sect["+free_energy"]:
+                motion_sect["+free_energy"]["+metadyn"] = {}
+
+            # Ensure that use plumed is set to true no matter what.
+            motion_sect["+free_energy"]["+metadyn"]["use_plumed"] = True
+
+        else:
+            motion_sect["+free_energy"] = {"+metadyn": {"use_plumed": True}
+                                           }
 
 
 def write_cp2k_input(cp2k_inputs: dict, filename: str) -> None:

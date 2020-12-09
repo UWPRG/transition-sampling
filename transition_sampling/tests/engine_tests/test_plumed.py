@@ -1,8 +1,7 @@
-from unittest import TestCase
 import filecmp
 import os
-import shutil
 import tempfile
+from unittest import TestCase
 
 from engines import PlumedInputHandler
 
@@ -24,7 +23,14 @@ class TestPlumedOutputWriting(TestCase):
     def tearDown(self) -> None:
         self.tempfile.close()
 
+    def test_non_existent_file(self):
+        """Test that the plumed file must exist"""
+        with self.assertRaises(ValueError,
+                               msg="A non-existent file should fail"):
+            PlumedInputHandler("NON EXISTENT FILE")
+
     def test_plumed_no_committor(self):
+        """Test that a plumed file missing the COMMITTOR fails"""
         no_committor = os.path.join(PLUMED_DATA_DIR, "no_committor.dat")
 
         with self.assertRaises(ValueError,
@@ -33,18 +39,17 @@ class TestPlumedOutputWriting(TestCase):
             PlumedInputHandler(no_committor)
 
     def test_plumed_multiple_committors(self):
+        """Test plumed file with multiple COMMITTORS fails"""
         mult_committors = os.path.join(PLUMED_DATA_DIR, "two_committors.dat")
         with self.assertRaises(ValueError,
                                msg="A plumed file with multiple committors "
                                    "should fail"):
             PlumedInputHandler(mult_committors)
 
-    def test_non_existent_file(self):
-        with self.assertRaises(ValueError,
-                               msg="A non-existent file should fail"):
-            PlumedInputHandler("NON EXISTENT FILE")
-
     def test_insertion_one_line(self):
+        """Test that the FILE arg is inserted correctly when the COMMITTOR
+            spans one line
+        """
         one_line = os.path.join(PLUMED_DATA_DIR, "one_line_committor_base.dat")
         correct = os.path.join(PLUMED_DATA_DIR,
                                "one_line_committor_correct.dat")
@@ -56,6 +61,9 @@ class TestPlumedOutputWriting(TestCase):
                         "Files are expected to be equal")
 
     def test_insertion_multi_line(self):
+        """Test that the FILE arg is inserted correctly when the COMMITTOR
+            multiple lines with the ... format.
+        """
         multi_line = os.path.join(PLUMED_DATA_DIR,
                                   "multi_line_committor_base.dat")
         correct = os.path.join(PLUMED_DATA_DIR,
