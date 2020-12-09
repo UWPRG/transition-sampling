@@ -9,6 +9,8 @@ from typing import Sequence, Tuple
 
 import numpy as np
 
+from .plumed import PlumedInputHandler
+
 
 class ShootingResult:
     def __init__(self):
@@ -50,7 +52,11 @@ class AbstractEngine(ABC):
         if not validation_res[0]:
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
 
-        self.plumed_file = inputs["plumed_file"]
+        # Split command into a list of args
+        self.cmd = inputs["cmd"].split()
+
+        # Create the plumed handler for the give plumed file
+        self.plumed_handler = PlumedInputHandler(inputs["plumed_file"])
 
         if working_dir is not None and not os.path.isdir(working_dir):
             raise ValueError(f"{working_dir} is not a directory")

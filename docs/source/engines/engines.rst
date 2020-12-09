@@ -64,3 +64,8 @@ the inputs. In particular, these are
 
     .. note::
         Take care that PLUMED has its atoms indexed starting at 1.
+
+    An equivalent plumed file with the ``COMMITTOR`` on one line could also be used::
+
+        d1:  DISTANCE ATOMS=1,2
+        COMMITTOR ARG=d1 BASIN_LL1=0 BASIN_UL1=.15 BASIN_LL2=1 BASIN_UL2=100
