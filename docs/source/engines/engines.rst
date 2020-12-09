@@ -44,7 +44,7 @@ the inputs. In particular, these are
 
     * ``"cmd": "/path/to/cp2k/exec -i my_input_file -o my_output_file"`` - arguments after the engine executable should be left to the module
 
-``plumed_file`` - the path the `PLUMED <https://www.plumed.org/>`_ file with the committor basins for the system
+``plumed_file`` - the path to the `PLUMED <https://www.plumed.org/>`_ file with the committor basins for the system
     The plumed file that defines the basins associated with a complete reaction. This should
     stop the system when the simulation commits to a basin (``NOSTOP=off``, the default) and the output
     file name should not be defined (``FILE`` not specified). See
