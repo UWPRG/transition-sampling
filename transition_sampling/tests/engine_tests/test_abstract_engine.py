@@ -10,7 +10,7 @@ from engines import AbstractEngine, ShootingResult
 TEST_ENG_STR = "TEST_ENGINE"
 TEST_CMD = "test cmd"
 CUR_DIR = os.path.dirname(__file__)
-TEST_PLUMED_FILE = os.path.join(CUR_DIR, "test_data/cp2k/test_plumed.dat")
+TEST_PLUMED_FILE = os.path.join(CUR_DIR, "cp2k_tests/test_data/test_plumed.dat")
 
 
 class AbstractEngineTestCase(TestCase):
