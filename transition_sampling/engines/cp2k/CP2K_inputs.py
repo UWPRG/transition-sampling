@@ -4,6 +4,23 @@ from cp2k_input_tools.parser import CP2KInputParser
 
 
 class CP2KInputsHandler:
+    """Handles manipulating the raw CP2K Inputs data structure.
+
+    This class parses a CP2K inputs file into a memory, then supplies methods
+    for altering it. The original file is not modified. Once the in-memory
+    inputs have been changed, the current state can be written out into an
+    equivalent CP2K inputs file.
+
+    Parameters
+    ----------
+    cp2k_inputs_file
+        The cp2k inputs file that serves as a template for this class
+
+    Attributes
+    ----------
+    cp2k_dict : dict
+        The in-memory data structure representing the current inputs
+    """
 
     def __init__(self, cp2k_inputs_file: str):
         with open(cp2k_inputs_file) as f:
@@ -15,6 +32,14 @@ class CP2KInputsHandler:
 
     @property
     def atoms(self) -> list[str]:
+        """Get the atoms in this input
+
+        Gets the name of the atoms in the inputs as represented by CP2K.
+
+        Returns
+        -------
+        An ordered sequence of atoms in the inputs.
+        """
         if self._atoms is None:
             # TODO: How does this handle coordinates linked in a separate file?
             # Return the first two places for each coordinate entry
@@ -23,6 +48,16 @@ class CP2KInputsHandler:
         return self._atoms
 
     def set_positions(self, positions: np.ndarray) -> None:
+        """Set the positions of atoms in the inputs.
+
+        Positions are ordered for n atoms, in shape (n, 3). Rows represent atoms
+        and columns represent (x, y, z) dimensions.
+
+        Parameters
+        ----------
+        positions : np.ndarray with shape (n, 3)
+            The positions for atoms to be set to.
+        """
         # coords stored as list of "El x y z" strings, same as CP2K .inp file
         coords = self._get_coord()
 
@@ -32,6 +67,16 @@ class CP2KInputsHandler:
             coords[i] = f"{self.atoms[i]} {pos_str}"
 
     def set_velocities(self, velocities: np.ndarray) -> None:
+        """Set the velocities of atoms in the inputs.
+
+        Velocities are ordered for n atoms, in shape (n, 3). Rows represent
+        atoms and columns represent (x, y, z) dimensions.
+
+        Parameters
+        ----------
+        velocities : np.ndarray with shape (n, 3)
+            The positions for atoms to be set to.
+        """
         vel = self._get_velocity()
 
         # Assign all the velocities
@@ -48,6 +93,13 @@ class CP2KInputsHandler:
                 vel[i][j] = -1 * vel[i][j]
 
     def set_project_name(self, projname: str) -> None:
+        """Set the CP2K project name of the inputs
+
+        Parameters
+        ----------
+        projname
+            The project name to be set
+        """
         self.cp2k_dict["+global"]["project_name"] = projname
 
     def set_plumed_file(self, plumed_file_path: str) -> None:
@@ -62,7 +114,7 @@ class CP2KInputsHandler:
         metadyn["plumed_input_file"] = plumed_file_path
 
     def write_cp2k_inputs(self, filename: str) -> None:
-        """Write the current state of cp2k inputs to the passed file name.
+        """Write the current state of the inputs to the passed file name.
 
         Creates the standard cp2k input format. Overwrites anything present.
 

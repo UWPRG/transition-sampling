@@ -1,7 +1,7 @@
+import os
+import shutil
 from typing import Sequence
 
-import shutil
-import os
 from cp2k_output_tools.blocks.warnings import match_warnings
 
 

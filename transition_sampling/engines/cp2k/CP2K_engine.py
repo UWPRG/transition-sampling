@@ -65,6 +65,17 @@ class CP2KEngine(AbstractEngine):
         # Wait until both tasks are complete
         result = await asyncio.gather(asyncio.gather(*tasks))
 
+    @property
+    def delta_t(self) -> float:
+        pass
+
+    @delta_t.setter
+    def delta_t(self, value: float) -> None:
+        pass
+
+    def get_engine_str(self) -> str:
+        return "cp2k"
+
     async def _launch_traj_fwd(self, projname: str):
         """Launch a trajectory in the forwards direction
 
@@ -154,16 +165,3 @@ class CP2KEngine(AbstractEngine):
             # TODO: Log warnings better
             logging.warning("CP2K run of %s generated warnings: %s",
                             projname, warnings)
-
-    @property
-    def delta_t(self) -> float:
-        pass
-
-    @delta_t.setter
-    def delta_t(self, value: float) -> None:
-        pass
-
-    def get_engine_str(self) -> str:
-        return "cp2k"
-
-
