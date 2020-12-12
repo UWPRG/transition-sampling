@@ -12,9 +12,9 @@ from engines.CP2K_engine import write_cp2k_input, CP2KOutputHandler
 
 ENG_STR = "cp2k"
 CUR_DIR = os.path.dirname(__file__)
-TEST_INPUT = os.path.join(CUR_DIR, "test_data/test_cp2k.inp")
-TEST_OUTPUT = os.path.join(CUR_DIR, "test_data/test_cp2k_warnings.out")
-TEST_PLUMED_FILE = os.path.join(CUR_DIR, "test_data/test_plumed.dat")
+TEST_INPUT = os.path.join(CUR_DIR, "test_data/cp2k/test_cp2k.inp")
+TEST_OUTPUT = os.path.join(CUR_DIR, "test_data/cp2k/test_cp2k_warnings.out")
+TEST_PLUMED_FILE = os.path.join(CUR_DIR, "test_data/cp2k/test_plumed.dat")
 TEST_CMD = "test cmd"
 
 CORRECT_INPUTS = {"engine": ENG_STR,
@@ -270,10 +270,26 @@ class TestCP2KEngineVelocities(CP2KEngineTestCase):
             self.assertListEqual(v, s, "Velocities were not equal")
 
 
+class TestCP2KEngineWritePlumed(CP2KEngineTestCase):
+    """Tests for CP2KEngine interactions with plumed"""
+    def test_plumed_set_file_in_cp2k_inputs(self):
+        """Ensure the plumed file name gets set in the inputs"""
+        file_name = "TEST_FILE"
+        self.engine.set_plumed_file(file_name)
+
+        # access the internal representation
+        metad = self.engine.cp2k_inputs["+motion"]["+free_energy"]["+metadyn"]
+
+        self.assertEqual(metad["plumed_input_file"], file_name,
+                         msg="Plumed file name not correct")
+
+        self.assertTrue(metad["use_plumed"], msg="Use plumed was not true")
+
+
 class TestCP2KOutputHandler(TestCase):
 
     def setUp(self) -> None:
-        test_dir = os.path.join(CUR_DIR, "test_data/")
+        test_dir = os.path.join(CUR_DIR, "test_data/cp2k")
         self.out_handler = CP2KOutputHandler("test_cp2k_warnings", test_dir)
 
     def test_output_handler_builds_path(self):
