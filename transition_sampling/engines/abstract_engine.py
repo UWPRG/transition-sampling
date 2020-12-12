@@ -25,6 +25,43 @@ class ShootingResult:
 
 
 class AbstractEngine(ABC):
+    """Base class for all concrete engine implementations.
+
+    This class defines the methods that an engine is required to implement in
+    order to be used  in the aimless shooting algorithm. Each engine can define
+    what fields are required for its `inputs`, and should override
+    `validate_inputs` to ensure that these are true.
+
+    Things in common that all engines will have:
+        - A plumed input handler for adjusting the plumed COMMITTOR
+        - A working directory where all temporary files should be stored
+        - A command to execute the engine with
+
+    Parameters
+    ----------
+    inputs
+        Dictionary of inputs required for the engine. See engine specific
+        documentation for more detail.
+    working_dir
+        The directory that all temporary input/output files will be placed
+        in. If not specified or is None, defaults to the current directory.
+
+    Attributes
+    ----------
+    cmd : list[str]
+        A list of tokens that when joined by spaces, represent the command to
+        invoke the actual engine. Additional leading arguments such as mpirun
+        can be included.
+    plumed_handler : PlumedInputHandler
+        Handler for the passed input file. The engine can set the FILE arg of
+        the COMMITTOR section with this and write the full input to a location
+
+    Raises
+    ------
+    ValueError
+        if inputs are not valid for the concrete engine class or if a given
+        working directory is not a real directory.
+    """
 
     @abstractmethod
     def __init__(self, inputs: dict, working_dir: str = None):

@@ -18,6 +18,28 @@ from . import CP2KInputsHandler, CP2KOutputHandler
 
 
 class CP2KEngine(AbstractEngine):
+    """
+    Engine implementation of CP2K.
+
+    Relevant docstrings for overridden methods can be found in the base class.
+
+    Parameters
+    ----------
+    inputs
+        In addition to the inputs required by AbstractEngine, CP2KEngine also
+        requires
+
+        - cp2k_inputs : str
+            The path to the CP2K inputs file to use for the simulations. This
+            file will not be modified
+
+    Attributes
+    ----------
+    cp2k_inputs : CP2KInputsHandler
+        The inputs associated with this engine. Used to do low level
+        manipulation of the inputs.
+    """
+
     def __init__(self, inputs: dict, working_dir: str = None):
         super().__init__(inputs, working_dir)
 
