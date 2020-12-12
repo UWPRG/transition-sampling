@@ -9,6 +9,8 @@ from typing import Sequence, Tuple
 
 import numpy as np
 
+from .plumed import PlumedInputHandler
+
 
 class ShootingResult:
     def __init__(self):
@@ -23,6 +25,43 @@ class ShootingResult:
 
 
 class AbstractEngine(ABC):
+    """Base class for all concrete engine implementations.
+
+    This class defines the methods that an engine is required to implement in
+    order to be used  in the aimless shooting algorithm. Each engine can define
+    what fields are required for its `inputs`, and should override
+    `validate_inputs` to ensure that these are true.
+
+    Things in common that all engines will have:
+        - A plumed input handler for adjusting the plumed COMMITTOR
+        - A working directory where all temporary files should be stored
+        - A command to execute the engine with
+
+    Parameters
+    ----------
+    inputs
+        Dictionary of inputs required for the engine. See engine specific
+        documentation for more detail.
+    working_dir
+        The directory that all temporary input/output files will be placed
+        in. If not specified or is None, defaults to the current directory.
+
+    Attributes
+    ----------
+    cmd : list[str]
+        A list of tokens that when joined by spaces, represent the command to
+        invoke the actual engine. Additional leading arguments such as mpirun
+        can be included.
+    plumed_handler : PlumedInputHandler
+        Handler for the passed input file. The engine can set the FILE arg of
+        the COMMITTOR section with this and write the full input to a location
+
+    Raises
+    ------
+    ValueError
+        if inputs are not valid for the concrete engine class or if a given
+        working directory is not a real directory.
+    """
 
     @abstractmethod
     def __init__(self, inputs: dict, working_dir: str = None):
@@ -49,6 +88,12 @@ class AbstractEngine(ABC):
         validation_res = self.validate_inputs(inputs)
         if not validation_res[0]:
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
+
+        # Split command into a list of args
+        self.cmd = inputs["cmd"].split()
+
+        # Create the plumed handler for the give plumed file
+        self.plumed_handler = PlumedInputHandler(inputs["plumed_file"])
 
         if working_dir is not None and not os.path.isdir(working_dir):
             raise ValueError(f"{working_dir} is not a directory")
@@ -150,6 +195,12 @@ class AbstractEngine(ABC):
 
         elif not isinstance(inputs["cmd"], str):
             return False, "cmd must be a string of space separated cmdline args"
+
+        elif "plumed_file" not in inputs:
+            return False, "plumed_file must be specified in inputs"
+
+        elif not os.path.isfile(inputs["plumed_file"]):
+            return False, "plumed file must a valid file"
 
         return True, ""
 
