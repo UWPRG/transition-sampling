@@ -2,6 +2,6 @@ transition_sampling
 ===================
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    transition_sampling

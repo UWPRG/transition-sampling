@@ -1,11 +1,11 @@
-transition\_sampling API
-========================
+transition\_sampling package
+============================
 
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
    transition_sampling.engines
 

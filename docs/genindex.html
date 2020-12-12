@@ -83,7 +83,7 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="engines/engines.html">MD Engines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transition_sampling.html">transition_sampling API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transition_sampling.html">transition_sampling package</a></li>
 </ul>
 
             
@@ -157,6 +157,7 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -169,12 +170,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine">AbstractEngine (class in transition_sampling.engines.abstract_engine)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.atoms">atoms() (transition_sampling.engines.abstract_engine.AbstractEngine property)</a>
 
       <ul>
-        <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KEngine.atoms">(transition_sampling.engines.CP2K_engine.CP2KEngine property)</a>
+        <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine.atoms">(transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine property)</a>
+</li>
+        <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler.atoms">(transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler property)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -183,15 +184,23 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KOutputHandler.check_warnings">check_warnings() (transition_sampling.engines.CP2K_engine.CP2KOutputHandler method)</a>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_outputs.CP2KOutputHandler.check_warnings">check_warnings() (transition_sampling.engines.cp2k.CP2K_outputs.CP2KOutputHandler method)</a>
 </li>
-      <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KOutputHandler.copy_out_file">copy_out_file() (transition_sampling.engines.CP2K_engine.CP2KOutputHandler method)</a>
+      <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.cmd">cmd (transition_sampling.engines.abstract_engine.AbstractEngine attribute)</a>
+</li>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_outputs.CP2KOutputHandler.copy_out_file">copy_out_file() (transition_sampling.engines.cp2k.CP2K_outputs.CP2KOutputHandler method)</a>
+</li>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler.cp2k_dict">cp2k_dict (transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KEngine">CP2KEngine (class in transition_sampling.engines.CP2K_engine)</a>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine.cp2k_inputs">cp2k_inputs (transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine attribute)</a>
 </li>
-      <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KOutputHandler">CP2KOutputHandler (class in transition_sampling.engines.CP2K_engine)</a>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine">CP2KEngine (class in transition_sampling.engines.cp2k.CP2K_engine)</a>
+</li>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler">CP2KInputsHandler (class in transition_sampling.engines.cp2k.CP2K_inputs)</a>
+</li>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_outputs.CP2KOutputHandler">CP2KOutputHandler (class in transition_sampling.engines.cp2k.CP2K_outputs)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -202,7 +211,7 @@
       <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.delta_t">delta_t() (transition_sampling.engines.abstract_engine.AbstractEngine property)</a>
 
       <ul>
-        <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KEngine.delta_t">(transition_sampling.engines.CP2K_engine.CP2KEngine property)</a>
+        <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine.delta_t">(transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine property)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -211,7 +220,7 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KEngine.flip_velocity">flip_velocity() (transition_sampling.engines.CP2K_engine.CP2KEngine method)</a>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler.flip_velocity">flip_velocity() (transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -222,12 +231,12 @@
       <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.get_engine_str">get_engine_str() (transition_sampling.engines.abstract_engine.AbstractEngine method)</a>
 
       <ul>
-        <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KEngine.get_engine_str">(transition_sampling.engines.CP2K_engine.CP2KEngine method)</a>
+        <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine.get_engine_str">(transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KOutputHandler.get_out_file">get_out_file() (transition_sampling.engines.CP2K_engine.CP2KOutputHandler method)</a>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_outputs.CP2KOutputHandler.get_out_file">get_out_file() (transition_sampling.engines.cp2k.CP2K_outputs.CP2KOutputHandler method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -245,9 +254,29 @@
 </li>
         <li><a href="transition_sampling.engines.html#module-transition_sampling.engines.abstract_engine">transition_sampling.engines.abstract_engine</a>
 </li>
-        <li><a href="transition_sampling.engines.html#module-transition_sampling.engines.CP2K_engine">transition_sampling.engines.CP2K_engine</a>
+        <li><a href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k">transition_sampling.engines.cp2k</a>
+</li>
+        <li><a href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k.CP2K_engine">transition_sampling.engines.cp2k.CP2K_engine</a>
+</li>
+        <li><a href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k.CP2K_inputs">transition_sampling.engines.cp2k.CP2K_inputs</a>
+</li>
+        <li><a href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k.CP2K_outputs">transition_sampling.engines.cp2k.CP2K_outputs</a>
+</li>
+        <li><a href="transition_sampling.engines.html#module-transition_sampling.engines.plumed">transition_sampling.engines.plumed</a>
 </li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.plumed_handler">plumed_handler (transition_sampling.engines.abstract_engine.AbstractEngine attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="transition_sampling.engines.html#transition_sampling.engines.plumed.PlumedInputHandler">PlumedInputHandler (class in transition_sampling.engines.plumed)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -257,7 +286,7 @@
       <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.run_shooting_point">run_shooting_point() (transition_sampling.engines.abstract_engine.AbstractEngine method)</a>
 
       <ul>
-        <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KEngine.run_shooting_point">(transition_sampling.engines.CP2K_engine.CP2KEngine method)</a>
+        <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine.run_shooting_point">(transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -266,18 +295,26 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler.set_plumed_file">set_plumed_file() (transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler method)</a>
+</li>
       <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.set_positions">set_positions() (transition_sampling.engines.abstract_engine.AbstractEngine method)</a>
 
       <ul>
-        <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KEngine.set_positions">(transition_sampling.engines.CP2K_engine.CP2KEngine method)</a>
+        <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine.set_positions">(transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine method)</a>
+</li>
+        <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler.set_positions">(transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler.set_project_name">set_project_name() (transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler method)</a>
+</li>
       <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.set_velocities">set_velocities() (transition_sampling.engines.abstract_engine.AbstractEngine method)</a>
 
       <ul>
-        <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KEngine.set_velocities">(transition_sampling.engines.CP2K_engine.CP2KEngine method)</a>
+        <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine.set_velocities">(transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine method)</a>
+</li>
+        <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler.set_velocities">(transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler method)</a>
 </li>
       </ul></li>
       <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.ShootingResult">ShootingResult (class in transition_sampling.engines.abstract_engine)</a>
@@ -302,8 +339,6 @@
         <li><a href="transition_sampling.engines.html#module-transition_sampling.engines">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     transition_sampling.engines.abstract_engine
 
@@ -312,10 +347,40 @@
 </li>
       </ul></li>
       <li>
-    transition_sampling.engines.CP2K_engine
+    transition_sampling.engines.cp2k
 
       <ul>
-        <li><a href="transition_sampling.engines.html#module-transition_sampling.engines.CP2K_engine">module</a>
+        <li><a href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    transition_sampling.engines.cp2k.CP2K_engine
+
+      <ul>
+        <li><a href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k.CP2K_engine">module</a>
+</li>
+      </ul></li>
+      <li>
+    transition_sampling.engines.cp2k.CP2K_inputs
+
+      <ul>
+        <li><a href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k.CP2K_inputs">module</a>
+</li>
+      </ul></li>
+      <li>
+    transition_sampling.engines.cp2k.CP2K_outputs
+
+      <ul>
+        <li><a href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k.CP2K_outputs">module</a>
+</li>
+      </ul></li>
+      <li>
+    transition_sampling.engines.plumed
+
+      <ul>
+        <li><a href="transition_sampling.engines.html#module-transition_sampling.engines.plumed">module</a>
 </li>
       </ul></li>
   </ul></td>
@@ -327,7 +392,7 @@
       <li><a href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.validate_inputs">validate_inputs() (transition_sampling.engines.abstract_engine.AbstractEngine method)</a>
 
       <ul>
-        <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.CP2KEngine.validate_inputs">(transition_sampling.engines.CP2K_engine.CP2KEngine method)</a>
+        <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine.validate_inputs">(transition_sampling.engines.cp2k.CP2K_engine.CP2KEngine method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -336,7 +401,11 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="transition_sampling.engines.html#transition_sampling.engines.CP2K_engine.write_cp2k_input">write_cp2k_input() (in module transition_sampling.engines.CP2K_engine)</a>
+      <li><a href="transition_sampling.engines.cp2k.html#transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler.write_cp2k_inputs">write_cp2k_inputs() (transition_sampling.engines.cp2k.CP2K_inputs.CP2KInputsHandler method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="transition_sampling.engines.html#transition_sampling.engines.plumed.PlumedInputHandler.write_plumed">write_plumed() (transition_sampling.engines.plumed.PlumedInputHandler method)</a>
 </li>
   </ul></td>
 </tr></table>
