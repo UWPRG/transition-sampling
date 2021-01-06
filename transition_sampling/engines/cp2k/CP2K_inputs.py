@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 from cp2k_input_tools.generator import CP2KInputGenerator
 from cp2k_input_tools.parser import CP2KInputParser
