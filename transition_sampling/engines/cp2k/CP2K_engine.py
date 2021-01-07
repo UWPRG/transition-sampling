@@ -47,6 +47,9 @@ class CP2KEngine(AbstractEngine):
 
         self.cp2k_inputs = CP2KInputsHandler(inputs["cp2k_inputs"])
 
+        # Make CP2K print trajectory after every delta_t amount of time
+        self.cp2k_inputs.set_print_freq(self._num_frames_in_dt())
+
     @property
     def atoms(self) -> Sequence[str]:
         return self.cp2k_inputs.atoms
@@ -88,14 +91,6 @@ class CP2KEngine(AbstractEngine):
 
         # Wait until both tasks are complete
         result = await asyncio.gather(asyncio.gather(*tasks))
-
-    @property
-    def delta_t(self) -> float:
-        pass
-
-    @delta_t.setter
-    def delta_t(self, value: float) -> None:
-        pass
 
     def get_engine_str(self) -> str:
         return "cp2k"
@@ -213,3 +208,14 @@ class CP2KEngine(AbstractEngine):
         pattern = os.path.join(self.working_dir, "core.*")
         for file in glob.glob(pattern):
             os.remove(file)
+
+    def _num_frames_in_dt(self) -> int:
+        """Calculates how many frames occur in delta_t based on sim. timestep
+
+        Returns
+        -------
+        The number of frames (to the nearest integer) that corresponds to one
+        delta_t amount of time
+        """
+        timestep = self.cp2k_inputs.read_timestep()
+        return int(np.round(self.delta_t / timestep))

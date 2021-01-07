@@ -2,7 +2,7 @@
 Abstract class interface defining what methods a valid engine must define in
 order to be used by the aimless shooting algorithm
 """
-
+import numbers
 import os
 from abc import ABC, abstractmethod
 from typing import Sequence, Tuple
@@ -94,6 +94,8 @@ class AbstractEngine(ABC):
 
         # Create the plumed handler for the give plumed file
         self.plumed_handler = PlumedInputHandler(inputs["plumed_file"])
+
+        self.delta_t = inputs["delta_t"]
 
         if working_dir is not None and not os.path.isdir(working_dir):
             raise ValueError(f"{working_dir} is not a directory")
@@ -202,6 +204,12 @@ class AbstractEngine(ABC):
         elif not os.path.isfile(inputs["plumed_file"]):
             return False, "plumed file must a valid file"
 
+        elif "delta_t" not in inputs:
+            return False, "delta_t must be specified in inputs"
+
+        elif not isinstance(inputs["delta_t"], numbers.Number):
+            return False, "delta_t must be a number"
+
         return True, ""
 
     @abstractmethod
@@ -219,31 +227,6 @@ class AbstractEngine(ABC):
         results of both simulations.
         """
         pass
-
-    @property
-    @abstractmethod
-    def delta_t(self) -> float:
-        """Get the time offset this engine is set to capture in seconds
-
-        Returns
-        -------
-        The time offset of this engine
-        """
-
-    @delta_t.setter
-    @abstractmethod
-    def delta_t(self, value: float) -> None:
-        """Set the time offset of this engine.
-
-        Set the value of the time offset of frame to save in seconds. If this
-        isn't a multiple of the engine's time step, the closest frame will be
-        taken.
-
-        Parameters
-        ----------
-        value:
-            Time offset in seconds
-        """
 
     @abstractmethod
     def get_engine_str(self) -> str:

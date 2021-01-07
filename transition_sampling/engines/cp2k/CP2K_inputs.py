@@ -115,6 +115,27 @@ class CP2KInputsHandler:
         metadyn = self._get_metadyn()
         metadyn["plumed_input_file"] = plumed_file_path
 
+    def set_print_freq(self, step: int) -> None:
+        """Set how often the position should be printed
+
+        Parameters
+        ----------
+        step
+            The number of MD steps between each print
+        """
+        print_dict = self._get_print()
+        print_dict["+trajectory"]["+each"] = {"md": step}
+
+    def read_timestep(self) -> float:
+        """Gets the time per frame in femtoseconds
+
+        Returns
+        -------
+        How many femtoseconds each frame is given
+        """
+        # TODO: Can this be specified in cp2k inputs as a different unit?
+        return self.cp2k_dict["+motion"]["+md"]["timestep"]
+
     def write_cp2k_inputs(self, filename: str) -> None:
         """Write the current state of the inputs to the passed file name.
 
@@ -216,3 +237,11 @@ class CP2KInputsHandler:
         else:
             motion_sect["+free_energy"] = {"+metadyn": {"use_plumed": True}
                                            }
+
+    def _get_print(self) -> dict:
+        """Get Motion/Print section of the cp2k inputs
+
+        Returns
+            print dictionary
+        """
+        return self.cp2k_dict["+motion"]["+print"][0]

@@ -24,7 +24,8 @@ class AbstractEngineTestCase(TestCase):
         super().__init__(*args, **kwargs)
         self.correct_inputs = {"engine": TEST_ENG_STR,
                                "cmd": TEST_CMD,
-                               "plumed_file": TEST_PLUMED_FILE}
+                               "plumed_file": TEST_PLUMED_FILE,
+                               "delta_t": 20}
 
     def setUp(self) -> None:
         self.editable_inputs = copy.deepcopy(self.correct_inputs)
@@ -53,10 +54,6 @@ class AbstractEngineMock(AbstractEngine):
         return super().validate_inputs(inputs)
 
     async def run_shooting_point(self) -> ShootingResult:
-        pass
-
-    @property
-    def delta_t(self) -> float:
         pass
 
     def get_engine_str(self) -> str:
