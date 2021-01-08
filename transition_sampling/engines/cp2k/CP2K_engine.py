@@ -4,6 +4,7 @@ Engine implementation of CP2K
 from __future__ import annotations
 
 import asyncio
+import glob
 import logging
 import os
 import subprocess
@@ -13,8 +14,9 @@ from typing import Sequence
 import numpy as np
 from cp2k_input_tools.parser import CP2KInputParser
 
-from ..abstract_engine import AbstractEngine, ShootingResult
 from . import CP2KInputsHandler, CP2KOutputHandler
+from .. import AbstractEngine, ShootingResult
+from ..plumed import PlumedOutputHandler
 
 
 class CP2KEngine(AbstractEngine):
@@ -141,12 +143,16 @@ class CP2KEngine(AbstractEngine):
         # Assign the unique project name
         self.cp2k_inputs.set_project_name(projname)
 
-        # Write the plumed file to the working directory location and set it
-        plumed_path = os.path.join(self.working_dir, f"{projname}_plumed.dat")
-        self.cp2k_inputs.set_plumed_file(plumed_path)
-        self.plumed_handler.write_plumed(plumed_path, f"{projname}_plumed.out")
+        # Set the plumed filename in cp2k
+        plumed_in_path = os.path.join(self.working_dir,
+                                      f"{projname}_plumed.dat")
+        self.cp2k_inputs.set_plumed_file(plumed_in_path)
 
-        # Write the input to the working directory location
+        # Set the name for the committor output and write the unique plumed file
+        plumed_out_name = f"{projname}_plumed.out"
+        self.plumed_handler.write_plumed(plumed_in_path, plumed_out_name)
+
+        # Write the cp2k input to the working directory location
         input_path = os.path.join(self.working_dir, f"{projname}.inp")
         self.cp2k_inputs.write_cp2k_inputs(input_path)
 
@@ -165,8 +171,10 @@ class CP2KEngine(AbstractEngine):
         # Create an output handler for errors and warnings
         output_handler = CP2KOutputHandler(projname, self.working_dir)
 
-        # Check if there was a fatal error
-        if proc.returncode != 0:
+        plumed_out_path = os.path.join(self.working_dir, plumed_out_name)
+        # Check if there was a fatal error that wasn't caused by a committing
+        # basin
+        if proc.returncode != 0 and not os.path.isfile(plumed_out_path):
             stdout, stderr = proc.communicate()
 
             # Copy the output file to a place we can see it
@@ -187,3 +195,21 @@ class CP2KEngine(AbstractEngine):
             # TODO: Log warnings better
             logging.warning("CP2K run of %s generated warnings: %s",
                             projname, warnings)
+
+        parser = PlumedOutputHandler(plumed_out_path)
+        basin = parser.check_basin()
+
+        # Currently if a trajectory commits to a basin, CP2K crashes and has a
+        # core dump. We clean up these core dumps here if necessary, but
+        # hopefully the stopping feature is implemented someday. This code
+        # should still work in that case
+        # TODO: Do something with these results
+        if basin is not None:
+            self._remove_core_dumps()
+            print(f"{projname} committed to basin {basin}.")
+
+    def _remove_core_dumps(self) -> None:
+        """Remove all core files from the working directory"""
+        pattern = os.path.join(self.working_dir, "core.*")
+        for file in glob.glob(pattern):
+            os.remove(file)
