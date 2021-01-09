@@ -48,7 +48,7 @@ class CP2KEngine(AbstractEngine):
         self.cp2k_inputs = CP2KInputsHandler(inputs["cp2k_inputs"])
 
         # Make CP2K print trajectory after every delta_t amount of time
-        self.cp2k_inputs.set_print_freq(self._num_frames_in_dt())
+        self.cp2k_inputs.set_traj_print_freq(self._num_frames_in_dt())
 
     @property
     def atoms(self) -> Sequence[str]:
@@ -146,6 +146,10 @@ class CP2KEngine(AbstractEngine):
         # Set the name for the committor output and write the unique plumed file
         plumed_out_name = f"{projname}_plumed.out"
         self.plumed_handler.write_plumed(plumed_in_path, plumed_out_name)
+
+        # Set the trajectory output name
+        traj_out_file = os.path.join(self.working_dir, f"{projname}.xyz")
+        self.cp2k_inputs.set_traj_print_file(traj_out_file)
 
         # Write the cp2k input to the working directory location
         input_path = os.path.join(self.working_dir, f"{projname}.inp")
