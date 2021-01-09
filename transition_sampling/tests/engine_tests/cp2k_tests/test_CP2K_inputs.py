@@ -201,7 +201,7 @@ class TestCP2KInputsTimeStep(CP2KInputsTestCase):
         self.assertEqual(traj["+each"]["md"], print_freq,
                          msg="Printing frequency was not assigned correctly")
 
-        self.assertEqual(traj["+filename"], filename,
+        self.assertEqual(traj["filename"], filename,
                          msg="Trajectory filename was not set correctly")
 
 

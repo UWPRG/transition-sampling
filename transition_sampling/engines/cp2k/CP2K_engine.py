@@ -148,7 +148,7 @@ class CP2KEngine(AbstractEngine):
         self.plumed_handler.write_plumed(plumed_in_path, plumed_out_name)
 
         # Set the trajectory output name
-        traj_out_file = os.path.join(self.working_dir, f"{projname}.xyz")
+        traj_out_file = os.path.join(self.working_dir, f"{projname}")
         self.cp2k_inputs.set_traj_print_file(traj_out_file)
 
         # Write the cp2k input to the working directory location

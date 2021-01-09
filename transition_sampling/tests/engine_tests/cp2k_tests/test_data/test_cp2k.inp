@@ -46,6 +46,7 @@
   &END MD
   &PRINT
    &TRAJECTORY
+     FILENAME file
      &EACH
        MD 1
      &END EACH

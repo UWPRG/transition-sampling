@@ -138,7 +138,9 @@ class CP2KInputsHandler:
         print_dict["+trajectory"]["+each"] = {"md": step}
 
     def set_traj_print_file(self, file_path: str) -> None:
-        """Set the file the traj will be printed to
+        """Set the file the traj will be printed to. Appended with -pos-1.xyz
+
+        Note that cp2k automatically appends -pos-1.xyz to this filename.
 
         Parameters
         ----------
@@ -146,7 +148,7 @@ class CP2KInputsHandler:
             The path the trajectory will be printed to
         """
         print_dict = self._get_print()
-        print_dict["+trajectory"]["+filename"] = file_path
+        print_dict["+trajectory"]["filename"] = file_path
 
     def read_timestep(self) -> float:
         """Gets the time per frame in femtoseconds
