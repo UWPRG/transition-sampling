@@ -37,6 +37,7 @@ class AbstractEngineMock(AbstractEngine):
     Methods we don't care about testing are simply passed to allow full
     implementation of the abstract class, otherwise the base method is called.
     """
+
     def __init__(self, inputs: dict, working_dir: str = None):
         super().__init__(inputs, working_dir)
 
@@ -54,6 +55,9 @@ class AbstractEngineMock(AbstractEngine):
         return super().validate_inputs(inputs)
 
     async def run_shooting_point(self) -> ShootingResult:
+        pass
+
+    def set_delta_t(self, value: float) -> None:
         pass
 
     def get_engine_str(self) -> str:

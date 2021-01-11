@@ -95,8 +95,6 @@ class AbstractEngine(ABC):
         # Create the plumed handler for the give plumed file
         self.plumed_handler = PlumedInputHandler(inputs["plumed_file"])
 
-        self.delta_t = inputs["delta_t"]
-
         if working_dir is not None and not os.path.isdir(working_dir):
             raise ValueError(f"{working_dir} is not a directory")
 
@@ -225,6 +223,19 @@ class AbstractEngine(ABC):
         -------
         The positions of the +/- dt frames, as well as the committing
         results of both simulations.
+        """
+        pass
+
+    @abstractmethod
+    def set_delta_t(self, value: float) -> None:
+        """Set the time offset of this engine.
+        Set the value of the time offset of frame to save in seconds. If this
+        isn't a multiple of the engine's time step, the closest frame will be
+        taken.
+        Parameters
+        ----------
+        value:
+            Time offset in seconds
         """
         pass
 
