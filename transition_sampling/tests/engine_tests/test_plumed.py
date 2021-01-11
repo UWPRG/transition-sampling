@@ -3,7 +3,7 @@ import os
 import tempfile
 from unittest import TestCase
 
-from engines import PlumedInputHandler, PlumedOutputHandler
+from transition_sampling.engines import PlumedInputHandler, PlumedOutputHandler
 
 CUR_DIR = os.path.dirname(__file__)
 PLUMED_DATA_DIR = os.path.join(CUR_DIR, "test_data/plumed")

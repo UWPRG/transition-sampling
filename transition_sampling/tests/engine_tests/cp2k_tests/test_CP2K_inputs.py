@@ -5,7 +5,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from engines.cp2k import CP2KInputsHandler
+from transition_sampling.engines.cp2k import CP2KInputsHandler
 
 CUR_DIR = os.path.dirname(__file__)
 TEST_INPUT = os.path.join(CUR_DIR, "test_data/test_cp2k.inp")

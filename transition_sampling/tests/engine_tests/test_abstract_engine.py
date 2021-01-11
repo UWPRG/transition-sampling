@@ -5,7 +5,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from engines import AbstractEngine, ShootingResult
+from transition_sampling.engines import AbstractEngine, ShootingResult
 
 TEST_ENG_STR = "TEST_ENGINE"
 TEST_CMD = "test cmd"

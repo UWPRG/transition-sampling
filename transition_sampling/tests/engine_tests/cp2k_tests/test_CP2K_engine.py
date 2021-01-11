@@ -6,7 +6,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from engines import CP2KEngine
+from transition_sampling.engines import CP2KEngine
 
 ENG_STR = "cp2k"
 CUR_DIR = os.path.dirname(__file__)
