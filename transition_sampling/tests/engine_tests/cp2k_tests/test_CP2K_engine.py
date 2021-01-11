@@ -13,11 +13,13 @@ CUR_DIR = os.path.dirname(__file__)
 TEST_INPUT = os.path.join(CUR_DIR, "test_data/test_cp2k.inp")
 TEST_PLUMED_FILE = os.path.join(CUR_DIR, "test_data/test_plumed.dat")
 TEST_CMD = "test cmd"
+TEST_DELTA_T = 20
 
 CORRECT_INPUTS = {"engine": ENG_STR,
                   "cp2k_inputs": TEST_INPUT,
                   "cmd": TEST_CMD,
-                  "plumed_file": TEST_PLUMED_FILE}
+                  "plumed_file": TEST_PLUMED_FILE,
+                  "delta_t": 20}
 
 
 class CP2KEngineTestCase(TestCase):

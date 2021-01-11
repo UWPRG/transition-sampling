@@ -45,8 +45,7 @@
     TEMPERATURE 85.0
   &END MD
   &PRINT
-   &TRAJECTORY
-     FILENAME file
+   &TRAJECTORY SILENT
      &EACH
        MD 1
      &END EACH

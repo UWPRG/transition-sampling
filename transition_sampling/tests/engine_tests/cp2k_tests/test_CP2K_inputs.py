@@ -139,7 +139,7 @@ class TestCP2KInputsVelocities(CP2KInputsTestCase):
 
 
 class TestCP2KInputsWritePlumed(CP2KInputsTestCase):
-    """Tests for CP2KEngine interactions with plumed"""
+    """Tests for CP2KInputs interactions with plumed"""
 
     def test_plumed_set_file_in_cp2k_inputs(self):
         """Ensure the plumed file name gets set in the inputs"""
@@ -153,3 +153,55 @@ class TestCP2KInputsWritePlumed(CP2KInputsTestCase):
                          msg="Plumed file name not correct")
 
         self.assertTrue(metad["use_plumed"], msg="Use plumed was not true")
+
+
+class TestCP2KInputsTimeStep(CP2KInputsTestCase):
+    """Tests for CP2KInputs interactions with reading the timestep"""
+
+    TEST_TRAJ_FILE = "test_traj.xyz"
+    TEST_SILENT_INPUT = os.path.join(CUR_DIR, "test_data/test_cp2k_silent.inp")
+
+    def test_read_time_step(self):
+        """Test that the time step is read correctly"""
+        self.assertEqual(5, self.inputs.read_timestep())
+
+    def test_set_print_frequency_nonpositive(self):
+        """Test that the frequency must be positive"""
+        with self.assertRaises(ValueError,
+                               msg="Negative values should not be allowed"):
+            self.inputs.set_traj_print_freq(-1)
+
+        with self.assertRaises(ValueError,
+                               msg="A value of 0 should not be allowed"):
+            self.inputs.set_traj_print_freq(0)
+
+    def test_set_print_frequency_non_int(self):
+        """Test that the frequency must be an integer"""
+        with self.assertRaises(ValueError,
+                               msg="Floats should not be allowed"):
+            self.inputs.set_traj_print_freq(1.5)
+
+    def test_set_print_silent_input(self):
+        """Test that any traj print level gets overwritten with LOW"""
+        silent_inputs = CP2KInputsHandler(self.TEST_SILENT_INPUT)
+
+        # internal rep
+        traj = silent_inputs.cp2k_dict["+motion"]["+print"][0]["+trajectory"]
+        self.assertEqual(traj["_"], "LOW", msg="Expected a low print level")
+
+    def test_set_print_correct(self):
+        """Test that both frequency and filename are assigned correctly"""
+        print_freq = 5
+        filename = "test file"
+        self.inputs.set_traj_print_freq(print_freq)
+        self.inputs.set_traj_print_file(filename)
+
+        # internal rep
+        traj = self.inputs.cp2k_dict["+motion"]["+print"][0]["+trajectory"]
+        self.assertEqual(traj["+each"]["md"], print_freq,
+                         msg="Printing frequency was not assigned correctly")
+
+        self.assertEqual(traj["filename"], filename,
+                         msg="Trajectory filename was not set correctly")
+
+

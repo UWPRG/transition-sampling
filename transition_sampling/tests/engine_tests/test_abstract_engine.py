@@ -24,7 +24,8 @@ class AbstractEngineTestCase(TestCase):
         super().__init__(*args, **kwargs)
         self.correct_inputs = {"engine": TEST_ENG_STR,
                                "cmd": TEST_CMD,
-                               "plumed_file": TEST_PLUMED_FILE}
+                               "plumed_file": TEST_PLUMED_FILE,
+                               "delta_t": 20}
 
     def setUp(self) -> None:
         self.editable_inputs = copy.deepcopy(self.correct_inputs)
@@ -36,6 +37,7 @@ class AbstractEngineMock(AbstractEngine):
     Methods we don't care about testing are simply passed to allow full
     implementation of the abstract class, otherwise the base method is called.
     """
+
     def __init__(self, inputs: dict, working_dir: str = None):
         super().__init__(inputs, working_dir)
 
@@ -55,8 +57,7 @@ class AbstractEngineMock(AbstractEngine):
     async def run_shooting_point(self) -> ShootingResult:
         pass
 
-    @property
-    def delta_t(self) -> float:
+    def set_delta_t(self, value: float) -> None:
         pass
 
     def get_engine_str(self) -> str:

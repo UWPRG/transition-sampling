@@ -31,6 +31,7 @@ class CP2KInputsHandler:
 
         self._atoms = None
         self._init_free_energy_section()
+        self._init_print_section()
 
     @property
     def atoms(self) -> list[str]:
@@ -114,6 +115,50 @@ class CP2KInputsHandler:
         """
         metadyn = self._get_metadyn()
         metadyn["plumed_input_file"] = plumed_file_path
+
+    def set_traj_print_freq(self, step: int) -> None:
+        """Set how often the trajectory should be printed
+
+        Parameters
+        ----------
+        step
+            The number of MD steps between each print. Must be an integer and
+            must be greater than 0
+
+        Raises
+        ------
+        ValueError
+            if step is not an integer or greater than 0
+        """
+        if not isinstance(step, int):
+            raise ValueError("Step must be an integer")
+        if step <= 0:
+            raise ValueError("Step must be greater than 0")
+        print_dict = self._get_print()
+        print_dict["+trajectory"]["+each"] = {"md": step}
+
+    def set_traj_print_file(self, file_path: str) -> None:
+        """Set the file the traj will be printed to. Appended with -pos-1.xyz
+
+        Note that cp2k automatically appends -pos-1.xyz to this filename.
+
+        Parameters
+        ----------
+        file_path
+            The path the trajectory will be printed to
+        """
+        print_dict = self._get_print()
+        print_dict["+trajectory"]["filename"] = file_path
+
+    def read_timestep(self) -> float:
+        """Gets the time per frame in femtoseconds
+
+        Returns
+        -------
+        How many femtoseconds each frame is given
+        """
+        # TODO: Can this be specified in cp2k inputs as a different unit?
+        return self.cp2k_dict["+motion"]["+md"]["timestep"]
 
     def write_cp2k_inputs(self, filename: str) -> None:
         """Write the current state of the inputs to the passed file name.
@@ -216,3 +261,31 @@ class CP2KInputsHandler:
         else:
             motion_sect["+free_energy"] = {"+metadyn": {"use_plumed": True}
                                            }
+
+    def _init_print_section(self) -> None:
+        """Set up the trajectory print section
+
+        Creates the print section if necessary and ensures that it has its
+        print level set to LOW.
+        """
+        motion_sect = self.cp2k_dict["+motion"]
+
+        if "+print" in motion_sect:
+            # If trajectory section isn't present, create it
+            if "+trajectory" not in motion_sect["+print"][0]:
+                motion_sect["+print"][0]["+trajectory"] = {}
+
+            # Ensure that trajectory will be printed no matter what.
+            motion_sect["+print"][0]["+trajectory"]["_"] = "LOW"
+
+        else:
+            motion_sect["+print"] = [{"+trajectory": {"_": "LOW"}
+                                      }]
+
+    def _get_print(self) -> dict:
+        """Get Motion/Print section of the cp2k inputs
+
+        Returns
+            print dictionary
+        """
+        return self.cp2k_dict["+motion"]["+print"][0]

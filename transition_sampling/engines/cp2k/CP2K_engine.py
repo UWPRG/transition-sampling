@@ -47,6 +47,8 @@ class CP2KEngine(AbstractEngine):
 
         self.cp2k_inputs = CP2KInputsHandler(inputs["cp2k_inputs"])
 
+        self.set_delta_t(inputs["delta_t"])
+
     @property
     def atoms(self) -> Sequence[str]:
         return self.cp2k_inputs.atoms
@@ -89,13 +91,14 @@ class CP2KEngine(AbstractEngine):
         # Wait until both tasks are complete
         result = await asyncio.gather(asyncio.gather(*tasks))
 
-    @property
-    def delta_t(self) -> float:
-        pass
+    def set_delta_t(self, value: float) -> None:
+        # Make CP2K print trajectory after every delta_t amount of time rounded
+        # to the nearest frame. We can then retrieve multiples of delta_t by
+        # looking at printed frames
+        timestep = self.cp2k_inputs.read_timestep()
+        frames_in_dt = int(np.round(value / timestep))
 
-    @delta_t.setter
-    def delta_t(self, value: float) -> None:
-        pass
+        self.cp2k_inputs.set_traj_print_freq(frames_in_dt)
 
     def get_engine_str(self) -> str:
         return "cp2k"
@@ -151,6 +154,10 @@ class CP2KEngine(AbstractEngine):
         # Set the name for the committor output and write the unique plumed file
         plumed_out_name = f"{projname}_plumed.out"
         self.plumed_handler.write_plumed(plumed_in_path, plumed_out_name)
+
+        # Set the trajectory output name
+        traj_out_file = os.path.join(self.working_dir, f"{projname}")
+        self.cp2k_inputs.set_traj_print_file(traj_out_file)
 
         # Write the cp2k input to the working directory location
         input_path = os.path.join(self.working_dir, f"{projname}.inp")
@@ -213,3 +220,4 @@ class CP2KEngine(AbstractEngine):
         pattern = os.path.join(self.working_dir, "core.*")
         for file in glob.glob(pattern):
             os.remove(file)
+
