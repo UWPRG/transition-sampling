@@ -45,7 +45,7 @@ class CP2KOutputHandler:
         -------
         Full path of output file
         """
-        return os.path.join(self.working_dir, f"{self.name}.out")
+        return self._build_full_path(f"{self.name}.out")
 
     def copy_out_file(self, new_location: str) -> None:
         """Copy the output file to a new location
@@ -69,7 +69,7 @@ class CP2KOutputHandler:
         EOFError
         If EOF was reached before the second frame
         """
-        with open(f"{self.name}-pos-1.xyz") as file:
+        with open(self._build_full_path(f"{self.name}-pos-1.xyz")) as file:
             # Skip the first printed frame at t=0
             _, eof = read_xyz_frame(file)
             if eof:
@@ -79,6 +79,20 @@ class CP2KOutputHandler:
             if eof:
                 raise EOFError("Second frame could not be read")
         return xyz
+
+    def _build_full_path(self, file: str) -> str:
+        """Takes a file name and returns the full path of it
+
+        Parameters
+        ----------
+        file
+            The name of the file, with no leading directories
+
+        Returns
+        -------
+        Full path (working_dir/file) of the given file
+        """
+        return os.path.join(self.working_dir, file)
 
 
 def read_xyz_frame(ifile: typing.IO) -> typing.Union[tuple[None, bool],
