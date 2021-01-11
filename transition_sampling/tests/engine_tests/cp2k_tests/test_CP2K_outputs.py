@@ -3,7 +3,7 @@ import os
 import tempfile
 from unittest import TestCase
 
-from engines.cp2k.CP2K_engine import CP2KOutputHandler
+from transition_sampling.engines.cp2k import CP2KOutputHandler
 
 CUR_DIR = os.path.dirname(__file__)
 TEST_OUTPUT = os.path.join(CUR_DIR, "test_data/test_cp2k_warnings.out")
