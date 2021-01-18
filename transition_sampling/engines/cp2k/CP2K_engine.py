@@ -128,7 +128,7 @@ class CP2KEngine(AbstractEngine):
         self.cp2k_inputs.flip_velocity()
         return await self._launch_traj(projname + "_rev")
 
-    async def _launch_traj(self, projname: str):
+    async def _launch_traj(self, projname: str) -> dict:
         """Launch a trajectory with the current state to completion.
 
         Launch a trajectory using the current state with the given command in
@@ -142,8 +142,7 @@ class CP2KEngine(AbstractEngine):
 
         Returns
         -------
-        dict
-            A dictionary with the keys:
+        A dictionary with the keys:
             "commit": basin integer the trajectory committed to or None if it
                 did not commit
             "frames": np.array with the +delta_t and +2delta_t xyz frames. Has

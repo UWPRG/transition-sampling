@@ -58,16 +58,17 @@ class CP2KOutputHandler:
         shutil.copyfile(self.get_out_file(), new_location)
 
     def read_frames_2_3(self) -> np.ndarray:
-        """Read the second (first t!=0) frame from the trajectory
+        """Read the second (first t!=0) and third frames from the trajectory
 
         Returns
         -------
-        Array of the xyz coordinates in the second frame
+        Array of the xyz coordinates in the second and third frame. Has the
+        shape (n_atoms, 3, 2).
 
         Raises
         ------
         EOFError
-        If EOF was reached before the second frame
+            If EOF was reached before the end of the third frame
         """
         with open(self._build_full_path(f"{self.name}-pos-1.xyz")) as file:
             # Skip the first printed frame at t=0
