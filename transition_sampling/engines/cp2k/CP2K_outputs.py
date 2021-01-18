@@ -57,7 +57,7 @@ class CP2KOutputHandler:
         """
         shutil.copyfile(self.get_out_file(), new_location)
 
-    def read_second_frame(self) -> np.ndarray:
+    def read_frames_2_3(self) -> np.ndarray:
         """Read the second (first t!=0) frame from the trajectory
 
         Returns
@@ -75,10 +75,13 @@ class CP2KOutputHandler:
             if eof:
                 raise EOFError("First frame could not be read")
             # return the next printed frame
-            xyz, eof = read_xyz_frame(file)
+            frame_2, eof = read_xyz_frame(file)
             if eof:
                 raise EOFError("Second frame could not be read")
-        return xyz
+            frame_3, eof = read_xyz_frame(file)
+            if eof:
+                raise EOFError("Third frame could not be read")
+        return np.array([frame_2, frame_3])
 
     def _build_full_path(self, file: str) -> str:
         """Takes a file name and returns the full path of it

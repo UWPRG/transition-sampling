@@ -158,7 +158,7 @@ class TestCP2KInputsWritePlumed(CP2KInputsTestCase):
 class TestCP2KInputsTimeStep(CP2KInputsTestCase):
     """Tests for CP2KInputs interactions with reading the timestep"""
 
-    TEST_TRAJ_FILE = "test_traj.xyz"
+    TEST_TRAJ_FILE = "test_cp2k-pos-1.xyz"
     TEST_SILENT_INPUT = os.path.join(CUR_DIR, "test_data/test_cp2k_silent.inp")
 
     def test_read_time_step(self):

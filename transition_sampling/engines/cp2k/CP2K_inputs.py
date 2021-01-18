@@ -157,7 +157,8 @@ class CP2KInputsHandler:
         -------
         How many femtoseconds each frame is given
         """
-        # TODO: Can this be specified in cp2k inputs as a different unit?
+        # The official cp2k parser will automatically turn different units into
+        # fs
         return self.cp2k_dict["+motion"]["+md"]["timestep"]
 
     def write_cp2k_inputs(self, filename: str) -> None:
