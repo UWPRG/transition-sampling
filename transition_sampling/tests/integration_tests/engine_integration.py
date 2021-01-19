@@ -29,26 +29,36 @@ class TestCP2KIntegration(TestCase):
         starting_pos = np.load(STARTING_POSITIONS)
         starting_vels = np.load(STARTING_VELOCITIES)
 
-        result_list = []
+        with open(RESULTS, "rb") as res:
+            expected = pickle.load(res)
 
         with tempfile.TemporaryDirectory() as directory:
             engine = CP2KEngine(INPUTS, directory)
-            for i in range(starting_pos.shape[2]):
+            for i, sr in enumerate(expected):
                 engine.set_positions(starting_pos[:, :, i])
                 engine.set_velocities(starting_vels[:, :, i])
                 result = asyncio.run(engine.run_shooting_point())
-                result_list.append(result)
+                self.assertEqual(sr.fwd["commit"], result.fwd["commit"])
+                self.assertEqual(sr.rev["commit"], result.rev["commit"])
+                self._compare_arrays(sr.fwd["frames"], result.fwd["frames"])
+                self._compare_arrays(sr.rev["frames"], result.rev["frames"])
 
-        with open(RESULTS, "wb") as out:
-            pickle.dump(result_list, out, pickle.HIGHEST_PROTOCOL)
+        # with open(RESULTS, "wb") as out:
+        #     pickle.dump(result_list, out, pickle.HIGHEST_PROTOCOL)
 
-    def _generate_starts(self):
-        n_tests = 5
-        positions = np.zeros((2, 3, n_tests))
-        positions[0, :, :] = np.random.normal(4, 1, (3, 5))
-        positions[1, :, :] = np.random.normal(9, 1, (3, 5))
+    def _compare_arrays(self, arr1, arr2):
+        arr1_flat = arr1.flatten()
+        arr2_flat = arr2.flatten()
+        for i in range(arr1_flat.size):
+            self.assertAlmostEqual(arr1_flat[i], arr2_flat[i], places=7)
 
-        velocities = np.random.normal(0, 0.1, (2, 3, 5))
 
-        np.save(os.path.join(CUR_DIR, "test_data/starting_pos.npy"), positions)
-        np.save(os.path.join(CUR_DIR, "test_data/starting_vels.npy"), velocities)
+def _generate_starts(n_tests):
+    positions = np.zeros((2, 3, n_tests))
+    positions[0, :, :] = np.random.normal(0, .1, (3, 5))
+    positions[1, :, :] = np.random.normal(9, .1, (3, 5))
+
+    velocities = np.random.normal(0, 0.05, (2, 3, 5))
+
+    np.save(os.path.join(CUR_DIR, "test_data/starting_pos.npy"), positions)
+    np.save(os.path.join(CUR_DIR, "test_data/starting_vels.npy"), velocities)

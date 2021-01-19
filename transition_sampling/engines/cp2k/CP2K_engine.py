@@ -89,7 +89,7 @@ class CP2KEngine(AbstractEngine):
                  self._launch_traj_rev(proj_name))
 
         # Wait until both tasks are complete
-        result = await asyncio.gather(asyncio.gather(*tasks))
+        result = await asyncio.gather(*tasks)
         return ShootingResult(result[0], result[1])
 
     def set_delta_t(self, value: float) -> None:
