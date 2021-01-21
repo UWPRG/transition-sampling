@@ -11,14 +11,16 @@ jobs:
     container: lemmoi/transition_sampling:cp2k_plumed
 
     steps:
+    - uses: actions/checkout@v2
     - name: Setup
       shell: bash
       run: |
-        source /src/plumed/sourceme.sh
+
         pip3 install -r requirements.txt
         pip3 install .
 
     - name: Test
       shell: bash
       run: |
+        source /src/plumed/sourceme.sh        
         python -m unittest transition_sampling/tests/integration_tests/engine_integration.py
