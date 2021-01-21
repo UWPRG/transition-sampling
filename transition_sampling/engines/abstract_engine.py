@@ -13,15 +13,49 @@ from .plumed import PlumedInputHandler
 
 
 class ShootingResult:
-    def __init__(self):
-        self.commit_results = {
-            "fwd": None,
-            "rev": None
-        }
-        self.frames = {
-            "+dt": None,
-            "-dt": None
-        }
+    """Wrapper class for the results of a single shooting point.
+
+    A shooting point consists of a forwards and reverse trajectory through time
+    from a single point. Information about each are stored in the respective
+    dictionary attribute.
+
+    Attributes
+    ----------
+    fwd : dict
+        Forward trajectory. Two fields are defined, "commit" and "frames".
+
+        commit : Union[int, None]
+            integer value of the plumed basin that the trajectory committed to,
+            or None if it did not commit.
+        frames : np.ndarray
+            An array of the +delta_t and +2*delta_t frames. Has the shape
+            (n, 3, 2) corresponding to (# of atoms, xyz dimensions, frames).
+            The first frame is the closest to t=0, so +delta_t
+    rev : dict
+        Reverse trajectory. Two fields are defined, "commit" and "frames".
+
+        commit : Union[int, None]
+            See fwd["commit"] documentation
+        frames : np.ndarray
+            See fwd["frames"] documentation. The first frame is the closest to
+            t=0, so -delta_t
+    """
+    def __init__(self, fwd, rev):
+        if fwd is None:
+            self.fwd = {
+                "commit": None,
+                "frames": None
+            }
+        else:
+            self.fwd = fwd
+
+        if rev is None:
+            self.rev = {
+                "commit": None,
+                "frames": None
+            }
+        else:
+            self.rev = rev
 
 
 class AbstractEngine(ABC):

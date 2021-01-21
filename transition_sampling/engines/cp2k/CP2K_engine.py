@@ -90,6 +90,7 @@ class CP2KEngine(AbstractEngine):
 
         # Wait until both tasks are complete
         result = await asyncio.gather(asyncio.gather(*tasks))
+        return ShootingResult(result[0], result[1])
 
     def set_delta_t(self, value: float) -> None:
         # Make CP2K print trajectory after every delta_t amount of time rounded
@@ -127,7 +128,7 @@ class CP2KEngine(AbstractEngine):
         self.cp2k_inputs.flip_velocity()
         return await self._launch_traj(projname + "_rev")
 
-    async def _launch_traj(self, projname: str):
+    async def _launch_traj(self, projname: str) -> dict:
         """Launch a trajectory with the current state to completion.
 
         Launch a trajectory using the current state with the given command in
@@ -141,7 +142,11 @@ class CP2KEngine(AbstractEngine):
 
         Returns
         -------
-        TODO: Parsing output
+        A dictionary with the keys:
+            "commit": basin integer the trajectory committed to or None if it
+                did not commit
+            "frames": np.array with the +delta_t and +2delta_t xyz frames. Has
+                the shape (n_atoms, 3, 2)
         """
         # Assign the unique project name
         self.cp2k_inputs.set_project_name(projname)
@@ -210,10 +215,12 @@ class CP2KEngine(AbstractEngine):
         # core dump. We clean up these core dumps here if necessary, but
         # hopefully the stopping feature is implemented someday. This code
         # should still work in that case
-        # TODO: Do something with these results
         if basin is not None:
             self._remove_core_dumps()
             print(f"{projname} committed to basin {basin}.")
+
+        return {"commit": basin,
+                "frames": output_handler.read_frames_2_3()}
 
     def _remove_core_dumps(self) -> None:
         """Remove all core files from the working directory"""
