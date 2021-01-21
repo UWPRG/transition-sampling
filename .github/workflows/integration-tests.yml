@@ -6,13 +6,19 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  cp2k:
     runs-on: ubuntu-latest
     container: lemmoi/transition_sampling:cp2k_plumed
 
     steps:
-    - name: CP2K Test
+    - name: Setup
       shell: bash
       run: |
         source /src/plumed/sourceme.sh
-        /src/cp2k.ssmp
+        pip3 install -r requirements.txt
+        pip3 install .
+
+    - name: Test
+      shell: bash
+      run: |
+        python -m unittest transition_sampling/tests/integration_tests/engine_integration.py
