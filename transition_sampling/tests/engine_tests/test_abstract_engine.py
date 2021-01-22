@@ -45,6 +45,10 @@ class AbstractEngineMock(AbstractEngine):
     def atoms(self) -> Sequence[str]:
         return super().atoms
 
+    @property
+    def temp(self) -> float:
+        return super().temp
+
     def set_positions(self, positions: np.ndarray) -> None:
         super().set_positions(positions)
 

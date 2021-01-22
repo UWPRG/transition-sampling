@@ -151,6 +151,17 @@ class AbstractEngine(ABC):
         """
         pass
 
+    @property
+    @abstractmethod
+    def temp(self) -> float:
+        """Get the temperature of the engine in Kelvin.
+
+        Returns
+        -------
+        Temperature the engine is set to in Kelvin
+        """
+        pass
+
     @abstractmethod
     def set_positions(self, positions: np.ndarray) -> None:
         """Set the positions of atoms in the engine.

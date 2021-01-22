@@ -50,6 +50,16 @@ class CP2KInputsHandler:
 
         return self._atoms
 
+    @property
+    def temp(self) -> float:
+        """Get the temperature of the input.
+
+        Returns
+        -------
+        Temperature the input is set to in Kelvin
+        """
+        return self.cp2k_dict["+motion"]["+md"]["temperature"]
+
     def set_positions(self, positions: np.ndarray) -> None:
         """Set the positions of atoms in the inputs.
 

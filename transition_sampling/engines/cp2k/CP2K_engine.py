@@ -53,6 +53,10 @@ class CP2KEngine(AbstractEngine):
     def atoms(self) -> Sequence[str]:
         return self.cp2k_inputs.atoms
 
+    @property
+    def temp(self) -> float:
+        return self.cp2k_inputs.temp
+
     def set_positions(self, positions: np.ndarray) -> None:
         # Check positions are valid by passing to base class
         super().set_positions(positions)
@@ -227,4 +231,3 @@ class CP2KEngine(AbstractEngine):
         pattern = os.path.join(self.working_dir, "core.*")
         for file in glob.glob(pattern):
             os.remove(file)
-
