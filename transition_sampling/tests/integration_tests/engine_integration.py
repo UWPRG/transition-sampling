@@ -18,7 +18,7 @@ CP2K_CMD = "/src/cp2k.ssmp"
 # Paths of starting configs and stored results
 STARTING_POSITIONS = os.path.join(CUR_DIR, "test_data/starting_pos.npy")
 STARTING_VELOCITIES = os.path.join(CUR_DIR, "test_data/starting_vels.npy")
-RESULTS = os.path.join(CUR_DIR, "test_data/results.pk1")
+RESULTS = os.path.join(CUR_DIR, "test_data/results.pkl")
 
 INPUTS = {"engine": "cp2k",
           "cp2k_inputs": TEST_INPUT,
@@ -30,12 +30,17 @@ INPUTS = {"engine": "cp2k",
 class TestCP2KIntegration(TestCase):
     """Test actually interacting with CP2K"""
 
-    def test_cp2k_integration(self):
-        """See if cp2k gives expected outputs
+    def test_cp2k_fixed_ions(self):
+        """Fix two ions, let a third ion commit to either of them.
 
         Starts with a set of known positions and velocities, then uses the
         CP2KEngine to run them. Then compare to the expected answer (frames
         returned and basin commits.)
+
+        This test is designed to mimic a cheap transition state in a classical
+        environment by placing a positive ion in between two fixed negative
+        ions. When the positive ion is disturbed, it should commit to one of the
+        negative ones.
 
         Test data built with Plumed v2.6.1 and CP2K v7.1.0
         """
@@ -64,6 +69,7 @@ class TestCP2KIntegration(TestCase):
                 self._compare_arrays(sr.rev["frames"], result.rev["frames"])
 
         # This can be used to generate expected results for new tests if needed
+        # by making a result_list and appending the result of each to it
         # with open(RESULTS, "wb") as out:
         #     pickle.dump(result_list, out, pickle.HIGHEST_PROTOCOL)
 
@@ -84,7 +90,7 @@ class TestCP2KIntegration(TestCase):
             self.assertAlmostEqual(arr1_flat[i], arr2_flat[i], places=places)
 
 
-def _generate_starts(n_tests: int) -> None:
+def _generate_fixed_starts(n_tests: int) -> None:
     """Function for generating random starting positions and velocities.
 
     This is used to generate new test cases for the integration test.
@@ -93,19 +99,20 @@ def _generate_starts(n_tests: int) -> None:
     ----------
     n_tests
         Number of starting positions/velocities to generate.
-    Returns
-    -------
-
     """
-    positions = np.zeros((2, 3, n_tests))
-    # First atom positions. Centered at (0,0,0) with sigma=0.1
-    positions[0, :, :] = np.random.normal(0, .1, (3, n_tests))
+    positions = np.zeros((3, 3, n_tests))
+    # First atom (Cl-) is fixed at (0, 0, 0)
 
-    # Second atom positions. Centered at (9,9,9) with sigma=0.1
-    positions[1, :, :] = np.random.normal(9, .1, (3, n_tests))
+    # Second atom (Ca2+) is randomly generated about the middle of the two fixed
+    # atoms. Centered at (10, 10, 10) angstroms with sigma=0.1
+    positions[1, :, :] = np.random.normal(10, .1, (3, n_tests))
 
-    # Starting velocities for both atoms
-    velocities = np.random.normal(0, 0.05, (2, 3, n_tests))
+    # Third atom (Cl-) is fixed at (20, 20, 20)
+    positions[2, :, :] += 20
+
+    # Starting velocities for all atoms. Technically this only applies to atom 2
+    # because atoms 1 and 3 are fixed and will not move.
+    velocities = np.random.normal(0, 0.003, (3, 3, n_tests))
 
     # Save these to be loaded for the test
     np.save(os.path.join(CUR_DIR, "test_data/starting_pos.npy"), positions)
