@@ -152,12 +152,15 @@ class CP2KEngine(AbstractEngine):
         self.cp2k_inputs.set_project_name(projname)
 
         # Set the plumed filename in cp2k
-        plumed_in_path = os.path.join(self.working_dir,
-                                      f"{projname}_plumed.dat")
-        self.cp2k_inputs.set_plumed_file(plumed_in_path)
+        # We need to just use the file name here because CP2K has a 80 char
+        # limit on this for some reason. CP2K gets launched in the working
+        # directory, and the file of this name will be found there.
+        self.cp2k_inputs.set_plumed_file(f"{projname}_plumed.dat")
 
         # Set the name for the committor output and write the unique plumed file
         plumed_out_name = f"{projname}_plumed.out"
+        plumed_in_path = os.path.join(self.working_dir,
+                                      f"{projname}_plumed.dat")
         self.plumed_handler.write_plumed(plumed_in_path, plumed_out_name)
 
         # Set the trajectory output name
