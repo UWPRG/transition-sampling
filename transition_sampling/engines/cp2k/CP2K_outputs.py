@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
-import util.xyz as xyz
+import transition_sampling.util.xyz as xyz
 from typing import Sequence
 
 import numpy as np

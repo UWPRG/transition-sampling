@@ -6,8 +6,8 @@ from typing import Sequence
 
 import numpy as np
 
-import util.xyz as xyz
-from engines import AbstractEngine, ShootingResult
+import transition_sampling.util.xyz as xyz
+from transition_sampling.engines import AbstractEngine, ShootingResult
 
 
 class AimlessShooting:
