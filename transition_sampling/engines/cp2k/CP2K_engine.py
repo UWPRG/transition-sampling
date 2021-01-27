@@ -150,7 +150,7 @@ class CP2KEngine(AbstractEngine):
             "commit": basin integer the trajectory committed to or None if it
                 did not commit
             "frames": np.array with the +delta_t and +2delta_t xyz frames. Has
-                the shape (n_atoms, 3, 2)
+                the shape (2, n_atoms, 3)
         """
         # Assign the unique project name
         self.cp2k_inputs.set_project_name(projname)

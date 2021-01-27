@@ -1,8 +1,12 @@
 """Implementation of the aimless shooting algorithm"""
 from __future__ import annotations
 
+import asyncio
+from typing import Sequence
+
 import numpy as np
 
+import util.xyz as xyz
 from engines import AbstractEngine, ShootingResult
 
 
@@ -28,12 +32,17 @@ class AimlessShooting:
     """
 
     def __init__(self, engine: AbstractEngine, position_dir: str,
-                 results_dir: str):
+                 results_dir: str, starting_xyz: str):
         self.engine = engine
         self.position_dir = position_dir
         self.results_dir = results_dir
 
         self.current_offset = 0
+        with open(starting_xyz, "r") as file:
+            self.current_start, eof = xyz.read_xyz_frame(file)
+            if eof:
+                raise ValueError(
+                    f"Starting xyz {starting_xyz} could not be read")
 
         # Go through position_dir, running until we have a good point
 
@@ -49,6 +58,28 @@ class AimlessShooting:
         n_tries
             Number of retries to find another point before failing
         """
+        for i in range(n_points):
+            self.engine.set_positions(self.current_start)
+            result = None
+            for j in range(n_tries):
+                try:
+                    generate_velocities(self.engine.atoms, 80)
+                    result = asyncio.run(self.engine.run_shooting_point())
+
+                    if self.is_accepted(result):
+                        break
+
+                except Exception:
+                    pass
+
+            if result is None:
+                raise RuntimeError(
+                    f"Next transition state not found in {n_tries}")
+
+            # Pick a new starting position based on the current offset
+            self.current_start = self.pick_starting(result)
+            # Pick a new offset
+            self.current_offset = np.random.choice([-1, 0, 1])
 
     def pick_starting(self, result: ShootingResult) -> np.array:
         """Pick the next point to be used as a starting position
@@ -64,9 +95,23 @@ class AimlessShooting:
         A randomly selected new starting position based on the current time
         offset.
         """
-        pass
+        # Make an array with [-2dt, -1dt, 0dt, +1dt, +2dt] (from engine
+        # perspective) in the 1st dimension. The reverse frames need to be
+        # flipped
+        resized_start = np.expand_dims(self.current_start, axis=0)
+        concat_frames = np.concatenate([result.rev["frames"][::-1, :, :],
+                                        resized_start,
+                                        result.fwd["frames"]], axis=0)
 
-    def is_accepted(self, result: ShootingResult) -> bool:
+        # If the current offset is 0, we want to choose between the middle 3. If
+        # its -1, we need to choose from the upper 3, and if its +1, the lower.
+        indices = np.array([1, 2, 3]) - self.current_offset
+        chosen_index = np.random.choice(indices)
+
+        return concat_frames[chosen_index, :, :]
+
+    @staticmethod
+    def is_accepted(result: ShootingResult) -> bool:
         """Determines if a ShootingResult should be accepted or rejected
 
         Parameters
@@ -78,10 +123,12 @@ class AimlessShooting:
         -------
         True if it should be accepted, False otherwise.
         """
-        pass
+        return result.fwd["commit"] is not None and \
+               result.rev["commit"] is not None and \
+               result.fwd["commit"] != result.rev["commit"]
 
 
-def generate_velocities(atoms: list[str], temp: float) -> np.array:
+def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
     """Generates velocities for atoms at a temperature from MB distribution.
 
     Parameters
