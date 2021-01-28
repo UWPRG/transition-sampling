@@ -45,6 +45,9 @@ class AimlessShooting:
                     f"Starting xyz {starting_xyz} could not be read")
 
         # Go through position_dir, running until we have a good point
+        xyz.write_xyz_frame(f"state_0.xyz",
+                            self.engine.atoms,
+                            self.current_start)
 
     def run(self, n_points: int, n_tries: int) -> None:
         """Run the aimless shooting algorithm to generate n_points.
@@ -60,21 +63,33 @@ class AimlessShooting:
         """
         for i in range(n_points):
             self.engine.set_positions(self.current_start)
+            accepted = False
             result = None
             for j in range(n_tries):
                 try:
-                    generate_velocities(self.engine.atoms, 80)
+                    # Generate and set new velocities
+                    self.engine.set_velocities(
+                        generate_velocities(self.engine.atoms, 80))
+
+                    # Run forwards and backwards with engine
                     result = asyncio.run(self.engine.run_shooting_point())
 
-                    if self.is_accepted(result):
+                    # Check if our start was an accepted transition state
+                    accepted = self.is_accepted(result)
+                    if accepted:
+                        # If yes, write the start xyz file and break out of try
+                        xyz.write_xyz_frame(f"state_{i+1}.xyz",
+                                            self.engine.atoms,
+                                            self.current_start)
                         break
 
-                except Exception:
+                except EOFError:
+                    # Committed to before two time steps could be read
                     pass
 
-            if result is None:
+            if not accepted:
                 raise RuntimeError(
-                    f"Next transition state not found in {n_tries}")
+                    f"Next transition state not found in {n_tries} tries.")
 
             # Pick a new starting position based on the current offset
             self.current_start = self.pick_starting(result)
@@ -144,4 +159,4 @@ def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
     An array of velocities generated randomly from the Maxwell-Boltzmann
     distribution. Has the shape (n_atoms, 3), where 3 is the x,y,z directions.
     """
-    pass
+    return np.random.normal(0, 0.003, (3, 3))

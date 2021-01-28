@@ -151,6 +151,11 @@ class CP2KEngine(AbstractEngine):
                 did not commit
             "frames": np.array with the +delta_t and +2delta_t xyz frames. Has
                 the shape (2, n_atoms, 3)
+
+        Raises
+        ------
+        RuntimeError
+            If CP2K fails to run.
         """
         # Assign the unique project name
         self.cp2k_inputs.set_project_name(projname)
@@ -205,8 +210,7 @@ class CP2KEngine(AbstractEngine):
             with open(output_file, "a") as f:
                 f.write(stdout.decode('ascii'))
 
-            # TODO: Better exception
-            raise Exception("Process failed")
+            raise RuntimeError("Process failed")
 
         # Get the output file for warnings. If there are some, log them
         warnings = output_handler.check_warnings()
