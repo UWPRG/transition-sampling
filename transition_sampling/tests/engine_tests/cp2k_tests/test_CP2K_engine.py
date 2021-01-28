@@ -122,6 +122,22 @@ class TestCP2KEngineAtoms(CP2KEngineTestCase):
             self.engine.atoms = ['Co', 'O']
 
 
+class TestCP2KEngineTemperature(CP2KEngineTestCase):
+    def test_atoms_getting(self):
+        """
+        Test that the correct temperature is returned
+        """
+        self.assertAlmostEqual(85, self.engine.temp)
+
+    def test_atoms_setting(self):
+        """
+        Test that temperature cannot be set
+        """
+        with self.assertRaises(AttributeError,
+                               msg="Temp should not be allowed assignment"):
+            self.engine.temp = 298
+
+
 class TestCP2KEnginePositions(CP2KEngineTestCase):
     def test_set_positions_wrong_num_atoms(self):
         """

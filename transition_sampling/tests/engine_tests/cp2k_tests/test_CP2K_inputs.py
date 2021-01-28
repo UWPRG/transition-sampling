@@ -69,7 +69,7 @@ class TestCP2KInputsPositions(CP2KInputsTestCase):
         """
         Compare expected positions to those actually stored by an engine
         :param expected: Array of expected positions
-        :param engine: Engine to compare to
+        :param inputs: engine to compare to
         """
         actual = inputs.cp2k_dict["+force_eval"][0]["+subsys"]["+coord"]["*"]
 
@@ -126,7 +126,7 @@ class TestCP2KInputsVelocities(CP2KInputsTestCase):
         Compare the expected values of a velocity to those actually stored by
         an engine
         :param expected: array of expected velocities
-        :param engine: engine to check if velocities match
+        :param inputs: engine to check if velocities match
         """
         # Internal Representation of stored positions for CP2K
         actual = inputs.cp2k_dict["+force_eval"][0]["+subsys"]["+velocity"]["*"]
@@ -203,5 +203,3 @@ class TestCP2KInputsTimeStep(CP2KInputsTestCase):
 
         self.assertEqual(traj["filename"], filename,
                          msg="Trajectory filename was not set correctly")
-
-
