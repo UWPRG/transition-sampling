@@ -44,10 +44,12 @@ class AimlessShooting:
                 raise ValueError(
                     f"Starting xyz {starting_xyz} could not be read")
 
-        # Go through position_dir, running until we have a good point
-        xyz.write_xyz_frame(f"state_0.xyz",
-                            self.engine.atoms,
+        # Write the starting frame
+        xyz.write_xyz_frame(f"state_0.xyz", self.engine.atoms,
                             self.current_start)
+        self.gen_count = 1
+
+        # TODO: Go through position_dir, running until we have a good point
 
     def run(self, n_points: int, n_tries: int) -> None:
         """Run the aimless shooting algorithm to generate n_points.
@@ -77,15 +79,18 @@ class AimlessShooting:
                     # Check if our start was an accepted transition state
                     accepted = self.is_accepted(result)
                     if accepted:
-                        # If yes, write the start xyz file and break out of try
-                        xyz.write_xyz_frame(f"state_{i+1}.xyz",
-                                            self.engine.atoms,
-                                            self.current_start)
+                        # Break out of try loop, we found an accepted state
+                        if self.current_offset != 0:
+                            # If the current offset is not zero, we have not
+                            # saved this state before.
+                            xyz.write_xyz_frame(f"state_{self.gen_count}.xyz",
+                                                self.engine.atoms,
+                                                self.current_start)
+                            self.gen_count += 1
                         break
 
-                except EOFError:
-                    # Committed to before two time steps could be read
-                    pass
+                except Exception as e:
+                    print(e)
 
             if not accepted:
                 raise RuntimeError(

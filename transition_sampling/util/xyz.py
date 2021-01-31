@@ -68,6 +68,8 @@ def write_xyz_frame(file_name: str, atoms: typing.Sequence[str],
         file.write(f"{len(atoms)}\n\n")
 
         for i in range(len(atoms)):
-            line = ' '.join([atoms[i], frame[i, 0],
-                             frame[i, 1], frame[i, 2], "\n"])
-            file.write(line)
+            file.write(f"{atoms[i]} ")
+
+            file.write(' '.join([str(x) for x in frame[i, :]]))
+            file.write("\n")
+
