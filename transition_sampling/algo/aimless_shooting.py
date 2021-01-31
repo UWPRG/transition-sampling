@@ -63,7 +63,8 @@ class AimlessShooting:
         n_tries
             Number of retries to find another point before failing
         """
-        for i in range(n_points):
+        start_count = self.gen_count
+        while self.gen_count < start_count + n_points:
             self.engine.set_positions(self.current_start)
             accepted = False
             result = None
@@ -164,4 +165,4 @@ def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
     An array of velocities generated randomly from the Maxwell-Boltzmann
     distribution. Has the shape (n_atoms, 3), where 3 is the x,y,z directions.
     """
-    return np.random.normal(0, 0.003, (3, 3))
+    return np.random.normal(0, 0.003, (len(atoms), 3))
