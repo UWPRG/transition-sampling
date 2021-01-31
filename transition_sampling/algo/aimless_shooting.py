@@ -72,7 +72,8 @@ class AimlessShooting:
                 try:
                     # Generate and set new velocities
                     self.engine.set_velocities(
-                        generate_velocities(self.engine.atoms, 80))
+                        generate_velocities(self.engine.atoms,
+                                            self.engine.temp))
 
                     # Run forwards and backwards with engine
                     result = asyncio.run(self.engine.run_shooting_point())
