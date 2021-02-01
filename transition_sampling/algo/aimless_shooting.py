@@ -38,16 +38,20 @@ class AimlessShooting:
         self.results_dir = results_dir
 
         self.current_offset = 0
-        with open(starting_xyz, "r") as file:
-            self.current_start, eof = xyz.read_xyz_frame(file)
-            if eof:
-                raise ValueError(
-                    f"Starting xyz {starting_xyz} could not be read")
 
-        # Write the starting frame
-        xyz.write_xyz_frame(f"state_0.xyz", self.engine.atoms,
-                            self.current_start)
-        self.gen_count = 1
+        # This is a temporary work around while we get the starting directory
+        # working
+        if starting_xyz is not None:
+            with open(starting_xyz, "r") as file:
+                self.current_start, eof = xyz.read_xyz_frame(file)
+                if eof:
+                    raise ValueError(
+                        f"Starting xyz {starting_xyz} could not be read")
+
+            # Write the starting frame
+            xyz.write_xyz_frame(f"state_0.xyz", self.engine.atoms,
+                                self.current_start)
+            self.gen_count = 1
 
         # TODO: Go through position_dir, running until we have a good point
 

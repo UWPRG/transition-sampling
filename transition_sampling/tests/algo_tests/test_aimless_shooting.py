@@ -13,7 +13,7 @@ class NextPositionTest(unittest.TestCase):
         # Set the seed for reproducible results.
         np.random.seed(1)
 
-        aimless = AimlessShooting(None, None, None)
+        aimless = AimlessShooting(None, None, None, None)
         aimless.current_start = np.zeros((2, 3))
 
         fwd = {"commit": 1,
