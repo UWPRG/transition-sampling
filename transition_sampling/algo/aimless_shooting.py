@@ -1,6 +1,8 @@
 """Implementation of the aimless shooting algorithm"""
 from __future__ import annotations
 
+import os
+
 import numpy as np
 
 from engines import AbstractEngine, ShootingResult
@@ -97,4 +99,74 @@ def generate_velocities(atoms: list[str], temp: float) -> np.array:
     An array of velocities generated randomly from the Maxwell-Boltzmann
     distribution. Has the shape (n_atoms, 3), where 3 is the x,y,z directions.
     """
-    pass
+
+    kB = 1.380649e-23            # J / K
+    au_time_factor = 0.0242e-15  # s / au_time
+    bohr_factor = 5.29e-11       # m / bohr
+
+    mass = atomic_symbols_to_mass(atoms)
+    n_atoms = len(mass)
+
+    # Number of degrees of freedom
+    dof = 3 * n_atoms - 6
+
+    # Convert mass from amu to kg
+    mass = np.asarray(mass).reshape(-1, 1) / 1000 / 6.022e23
+
+    v_raw = np.sqrt(kB * temp / mass) * np.random.normal(size=(n_atoms, 3))
+
+    # Shift velocities by mean momentum such that total
+    # box momentum is 0 in all dimensions.
+    p_mean = np.sum(mass * v_raw, axis=0) / n_atoms
+    v_mean = p_mean / mass.mean()
+    v_shifted = v_raw - v_mean
+
+    # Scale velocities to exact target temperature.
+    # Prevents systems with few atoms from sampling far away from target T.
+    temp_shifted = np.sum(mass * v_shifted ** 2) / (dof * kB)
+    scale = np.sqrt(temp / temp_shifted)
+    v_scaled = v_shifted * scale
+
+    # Convert from m/s to a.u.
+    v_final = v_scaled * au_time_factor / bohr_factor
+
+    return v_final
+
+
+def atomic_symbols_to_mass(atoms: list[str]) -> list[float]:
+    """Converts atomic symbols to their atomic masses in amu.
+
+    Parameters
+    ----------
+    atoms
+        List of atomic symbols
+
+    Returns
+    -------
+    List of atomic masses"""
+    atomic_mass_dict = get_atomic_mass_dict()
+    masses = []
+    for atom in atoms:
+        masses.append(atomic_mass_dict[atom])
+    return masses
+
+
+def get_atomic_mass_dict() -> dict[str, float]:
+    """Builds a dictionary of atomic symbols as keys and masses as values.
+
+    Returns
+    -------
+    Dict of atomic symbols and masses"""
+    atomic_mass_dict = {}
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(os.path.join(dir_path, '..', 'data', 'atomic_info.dat')) as f:
+        for line in f:
+            data = line.split()
+
+            # Accounts for atoms that only have a most-stable mass,
+            # e.g., Oxygen 15.9994 vs Technetium (98)
+            if data[-1].startswith('('):
+                data[-1] = data[-1][1:-1]
+
+            atomic_mass_dict[data[1]] = float(data[-1])
+    return atomic_mass_dict
