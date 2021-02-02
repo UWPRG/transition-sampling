@@ -30,7 +30,6 @@ class AimlessShooting:
     ----------
     TODO fill this out
     """
-
     def __init__(self, engine: AbstractEngine, position_dir: str,
                  results_dir: str, starting_xyz: str):
         self.engine = engine
@@ -48,10 +47,7 @@ class AimlessShooting:
                     raise ValueError(
                         f"Starting xyz {starting_xyz} could not be read")
 
-            # Write the starting frame
-            xyz.write_xyz_frame(f"state_0.xyz", self.engine.atoms,
-                                self.current_start)
-            self.gen_count = 1
+        self.unique_states = set()
 
         # TODO: Go through position_dir, running until we have a good point
 
@@ -67,8 +63,9 @@ class AimlessShooting:
         n_tries
             Number of retries to find another point before failing
         """
-        start_count = self.gen_count
-        while self.gen_count < start_count + n_points:
+        # Generate the requested number of points, approximately 1/3 will not be
+        # unique.
+        for i in range(n_points):
             self.engine.set_positions(self.current_start)
             accepted = False
             result = None
@@ -86,13 +83,12 @@ class AimlessShooting:
                     accepted = self.is_accepted(result)
                     if accepted:
                         # Break out of try loop, we found an accepted state
-                        if self.current_offset != 0:
-                            # If the current offset is not zero, we have not
-                            # saved this state before.
-                            xyz.write_xyz_frame(f"state_{self.gen_count}.xyz",
-                                                self.engine.atoms,
-                                                self.current_start)
-                            self.gen_count += 1
+                        # If the current offset is not zero, we have not
+                        # saved this state before.
+                        xyz.write_xyz_frame(f"state_{i + 1}.xyz",
+                                            self.engine.atoms,
+                                            self.current_start)
+                        self.unique_states.add(self.current_start)
                         break
 
                 except Exception as e:
@@ -106,6 +102,8 @@ class AimlessShooting:
             self.current_start = self.pick_starting(result)
             # Pick a new offset
             self.current_offset = np.random.choice([-1, 0, 1])
+
+        print(f"{len(self.unique_states)} unique states generated.")
 
     def pick_starting(self, result: ShootingResult) -> np.array:
         """Pick the next point to be used as a starting position
