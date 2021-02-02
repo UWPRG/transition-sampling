@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Sequence
+import os
+import random
+from typing import Sequence, Optional
 
 import numpy as np
 
@@ -30,6 +32,7 @@ class AimlessShooting:
     ----------
     TODO fill this out
     """
+
     def __init__(self, engine: AbstractEngine, position_dir: str,
                  results_dir: str, starting_xyz: str):
         self.engine = engine
@@ -48,10 +51,11 @@ class AimlessShooting:
                         f"Starting xyz {starting_xyz} could not be read")
 
         self.unique_states = set()
+        self.total_count = 0
 
         # TODO: Go through position_dir, running until we have a good point
 
-    def run(self, n_points: int, n_tries: int) -> None:
+    def run(self, n_points: int, n_state_tries: int, n_vel_tries: int) -> None:
         """Run the aimless shooting algorithm to generate n_points.
 
         Generated points are written to the given results_dir
@@ -59,53 +63,85 @@ class AimlessShooting:
         Parameters
         ----------
         n_points
-            Number of points to generate
-        n_tries
+            Number of total points to generate
+        n_state_tries
+            Number of retries to find another point before failing
+        n_vel_tries
             Number of retries to find another point before failing
         """
         # Generate the requested number of points, approximately 1/3 will not be
         # unique.
-        for i in range(n_points):
+        generated_states = 0
+        states_since_success = 0
+        while generated_states < n_points:
             self.engine.set_positions(self.current_start)
-            accepted = False
-            result = None
-            for j in range(n_tries):
-                try:
-                    # Generate and set new velocities
-                    self.engine.set_velocities(
-                        generate_velocities(self.engine.atoms,
-                                            self.engine.temp))
+            result = self._run_velocity_attempts(n_vel_tries)
 
-                    # Run forwards and backwards with engine
-                    result = asyncio.run(self.engine.run_shooting_point())
+            if result is None:
+                # We tried regenerating velocities n_tries times for the current
+                # state and none were accepted. Now we pick randomly from our
+                # set of states we know have worked before and try again.
 
-                    # Check if our start was an accepted transition state
-                    accepted = self.is_accepted(result)
-                    if accepted:
-                        # Break out of try loop, we found an accepted state
-                        # If the current offset is not zero, we have not
-                        # saved this state before.
-                        xyz.write_xyz_frame(f"state_{i + 1}.xyz",
-                                            self.engine.atoms,
-                                            self.current_start)
+                # If we've had to re-pick a new state more than n_state_tries,
+                # we've failed
+                states_since_success += 1
+                if states_since_success == n_state_tries:
+                    raise RuntimeError(
+                        f"Next transition state not found in {n_state_tries} "
+                        f"state tries and {n_vel_tries} velocity tries "
+                        f"({n_state_tries*n_vel_tries}) total unsuccessful runs"
+                        f" in a row")
 
-                        hashable_state = tuple(map(tuple, self.current_start))
-                        self.unique_states.add(hashable_state)
-                        break
+                self.current_start = random.choice(tuple(self.unique_states))
 
-                except Exception as e:
-                    print(e)
+            else:
+                # Pick a new starting position based on the current offset
+                self.current_start = self.pick_starting(result)
+                # Pick a new offset
+                generated_states += 1
 
-            if not accepted:
-                raise RuntimeError(
-                    f"Next transition state not found in {n_tries} tries.")
+                # We had success with this state, so set to 0
+                states_since_success = 0
 
-            # Pick a new starting position based on the current offset
-            self.current_start = self.pick_starting(result)
-            # Pick a new offset
-            self.current_offset = np.random.choice([-1, 0, 1])
+            # No matter what, we should pick a new offset to remain stochastic
+            self.current_offset = random.choice([-1, 0, 1])
 
         print(f"{len(self.unique_states)} unique states generated.")
+
+    def _run_velocity_attempts(self, n_attempts: int) -> Optional[ShootingResult]:
+        for i in range(n_attempts):
+            # Generate new velocities, run one point from it
+            vels = generate_velocities(self.engine.atoms, self.engine.temp)
+            result = self._run_one_velocity(vels)
+
+            if result is not None and self.is_accepted(result):
+                # Break out of try loop, we found an accepted state
+                # Write the state and merge it into our set of uniques
+
+                path = os.path.join(self.results_dir,
+                                    f"state_{self.total_count}.xyz")
+
+                xyz.write_xyz_frame(path, self.engine.atoms, self.current_start)
+                self.unique_states.add(self.current_start)
+
+                # Update the total number of states we've generated
+                self.total_count += 1
+                return result
+
+        # Did not have an accepted state by changing velocity in n_attempts
+        return None
+
+    def _run_one_velocity(self, vels: np.ndarray) -> Optional[ShootingResult]:
+        try:
+            # Set the velocities
+            self.engine.set_velocities(vels)
+
+            # Run forwards and backwards with engine
+            return asyncio.run(self.engine.run_shooting_point())
+
+        except Exception as e:
+            print(e)
+            return None
 
     def pick_starting(self, result: ShootingResult) -> np.array:
         """Pick the next point to be used as a starting position
