@@ -88,7 +88,9 @@ class AimlessShooting:
                         xyz.write_xyz_frame(f"state_{i + 1}.xyz",
                                             self.engine.atoms,
                                             self.current_start)
-                        self.unique_states.add(self.current_start)
+
+                        hashable_state = tuple(map(tuple, self.current_start))
+                        self.unique_states.add(hashable_state)
                         break
 
                 except Exception as e:
