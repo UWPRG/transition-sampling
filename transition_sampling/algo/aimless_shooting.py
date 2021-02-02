@@ -92,7 +92,10 @@ class AimlessShooting:
                         f"({n_state_tries*n_vel_tries}) total unsuccessful runs"
                         f" in a row")
 
-                self.current_start = random.choice(tuple(self.unique_states))
+                # Convert set to tuple so we can randomly choose, then convert
+                # the stored tuple back into an array
+                selected_tuple = random.choice(tuple(self.unique_states))
+                self.current_start = np.asarray(selected_tuple)
 
             else:
                 # Pick a new starting position based on the current offset
@@ -122,7 +125,10 @@ class AimlessShooting:
                                     f"state_{self.total_count}.xyz")
 
                 xyz.write_xyz_frame(path, self.engine.atoms, self.current_start)
-                self.unique_states.add(self.current_start)
+
+                # convert np array to tuples so its immutable and hashable
+                hashable_state = tuple(map(tuple, self.current_start))
+                self.unique_states.add(hashable_state)
 
                 # Update the total number of states we've generated
                 self.total_count += 1
