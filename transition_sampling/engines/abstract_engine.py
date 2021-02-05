@@ -29,7 +29,7 @@ class ShootingResult:
             or None if it did not commit.
         frames : np.ndarray
             An array of the +delta_t and +2*delta_t frames. Has the shape
-            (n, 3, 2) corresponding to (# of atoms, xyz dimensions, frames).
+            (2, n, 3) corresponding to (frames, # of atoms, xyz dimensions).
             The first frame is the closest to t=0, so +delta_t
     rev : dict
         Reverse trajectory. Two fields are defined, "commit" and "frames".
