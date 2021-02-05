@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import glob
 import os
 import random
 from typing import Sequence, Optional
@@ -53,21 +54,11 @@ class AimlessShooting:
         self.position_dir = position_dir
         self.results_dir = results_dir
 
-        self.current_offset = 0
-
-        # This is a temporary work around while we get the starting directory
-        # working
-        if starting_xyz is not None:
-            with open(starting_xyz, "r") as file:
-                self.current_start, eof = xyz.read_xyz_frame(file)
-                if eof:
-                    raise ValueError(
-                        f"Starting xyz {starting_xyz} could not be read")
+        self.current_offset = random.choice([-1, 0, 1])
+        self.current_start = None
 
         self.unique_states = set()
         self.total_count = 0
-
-        # TODO: Go through position_dir, running until we have a good point
 
     def run(self, n_points: int, n_state_tries: int, n_vel_tries: int) -> None:
         """Run the aimless shooting algorithm to generate n_points.
@@ -102,7 +93,15 @@ class AimlessShooting:
         """
         accepted_states = 0
         states_since_success = 0
+        if len(self.unique_states) == 0:
+            if not self._kickstart(n_vel_tries):
+                raise RuntimeError("No initial guesses were accepted as "
+                                   "transition states")
+
         starting_unique_states = len(self.unique_states)
+        selected_tuple = random.choice(tuple(self.unique_states))
+        self.current_start = np.asarray(selected_tuple)
+
         while accepted_states < n_points:
             self.engine.set_positions(self.current_start)
             result = self._run_velocity_attempts(n_vel_tries)
@@ -119,8 +118,8 @@ class AimlessShooting:
                     raise RuntimeError(
                         f"Next transition state not found in {n_state_tries} "
                         f"state tries and {n_vel_tries} velocity tries "
-                        f"({n_state_tries*n_vel_tries}) total unsuccessful runs"
-                        f" in a row")
+                        f"({n_state_tries * n_vel_tries}) total unsuccessful "
+                        f"runs in a row")
 
                 # Convert set to tuple so we can randomly choose, then convert
                 # the stored tuple back into an array
@@ -142,8 +141,64 @@ class AimlessShooting:
             # No matter what, we should pick a new offset to remain stochastic
             self.current_offset = random.choice([-1, 0, 1])
 
-        print(f"{len(self.unique_states)- starting_unique_states} new unique "
+        print(f"{len(self.unique_states) - starting_unique_states} new unique "
               f"states generated.")
+
+    def _kickstart(self, n_vel_tries: int) -> bool:
+        """Loop through provided initial guesses to see if any are accepted.
+
+        Each starting structure in the position directory tested to see if it is
+        accepted as a transition state. Each structure has its velocity
+        resampled n_vel_tries before rejecting it and moving on.
+
+        If a state is accepted, it is put in the set of unique states. No
+        further shooting points are run with it.
+
+        Parameters
+        ----------
+        n_vel_tries
+            How many times velocities should be resampled for a guessed starting
+            state before moving on to the next.
+
+        Returns
+        -------
+        True if at least one of the initial guesses was accepted and
+        unique_states has at least one entry. False if we failed to find an
+        accepted state.
+
+        Raises
+        ------
+        ValueError
+            If the number of atoms in each structure is not the same.
+        """
+        xyz_files = glob.glob(f"{self.position_dir}/*.xyz")
+        accepted = False
+
+        for i, xyz_file in enumerate(xyz_files):
+            with open(xyz_file, "r") as file:
+                self.current_start, eof = xyz.read_xyz_frame(file)
+                if eof:
+                    raise ValueError(
+                        f"Starting xyz {xyz_file} could not be read")
+
+            if i == 0:
+                n_atoms = self.current_start.shape[0]
+
+            if n_atoms != self.current_start.shape[0]:
+                raise ValueError(
+                    f"{xyz_file} has {self.current_start.shape[0]} "
+                    f"atoms, which is inconsistent with {n_atoms} "
+                    f"atoms in {xyz_files[0]}")
+
+            result = self._run_velocity_attempts(n_vel_tries)
+
+            if result is not None:
+                accepted = True
+                print(f"{xyz_file} is accepted as a transition state")
+                hashable_state = tuple(map(tuple, self.current_start))
+                self.unique_states.add(hashable_state)
+
+        return accepted
 
     def _run_velocity_attempts(self, n_attempts: int) -> Optional[ShootingResult]:
         """Run from the current start, regenerating velocities if not accepted.
@@ -271,8 +326,8 @@ class AimlessShooting:
         True if it should be accepted, False otherwise.
         """
         return result.fwd["commit"] is not None and \
-               result.rev["commit"] is not None and \
-               result.fwd["commit"] != result.rev["commit"]
+            result.rev["commit"] is not None and \
+            result.fwd["commit"] != result.rev["commit"]
 
 
 def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
