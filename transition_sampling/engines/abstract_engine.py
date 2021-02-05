@@ -210,7 +210,7 @@ class AbstractEngine(ABC):
         Parameters
         ----------
         velocities : np.ndarray with shape (n, 3)
-            The positions for atoms to be set to.
+            The velocities for atoms to be set to.
 
         Raises
         -------

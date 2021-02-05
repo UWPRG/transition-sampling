@@ -30,9 +30,23 @@ class AimlessShooting:
 
     Attributes
     ----------
-    TODO fill this out
+    engine : AbstractEngine
+        Engine used to run the simulations
+    position_dir : str
+        Directory containing xyz guesses of transition states.
+    results_dir : str
+        Directory where generated transition states will be stored.
+    current_offset : int
+        -1, 0 or +1. The delta-t offset the point being run with engine
+        currently represents for purposes of choosing the next point.
+    current_start : np.ndarray
+        xyz array of the current starting position. Has shape (num_atoms, 3)
+    unique_states : set[tuple[tuple[float]]
+        A set of the accepted positions. These are the np arrays of the position
+        converted to tuples so they can be stored in this set.
+    total_count : int
+        The overall total count of states generated, including non-unique ones.
     """
-
     def __init__(self, engine: AbstractEngine, position_dir: str,
                  results_dir: str, starting_xyz: str):
         self.engine = engine
@@ -58,7 +72,24 @@ class AimlessShooting:
     def run(self, n_points: int, n_state_tries: int, n_vel_tries: int) -> None:
         """Run the aimless shooting algorithm to generate n_points.
 
-        Generated points are written to the given results_dir
+        Each state that is generated is written as a .xyz to the given results
+        directory.
+
+        There are two loops of tries before failing to generate a new transition
+        state. The outer loop is over starting positions and the inner loop is
+        over resampled velocities.
+
+        This implementation works as described below:
+        1. Pick a starting state
+        2. For that starting state, try n_vel_tries number of times to get it
+            accepted by regenerating the velocities each time it is rejected.
+        3. Either:
+            a. An accepted state was found. Pick the next starting point from
+                this accepted state and repeat from 1.
+            b. An accepted state was not found. Randomly select a state we know
+                has worked before and repeat from 1.
+        4. If 3b occurs n_state_tries in a row without generating a new accepted
+            state, we've failed. Raise an exception.
 
         Parameters
         ----------
@@ -69,11 +100,10 @@ class AimlessShooting:
         n_vel_tries
             Number of retries to find another point before failing
         """
-        # Generate the requested number of points, approximately 1/3 will not be
-        # unique.
-        generated_states = 0
+        accepted_states = 0
         states_since_success = 0
-        while generated_states < n_points:
+        starting_unique_states = len(self.unique_states)
+        while accepted_states < n_points:
             self.engine.set_positions(self.current_start)
             result = self._run_velocity_attempts(n_vel_tries)
 
@@ -98,20 +128,51 @@ class AimlessShooting:
                 self.current_start = np.asarray(selected_tuple)
 
             else:
+                # Our starting position is accepted with result. It has been
+                # added to the unique states, written to disk, and the total
+                # count updated
                 # Pick a new starting position based on the current offset
                 self.current_start = self.pick_starting(result)
-                # Pick a new offset
-                generated_states += 1
 
+                # Update accepted states in this call to run
+                accepted_states += 1
                 # We had success with this state, so set to 0
                 states_since_success = 0
 
             # No matter what, we should pick a new offset to remain stochastic
             self.current_offset = random.choice([-1, 0, 1])
 
-        print(f"{len(self.unique_states)} unique states generated.")
+        print(f"{len(self.unique_states)- starting_unique_states} new unique "
+              f"states generated.")
 
     def _run_velocity_attempts(self, n_attempts: int) -> Optional[ShootingResult]:
+        """Run from the current start, regenerating velocities if not accepted.
+
+        This is a wrapper for running a single starting position with multiple
+        velocities until an accepted result is found.
+
+        Tries to run one shooting point from the current start, sampling new
+        velocities. If this is point is not accepted or throws an exception, new
+        velocities are sampled again. This is done until n_attempts of shooting
+        points have been run or a point is accepted.
+
+        If a shooting point is accepted, it is written to the results directory,
+        merged into the set of unique states, and the total count of accepted
+        states updated.
+
+        Does not choose the next position when an accepted point is found.
+
+        Parameters
+        ----------
+        n_attempts
+            The number of times velocities should be resampled before giving up
+            on this starting position.
+
+        Returns
+        -------
+        An accepted ShootingResult if one was found in n_attempts, otherwise
+        None.
+        """
         for i in range(n_attempts):
             # Generate new velocities, run one point from it
             vels = generate_velocities(self.engine.atoms, self.engine.temp)
@@ -120,7 +181,6 @@ class AimlessShooting:
             if result is not None and self.is_accepted(result):
                 # Break out of try loop, we found an accepted state
                 # Write the state and merge it into our set of uniques
-
                 path = os.path.join(self.results_dir,
                                     f"state_{self.total_count}.xyz")
 
@@ -138,6 +198,25 @@ class AimlessShooting:
         return None
 
     def _run_one_velocity(self, vels: np.ndarray) -> Optional[ShootingResult]:
+        """Run one shooting point from the current start with given velocity.
+
+        Attempts to run a single shooting point from this object's current start
+        with the passed velocity. The velocities of the engine are the only
+        properties of this class changed.
+
+        Essentially this a wrapper for running a single shooting point that
+        catches any exceptions that might occur.
+
+        Parameters
+        ----------
+        vels : np.ndarray with shape (n_atoms, 3)
+            The velocities for atoms to be set to.
+
+        Returns
+        -------
+        The ShootingResult if the run succeeded. Otherwise None if an Exception
+        was caught.
+        """
         try:
             # Set the velocities
             self.engine.set_velocities(vels)
