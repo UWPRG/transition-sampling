@@ -68,7 +68,7 @@ class CP2KInputsHandler:
         -------
         Box size [x, y, z] of the input is set to in A
         """
-        return self._get_subsys()["+cell"]["ABC"]
+        return self._get_subsys()["+cell"]["abc"]
 
     def set_positions(self, positions: np.ndarray) -> None:
         """Set the positions of atoms in the inputs.
