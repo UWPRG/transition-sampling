@@ -86,6 +86,9 @@ class CP2KEngine(AbstractEngine):
         return super().validate_inputs(inputs)
 
     async def run_shooting_point(self) -> ShootingResult:
+        # Remove plumed backups
+        await super().run_shooting_point()
+
         # random project name so we don't overwrite/append anything
         proj_name = uuid.uuid4().hex
 
