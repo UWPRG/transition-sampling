@@ -2,6 +2,8 @@
 Abstract class interface defining what methods a valid engine must define in
 order to be used by the aimless shooting algorithm
 """
+from __future__ import annotations
+
 import numbers
 import os
 from abc import ABC, abstractmethod
