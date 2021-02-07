@@ -60,6 +60,16 @@ class CP2KInputsHandler:
         """
         return self.cp2k_dict["+motion"]["+md"]["temperature"]
 
+    @property
+    def box_size(self) -> list[float]:
+        """Get the box_size of the input in A.
+
+        Returns
+        -------
+        Box size [x, y, z] of the input is set to in A
+        """
+        return self._get_subsys()["+cell"]["ABC"]
+
     def set_positions(self, positions: np.ndarray) -> None:
         """Set the positions of atoms in the inputs.
 

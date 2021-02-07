@@ -162,6 +162,17 @@ class AbstractEngine(ABC):
         """
         pass
 
+    @property
+    @abstractmethod
+    def box_size(self) -> tuple[float]:
+        """Get the box size of the engine in A.
+
+        Returns
+        -------
+        Box size (x, y, z) the engine is set to in A
+        """
+        pass
+
     @abstractmethod
     def set_positions(self, positions: np.ndarray) -> None:
         """Set the positions of atoms in the engine.
