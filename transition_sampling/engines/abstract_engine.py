@@ -2,6 +2,8 @@
 Abstract class interface defining what methods a valid engine must define in
 order to be used by the aimless shooting algorithm
 """
+from __future__ import annotations
+
 import numbers
 import os
 from abc import ABC, abstractmethod
@@ -159,6 +161,17 @@ class AbstractEngine(ABC):
         Returns
         -------
         Temperature the engine is set to in Kelvin
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def box_size(self) -> tuple[float]:
+        """Get the box size of the engine in A.
+
+        Returns
+        -------
+        Box size (x, y, z) the engine is set to in A
         """
         pass
 
