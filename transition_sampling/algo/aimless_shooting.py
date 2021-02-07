@@ -49,7 +49,7 @@ class AimlessShooting:
         The overall total count of states generated, including non-unique ones.
     """
     def __init__(self, engine: AbstractEngine, position_dir: str,
-                 results_dir: str, starting_xyz: str):
+                 results_dir: str):
         self.engine = engine
         self.position_dir = position_dir
         self.results_dir = results_dir
