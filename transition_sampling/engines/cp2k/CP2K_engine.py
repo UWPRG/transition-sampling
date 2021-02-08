@@ -57,6 +57,10 @@ class CP2KEngine(AbstractEngine):
     def temp(self) -> float:
         return self.cp2k_inputs.temp
 
+    @property
+    def box_size(self) -> tuple[float]:
+        return tuple(self.cp2k_inputs.box_size)
+
     def set_positions(self, positions: np.ndarray) -> None:
         # Check positions are valid by passing to base class
         super().set_positions(positions)
@@ -150,7 +154,12 @@ class CP2KEngine(AbstractEngine):
             "commit": basin integer the trajectory committed to or None if it
                 did not commit
             "frames": np.array with the +delta_t and +2delta_t xyz frames. Has
-                the shape (n_atoms, 3, 2)
+                the shape (2, n_atoms, 3)
+
+        Raises
+        ------
+        RuntimeError
+            If CP2K fails to run.
         """
         # Assign the unique project name
         self.cp2k_inputs.set_project_name(projname)
@@ -205,8 +214,7 @@ class CP2KEngine(AbstractEngine):
             with open(output_file, "a") as f:
                 f.write(stdout.decode('ascii'))
 
-            # TODO: Better exception
-            raise Exception("Process failed")
+            raise RuntimeError("Process failed")
 
         # Get the output file for warnings. If there are some, log them
         warnings = output_handler.check_warnings()

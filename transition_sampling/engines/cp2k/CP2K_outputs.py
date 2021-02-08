@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
-import typing
+import transition_sampling.util.xyz as xyz
 from typing import Sequence
 
 import numpy as np
@@ -63,7 +63,7 @@ class CP2KOutputHandler:
         Returns
         -------
         Array of the xyz coordinates in the second and third frame. Has the
-        shape (n_atoms, 3, 2).
+        shape (2, n_atoms, 3).
 
         Raises
         ------
@@ -72,14 +72,14 @@ class CP2KOutputHandler:
         """
         with open(self._build_full_path(f"{self.name}-pos-1.xyz")) as file:
             # Skip the first printed frame at t=0
-            _, eof = read_xyz_frame(file)
+            _, eof = xyz.read_xyz_frame(file)
             if eof:
                 raise EOFError("First frame could not be read")
             # return the next printed frame
-            frame_2, eof = read_xyz_frame(file)
+            frame_2, eof = xyz.read_xyz_frame(file)
             if eof:
                 raise EOFError("Second frame could not be read")
-            frame_3, eof = read_xyz_frame(file)
+            frame_3, eof = xyz.read_xyz_frame(file)
             if eof:
                 raise EOFError("Third frame could not be read")
         return np.array([frame_2, frame_3])
@@ -99,34 +99,3 @@ class CP2KOutputHandler:
         return os.path.join(self.working_dir, file)
 
 
-def read_xyz_frame(ifile: typing.IO) -> typing.Union[tuple[None, bool],
-                                                     tuple[np.ndarray, bool]]:
-    """Reads a single frame from XYZ file.
-
-    Parameters
-    ----------
-    ifile
-        opened file ready for reading, positioned at the num atoms line
-    Returns
-    -------
-    xyz
-        Coordinates of the frame
-    eof
-        true if end of file has been reached.
-    """
-    n_atoms = ifile.readline()
-    if n_atoms:
-        n_atoms = int(n_atoms)
-    else:
-        xyz = None
-        eof = True
-        return xyz, eof
-
-    xyz = np.zeros((n_atoms, 3))
-    # skip comment line
-    next(ifile)
-    for i in range(n_atoms):
-        line = ifile.readline().split()
-        xyz[i] = [float(x) for x in line[1:4]]
-    eof = False
-    return xyz, eof

@@ -2,6 +2,8 @@
 Abstract class interface defining what methods a valid engine must define in
 order to be used by the aimless shooting algorithm
 """
+from __future__ import annotations
+
 import numbers
 import os
 from abc import ABC, abstractmethod
@@ -29,7 +31,7 @@ class ShootingResult:
             or None if it did not commit.
         frames : np.ndarray
             An array of the +delta_t and +2*delta_t frames. Has the shape
-            (n, 3, 2) corresponding to (# of atoms, xyz dimensions, frames).
+            (2, n, 3) corresponding to (frames, # of atoms, xyz dimensions).
             The first frame is the closest to t=0, so +delta_t
     rev : dict
         Reverse trajectory. Two fields are defined, "commit" and "frames".
@@ -159,6 +161,17 @@ class AbstractEngine(ABC):
         Returns
         -------
         Temperature the engine is set to in Kelvin
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def box_size(self) -> tuple[float]:
+        """Get the box size of the engine in A.
+
+        Returns
+        -------
+        Box size (x, y, z) the engine is set to in A
         """
         pass
 
