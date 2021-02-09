@@ -42,11 +42,8 @@ class AimlessShooting:
         currently represents for purposes of choosing the next point.
     current_start : np.ndarray
         xyz array of the current starting position. Has shape (num_atoms, 3)
-    unique_states : set[tuple[tuple[float]]
-        A set of the accepted positions. These are the np arrays of the position
-        converted to tuples so they can be stored in this set.
-    total_count : int
-        The overall total count of states generated, including non-unique ones.
+    accepted_states : list[np.ndarray]
+        A list of the accepted positions. Contains duplicates.
     """
     def __init__(self, engine: AbstractEngine, position_dir: str,
                  results_dir: str):
@@ -57,8 +54,7 @@ class AimlessShooting:
         self.current_offset = random.choice([-1, 0, 1])
         self.current_start = None
 
-        self.unique_states = set()
-        self.total_count = 0
+        self.accepted_states = []
 
     def run(self, n_points: int, n_state_tries: int, n_vel_tries: int) -> None:
         """Run the aimless shooting algorithm to generate n_points.
@@ -93,14 +89,12 @@ class AimlessShooting:
         """
         accepted_states = 0
         states_since_success = 0
-        if len(self.unique_states) == 0:
+        if len(self.accepted_states) == 0:
             if not self._kickstart(n_vel_tries):
                 raise RuntimeError("No initial guesses were accepted as "
                                    "transition states")
 
-        starting_unique_states = len(self.unique_states)
-        selected_tuple = random.choice(tuple(self.unique_states))
-        self.current_start = np.asarray(selected_tuple)
+        self.current_start = random.choice(self.accepted_states)
 
         while accepted_states < n_points:
             self.engine.set_positions(self.current_start)
@@ -121,10 +115,8 @@ class AimlessShooting:
                         f"({n_state_tries * n_vel_tries}) total unsuccessful "
                         f"runs in a row")
 
-                # Convert set to tuple so we can randomly choose, then convert
-                # the stored tuple back into an array
-                selected_tuple = random.choice(tuple(self.unique_states))
-                self.current_start = np.asarray(selected_tuple)
+                # randomly choose a new start from the list that we know works
+                self.current_start = random.choice(self.accepted_states)
 
             else:
                 # Our starting position is accepted with result. It has been
@@ -140,9 +132,6 @@ class AimlessShooting:
 
             # No matter what, we should pick a new offset to remain stochastic
             self.current_offset = random.choice([-1, 0, 1])
-
-        print(f"{len(self.unique_states) - starting_unique_states} new unique "
-              f"states generated.")
 
     def _kickstart(self, n_vel_tries: int) -> bool:
         """Loop through provided initial guesses to see if any are accepted.
@@ -195,8 +184,7 @@ class AimlessShooting:
             if result is not None:
                 accepted = True
                 print(f"{xyz_file} is accepted as a transition state")
-                hashable_state = tuple(map(tuple, self.current_start))
-                self.unique_states.add(hashable_state)
+                self.accepted_states.append(self.current_start)
 
         return accepted
 
@@ -237,16 +225,12 @@ class AimlessShooting:
                 # Break out of try loop, we found an accepted state
                 # Write the state and merge it into our set of uniques
                 path = os.path.join(self.results_dir,
-                                    f"state_{self.total_count}.xyz")
+                                    f"state_{len(self.accepted_states)}.xyz")
 
                 xyz.write_xyz_frame(path, self.engine.atoms, self.current_start)
 
-                # convert np array to tuples so its immutable and hashable
-                hashable_state = tuple(map(tuple, self.current_start))
-                self.unique_states.add(hashable_state)
+                self.accepted_states.append(self.current_start)
 
-                # Update the total number of states we've generated
-                self.total_count += 1
                 return result
 
         # Did not have an accepted state by changing velocity in n_attempts
