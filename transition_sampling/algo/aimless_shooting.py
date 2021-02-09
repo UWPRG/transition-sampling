@@ -8,6 +8,7 @@ from typing import Sequence
 import numpy as np
 
 import transition_sampling.util.xyz as xyz
+from transition_sampling.util.periodic_table import atomic_symbols_to_mass
 from transition_sampling.engines import AbstractEngine, ShootingResult
 
 
@@ -180,7 +181,10 @@ def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
     n_atoms = len(mass)
 
     # Number of degrees of freedom
-    dof = 3 * n_atoms - 6
+    if n_atoms < 3:
+        dof = 1
+    else:
+        dof = 3 * n_atoms - 6
 
     # Convert mass from amu to kg
     mass = np.asarray(mass).reshape(-1, 1) / 1000 / 6.022e23
@@ -203,42 +207,3 @@ def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
     v_final = v_scaled * au_time_factor / bohr_factor
 
     return v_final
-
-
-def atomic_symbols_to_mass(atoms: list[str]) -> list[float]:
-    """Converts atomic symbols to their atomic masses in amu.
-
-    Parameters
-    ----------
-    atoms
-        List of atomic symbols
-
-    Returns
-    -------
-    List of atomic masses"""
-    atomic_mass_dict = get_atomic_mass_dict()
-    masses = []
-    for atom in atoms:
-        masses.append(atomic_mass_dict[atom])
-    return masses
-
-
-def get_atomic_mass_dict() -> dict[str, float]:
-    """Builds a dictionary of atomic symbols as keys and masses as values.
-
-    Returns
-    -------
-    Dict of atomic symbols and masses"""
-    atomic_mass_dict = {}
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(dir_path, '..', 'data', 'atomic_info.dat')) as f:
-        for line in f:
-            data = line.split()
-
-            # Accounts for atoms that only have a most-stable mass,
-            # e.g., Oxygen 15.9994 vs Technetium (98)
-            if data[-1].startswith('('):
-                data[-1] = data[-1][1:-1]
-
-            atomic_mass_dict[data[1]] = float(data[-1])
-    return atomic_mass_dict
