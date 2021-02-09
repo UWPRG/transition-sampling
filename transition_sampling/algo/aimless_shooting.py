@@ -9,6 +9,7 @@ import random
 from typing import Sequence, Optional
 
 import numpy as np
+import pandas as pd
 
 import transition_sampling.util.xyz as xyz
 from transition_sampling.util.periodic_table import atomic_symbols_to_mass
@@ -28,7 +29,9 @@ class AimlessShooting:
     position_dir
         A directory containing only xyz positions of guesses at transition
         states. These positions will be used to try to kickstart the algorithm.
-    results_dir
+    results_xyz
+        A directory to store generated transition states.
+    results_csv
         A directory to store generated transition states.
 
     Attributes
@@ -37,7 +40,7 @@ class AimlessShooting:
         Engine used to run the simulations
     position_dir : str
         Directory containing xyz guesses of transition states.
-    results_dir : str
+    results_csv : str
         Directory where generated transition states will be stored.
     current_offset : int
         -1, 0 or +1. The delta-t offset the point being run with engine
@@ -48,10 +51,23 @@ class AimlessShooting:
         A list of the accepted positions. Contains duplicates.
     """
     def __init__(self, engine: AbstractEngine, position_dir: str,
-                 results_dir: str):
+                 results_xyz: str, results_csv: str = "aimless_shooting.csv"):
         self.engine = engine
         self.position_dir = position_dir
-        self.results_dir = results_dir
+        self.results_xyz = results_xyz
+        self.results_csv = results_csv
+
+        # Write the CSV header if doesn't exist, otherwise figure out what
+        # index we're writing to.
+        if not os.path.isfile(self.results_csv):
+            with open(self.results_csv, "w") as f:
+                f.write("index, forward_basin, reverse_basin, box_x, box_y, box_z\n")
+
+            self.cur_index = 0
+
+        else:
+            df = pd.read_csv(self.results_csv)
+            self.cur_index = df["index"].max() + 1
 
         self.current_offset = random.choice([-1, 0, 1])
         self.current_start = None
@@ -225,17 +241,19 @@ class AimlessShooting:
             vels = generate_velocities(self.engine.atoms, self.engine.temp)
             result = self._run_one_velocity(vels)
 
-            if result is not None and self.is_accepted(result):
-                # Break out of try loop, we found an accepted state
-                # Write the state and merge it into our set of uniques
-                path = os.path.join(self.results_dir,
-                                    f"state_{len(self.accepted_states)}.xyz")
+            if result is not None:
+                # Record all runs that did not end in an Exception
+                with open(self.results_xyz, "a") as xyz_file:
+                    xyz.write_xyz_frame(xyz_file, self.engine.atoms,
+                                        self.current_start)
 
-                xyz.write_xyz_frame(path, self.engine.atoms, self.current_start)
+                self.write_csv_line(result)
 
-                self.accepted_states.append(self.current_start)
-
-                return result
+                if self.is_accepted(result):
+                    # Break out of try loop, we found an accepted state
+                    # Record it in our list
+                    self.accepted_states.append(self.current_start)
+                    return result
 
         # Did not have an accepted state by changing velocity in n_attempts
         return None
@@ -316,6 +334,15 @@ class AimlessShooting:
         return result.fwd["commit"] is not None and \
             result.rev["commit"] is not None and \
             result.fwd["commit"] != result.rev["commit"]
+
+    def write_csv_line(self, result: ShootingResult):
+        columns = [self.cur_index, result.fwd["commit"], result.rev["commit"],
+                   self.engine.box_size[0], self.engine.box_size[1],
+                   self.engine.box_size[2]]
+
+        with open(self.results_csv, "a") as file:
+            file.write(", ".join([str(x) for x in columns]))
+            file.write("\n")
 
 
 def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
