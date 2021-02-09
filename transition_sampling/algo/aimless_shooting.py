@@ -61,7 +61,8 @@ class AimlessShooting:
         # index we're writing to.
         if not os.path.isfile(self.results_csv):
             with open(self.results_csv, "w") as f:
-                f.write("index, forward_basin, reverse_basin, box_x, box_y, box_z\n")
+                f.write("index, accepted, forward_basin, reverse_basin, box_x,"
+                        " box_y, box_z\n")
 
             self.cur_index = 0
 
@@ -248,6 +249,7 @@ class AimlessShooting:
                                         self.current_start)
 
                 self.write_csv_line(result)
+                self.cur_index += 1
 
                 if self.is_accepted(result):
                     # Break out of try loop, we found an accepted state
@@ -336,7 +338,8 @@ class AimlessShooting:
             result.fwd["commit"] != result.rev["commit"]
 
     def write_csv_line(self, result: ShootingResult):
-        columns = [self.cur_index, result.fwd["commit"], result.rev["commit"],
+        columns = [self.cur_index, self.is_accepted(result),
+                   result.fwd["commit"], result.rev["commit"],
                    self.engine.box_size[0], self.engine.box_size[1],
                    self.engine.box_size[2]]
 
