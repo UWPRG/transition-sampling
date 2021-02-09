@@ -36,7 +36,33 @@ class NextPositionTest(unittest.TestCase):
 
 class VelocityGenerationTest(unittest.TestCase):
     """Test that velocity generation works"""
-    def test_generate_velocities(self):
+    def test_velocities_are_arrays(self):
+
+        # Set the seed for reproducible results.
+        np.random.seed(1)
+
+        test_atoms = ['Ar'] * 1000
+        test_temp1 = 300  # K
+
+        test_vel1 = generate_velocities(test_atoms, test_temp1)
+
+        # Assert that a numpy array is returned.
+        self.assertTrue(isinstance(test_vel1, np.ndarray))
+
+    def test_velocity_shape(self):
+
+        # Set the seed for reproducible results.
+        np.random.seed(1)
+
+        test_atoms = ['Ar'] * 1000
+        test_temp1 = 300  # K
+
+        test_vel1 = generate_velocities(test_atoms, test_temp1)
+
+        # Test that the shape of the velocities are correct.
+        self.assertEqual(test_vel1.shape, (len(test_atoms), 3))
+
+    def test_velocity_distribution_peak_location(self):
 
         # Set the seed for reproducible results.
         np.random.seed(1)
@@ -47,12 +73,6 @@ class VelocityGenerationTest(unittest.TestCase):
 
         test_vel1 = generate_velocities(test_atoms, test_temp1)
         test_vel2 = generate_velocities(test_atoms, test_temp2)
-
-        # Assert that a numpy array is returned.
-        self.assertTrue(isinstance(test_vel1, np.ndarray))
-
-        # Test that the shape of the velocities are correct.
-        self.assertEqual(test_vel1.shape, (len(test_atoms), 3))
 
         # Histogram each velocity distribution and assert that the peak 
         # for T = 300 K is higher and occurs at a lower temperature
