@@ -57,6 +57,10 @@ class CP2KEngine(AbstractEngine):
     def temp(self) -> float:
         return self.cp2k_inputs.temp
 
+    @property
+    def box_size(self) -> tuple[float]:
+        return tuple(self.cp2k_inputs.box_size)
+
     def set_positions(self, positions: np.ndarray) -> None:
         # Check positions are valid by passing to base class
         super().set_positions(positions)

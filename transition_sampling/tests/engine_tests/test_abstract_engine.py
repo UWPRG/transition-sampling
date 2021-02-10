@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import os
 from typing import Tuple, Sequence
@@ -48,6 +50,10 @@ class AbstractEngineMock(AbstractEngine):
     @property
     def temp(self) -> float:
         return super().temp
+    
+    @property
+    def box_size(self) -> tuple[float]:
+        return super().box_size
 
     def set_positions(self, positions: np.ndarray) -> None:
         super().set_positions(positions)

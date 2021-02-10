@@ -123,19 +123,37 @@ class TestCP2KEngineAtoms(CP2KEngineTestCase):
 
 
 class TestCP2KEngineTemperature(CP2KEngineTestCase):
-    def test_atoms_getting(self):
+    def test_temp_getting(self):
         """
         Test that the correct temperature is returned
         """
         self.assertAlmostEqual(85, self.engine.temp)
 
-    def test_atoms_setting(self):
+    def test_temp_setting(self):
         """
         Test that temperature cannot be set
         """
         with self.assertRaises(AttributeError,
                                msg="Temp should not be allowed assignment"):
             self.engine.temp = 298
+
+
+class TestCP2KEngineBoxsize(CP2KEngineTestCase):
+    def test_box_getting(self):
+        """
+        Test that the correct box size is returned
+        """
+        correct_size = [10.10, 11.11, 12.12]
+        for expected, actual in zip(correct_size, self.engine.box_size):
+            self.assertEqual(expected, actual, msg="Box size not correct")
+
+    def test_box_setting(self):
+        """
+        Test that temperature cannot be set
+        """
+        with self.assertRaises(AttributeError,
+                               msg="Box size should not be allowed assignment"):
+            self.engine.box_size = (1, 2, 3)
 
 
 class TestCP2KEnginePositions(CP2KEngineTestCase):
