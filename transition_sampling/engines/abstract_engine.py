@@ -2,8 +2,9 @@
 Abstract class interface defining what methods a valid engine must define in
 order to be used by the aimless shooting algorithm
 """
-from __future__ import annotations
 
+=======
+import glob
 import numbers
 import os
 from abc import ABC, abstractmethod
@@ -282,7 +283,12 @@ class AbstractEngine(ABC):
         The positions of the +/- dt frames, as well as the committing
         results of both simulations.
         """
-        pass
+
+        # Plumed cannot support more than 100 backups. Remove them if they are
+        # present in the working directory
+        # TODO May be a way to turn them off
+        for plumed_backup in glob.glob(f"{self.working_dir}/bck.*.PLUMED.OUT"):
+            os.remove(plumed_backup)
 
     @abstractmethod
     def set_delta_t(self, value: float) -> None:
