@@ -1,6 +1,8 @@
 """Submodule that handles the generation of periodic table information."""
 from __future__ import annotations
 
+import typing
+
 from .atomic_masses import ATOMIC_MASSES
 
 
