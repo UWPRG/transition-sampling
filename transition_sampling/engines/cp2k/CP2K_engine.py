@@ -215,7 +215,11 @@ class CP2KEngine(AbstractEngine):
 
             # Append the error from stdout to the output file
             with open(output_file, "a") as f:
+                f.write("\nFAILURE \n")
+                f.write("STDOUT: \n")
                 f.write(stdout.decode('ascii'))
+                f.write("\nSTDERR: \n")
+                f.write(stderr.decode('ascii'))
 
             raise RuntimeError("Process failed")
 
