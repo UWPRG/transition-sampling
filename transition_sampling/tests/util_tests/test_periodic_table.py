@@ -2,8 +2,8 @@ from numbers import Number
 import os
 import unittest
 
-from transition_sampling.util.periodic_table import (atomic_symbols_to_mass,
-        get_atomic_mass_dict)
+from transition_sampling.util.periodic_table import atomic_symbols_to_mass
+from transition_sampling.util.atomic_masses import ATOMIC_MASSES
 
 
 CUR_DIR = os.path.dirname(__file__)
@@ -12,24 +12,31 @@ DATA_DIR = os.path.join(CUR_DIR, "..", "..", "data")
 
 class AtomicMassDictTest(unittest.TestCase):
     """Tests that the atomic mass dictionary can be generated correctly"""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.test_dict = get_atomic_mass_dict()
-
     def test_atomic_info_file_exists(self):
         atomic_info_path = os.path.join(DATA_DIR, 'atomic_info.dat')
         self.assertTrue(os.path.exists(atomic_info_path))
 
     def test_atomic_mass_is_dict_type(self):
-        self.assertIsInstance(self.test_dict, dict)
+        self.assertIsInstance(ATOMIC_MASSES, dict)
 
     def test_keys_are_str(self):
-        for key in self.test_dict.keys():
+        for key in ATOMIC_MASSES.keys():
             self.assertIsInstance(key, str)
 
     def test_values_are_numbers(self):
-        for val in self.test_dict.values():
+        for val in ATOMIC_MASSES.values():
             self.assertIsInstance(val, Number)
+
+    def test_subset_of_atoms_and_masses(self):
+        correct = [('H', 1.00797),
+                   ('C', 12.011),
+                   ('N', 14.0067),
+                   ('O', 15.9994),
+                   ('Fe', 55.847),
+                   ('Tc', 98)]
+
+        for atom, correct_mass in correct:
+            self.assertAlmostEqual(correct_mass, ATOMIC_MASSES[atom])
 
 
 class ConversionFromAtomicSymbolToMassTest(unittest.TestCase):
