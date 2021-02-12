@@ -83,9 +83,11 @@ class AimlessShooting:
         n_points
             Number of total points to generate
         n_state_tries
-            Number of retries to find another point before failing
+            Number of consecutive states to try resampling before failing 
+            completely
         n_vel_tries
-            Number of retries to find another point before failing
+            Number of times to try resampling velocities on a single state
+            before moving on to try a new state
         """
         accepted_states = 0
         states_since_success = 0
