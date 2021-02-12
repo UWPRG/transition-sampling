@@ -1,12 +1,14 @@
 """Implementation of the aimless shooting algorithm"""
 from __future__ import annotations
 
+import os
 import asyncio
 from typing import Sequence
 
 import numpy as np
 
 import transition_sampling.util.xyz as xyz
+from transition_sampling.util.periodic_table import atomic_symbols_to_mass
 from transition_sampling.engines import AbstractEngine, ShootingResult
 
 
@@ -170,4 +172,38 @@ def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
     An array of velocities generated randomly from the Maxwell-Boltzmann
     distribution. Has the shape (n_atoms, 3), where 3 is the x,y,z directions.
     """
-    return np.random.normal(0, 0.003, (len(atoms), 3))
+
+    kB = 1.380649e-23            # J / K
+    au_time_factor = 0.0242e-15  # s / au_time
+    bohr_factor = 5.29e-11       # m / bohr
+
+    mass = atomic_symbols_to_mass(atoms)
+    n_atoms = len(mass)
+
+    # Number of degrees of freedom
+    if n_atoms < 3:
+        dof = 1
+    else:
+        dof = 3 * n_atoms - 6
+
+    # Convert mass from amu to kg
+    mass = np.asarray(mass).reshape(-1, 1) / 1000 / 6.022e23
+
+    v_raw = np.sqrt(kB * temp / mass) * np.random.normal(size=(n_atoms, 3))
+
+    # Shift velocities by mean momentum such that total
+    # box momentum is 0 in all dimensions.
+    p_mean = np.sum(mass * v_raw, axis=0) / n_atoms
+    v_mean = p_mean / mass.mean()
+    v_shifted = v_raw - v_mean
+
+    # Scale velocities to exact target temperature.
+    # Prevents systems with few atoms from sampling far away from target T.
+    temp_shifted = np.sum(mass * v_shifted ** 2) / (dof * kB)
+    scale = np.sqrt(temp / temp_shifted)
+    v_scaled = v_shifted * scale
+
+    # Convert from m/s to a.u.
+    v_final = v_scaled * au_time_factor / bohr_factor
+
+    return v_final
