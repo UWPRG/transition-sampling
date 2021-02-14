@@ -46,7 +46,7 @@ class CP2KInputsHandler:
         if self._atoms is None:
             # TODO: How does this handle coordinates linked in a separate file?
             # Return the first two places for each coordinate entry
-            self._atoms = [entry[0:2] for entry in self._get_coord()]
+            self._atoms = [entry[0:2].strip() for entry in self._get_coord()]
 
         return self._atoms
 

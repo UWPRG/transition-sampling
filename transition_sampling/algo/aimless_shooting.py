@@ -1,7 +1,6 @@
 """Implementation of the aimless shooting algorithm"""
 from __future__ import annotations
 
-import os
 import asyncio
 import glob
 import os
@@ -30,18 +29,25 @@ class AimlessShooting:
         A directory containing only xyz positions of guesses at transition
         states. These positions will be used to try to kickstart the algorithm.
     results_xyz
-        A directory to store generated transition states.
+        A file which all states, accepted or rejected, will be written to as
+        an individual frame. Appended to if it already exists, otherwise it is
+        created.
     results_csv
-        A directory to store generated transition states.
+        A corresponding file to results_xyz that stores metadata for each state,
+        such as forward and reverse committed basins. Both files are necessary
+        for likelihood maximization. Appended to if it already exists, otherwise
+        it is created.
 
     Attributes
     ----------
     engine : AbstractEngine
         Engine used to run the simulations
     position_dir : str
-        Directory containing xyz guesses of transition states.
+        Directory containing initial xyz guesses of transition states.
+    results_xyz : str
+        xyz file where all generated states, accepted or rejected will be stored
     results_csv : str
-        Directory where generated transition states will be stored.
+        csv file where metadata about results_xyz states is stored
     current_offset : int
         -1, 0 or +1. The delta-t offset the point being run with engine
         currently represents for purposes of choosing the next point.
@@ -244,9 +250,12 @@ class AimlessShooting:
 
             if result is not None:
                 # Record all runs that did not end in an Exception
+                # Save forward and backwards basin commits as minimum recovery
+                comment = f"{result.fwd['commit']}, {result.rev['commit']}"
+
                 with open(self.results_xyz, "a") as xyz_file:
                     xyz.write_xyz_frame(xyz_file, self.engine.atoms,
-                                        self.current_start)
+                                        self.current_start, comment=comment)
 
                 self.write_csv_line(result)
                 self.cur_index += 1
@@ -337,7 +346,17 @@ class AimlessShooting:
             result.rev["commit"] is not None and \
             result.fwd["commit"] != result.rev["commit"]
 
-    def write_csv_line(self, result: ShootingResult):
+    def write_csv_line(self, result: ShootingResult) -> None:
+        """Write a single line to the results_csv for the given result.
+
+        Uses self.cur_index as the index for this line.
+
+        Parameters
+        ----------
+        result
+            Shooting result of the state to write. Used for fwd and rev basin
+            commits.
+        """
         columns = [self.cur_index, self.is_accepted(result),
                    result.fwd["commit"], result.rev["commit"],
                    self.engine.box_size[0], self.engine.box_size[1],
