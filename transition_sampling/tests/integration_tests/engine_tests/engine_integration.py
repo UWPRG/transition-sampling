@@ -9,8 +9,8 @@ import numpy as np
 from transition_sampling.engines import CP2KEngine
 
 CUR_DIR = os.path.dirname(__file__)
-TEST_INPUT = os.path.join(CUR_DIR, "test_data/cp2k.inp")
-TEST_PLUMED = os.path.join(CUR_DIR, "test_data/plumed.dat")
+TEST_INPUT = os.path.join(CUR_DIR, "../shared_test_data/cp2k.inp")
+TEST_PLUMED = os.path.join(CUR_DIR, "../shared_test_data/plumed.dat")
 
 # Location of the cp2k executable in docker image lemmoi:transition_sampling
 CP2K_CMD = "/src/cp2k.ssmp"
