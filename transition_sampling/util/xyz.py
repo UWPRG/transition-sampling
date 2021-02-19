@@ -38,19 +38,20 @@ def read_xyz_frame(ifile: typing.IO) -> typing.Union[tuple[None, bool],
     return xyz, eof
 
 
-def write_xyz_frame(file_name: str, atoms: typing.Sequence[str],
-                    frame: np.ndarray) -> None:
-    """Write a single xyz frame to a new file.
-
+def write_xyz_frame(file: typing.IO, atoms: typing.Sequence[str],
+                    frame: np.ndarray, comment: str = "") -> None:
+    """Write a single xyz frame to the given file.
 
     Parameters
     ----------
-    file_name
-        Name of the file to write to
+    file
+        Open file for writing to
     atoms
         list of atom names
     frame
         array with shape (n_atoms, 3)
+    comment
+        string to be placed in the comment line. Defaults to empty.
 
     Raises
     ------
@@ -63,13 +64,11 @@ def write_xyz_frame(file_name: str, atoms: typing.Sequence[str],
         raise ValueError(f"Number of atoms ({len(atoms)}) did not match"
                          f" the number of coordinates ({frame.shape[0]})")
 
-    with open(file_name, "w") as file:
+    file.write(f"{len(atoms)}\n")
+    file.write(f"{comment}\n")
 
-        file.write(f"{len(atoms)}\n\n")
+    for i in range(len(atoms)):
+        file.write(f"{atoms[i]} ")
 
-        for i in range(len(atoms)):
-            file.write(f"{atoms[i]} ")
-
-            file.write(' '.join([str(x) for x in frame[i, :]]))
-            file.write("\n")
-
+        file.write(' '.join([str(x) for x in frame[i, :]]))
+        file.write("\n")
