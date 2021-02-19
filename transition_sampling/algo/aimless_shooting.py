@@ -124,7 +124,6 @@ class AimlessShooting:
         self.current_start = random.choice(self.accepted_states)
 
         while accepted_states < n_points:
-            self.engine.set_positions(self.current_start)
             result = self._run_velocity_attempts(n_vel_tries)
 
             if result is None:
@@ -246,6 +245,8 @@ class AimlessShooting:
         for i in range(n_attempts):
             # Generate new velocities, run one point from it
             vels = generate_velocities(self.engine.atoms, self.engine.temp)
+            # Set the position
+            self.engine.set_positions(self.current_start)
             result = self._run_one_velocity(vels)
 
             if result is not None:
