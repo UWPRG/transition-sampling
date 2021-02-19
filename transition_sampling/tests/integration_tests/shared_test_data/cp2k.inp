@@ -42,12 +42,12 @@
   &END MM
   &SUBSYS
     &CELL
-      ABC 40 40 40
+      ABC 20 20 20
     &END CELL
     &COORD
-   Cl 0 0 0
-   Ca 10 10 10
-   Cl 20 20 20
+      Cl 0 0 0
+      Ca 5 5 5
+      Cl 10 10 10
     &END COORD
     &VELOCITY
     0 0 0
@@ -66,8 +66,8 @@
   &MD
     ENSEMBLE NVE
     STEPS 2000
-    TIMESTEP 1.
-    TEMPERATURE 85.0
+    TIMESTEP 10.
+    TEMPERATURE 300
   &END MD
   &CONSTRAINT
     &FIXED_ATOMS

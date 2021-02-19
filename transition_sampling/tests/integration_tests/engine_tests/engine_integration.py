@@ -6,7 +6,8 @@ import asyncio
 
 import numpy as np
 
-from transition_sampling.engines import CP2KEngine
+from transition_sampling.engines import AbstractEngine, CP2KEngine
+from transition_sampling.algo.aimless_shooting import generate_velocities
 
 CUR_DIR = os.path.dirname(__file__)
 TEST_INPUT = os.path.join(CUR_DIR, "../shared_test_data/cp2k.inp")
@@ -90,7 +91,7 @@ class TestCP2KIntegration(TestCase):
             self.assertAlmostEqual(arr1_flat[i], arr2_flat[i], places=places)
 
 
-def _generate_fixed_starts(n_tests: int) -> None:
+def _generate_fixed_starts(n_tests: int, engine: AbstractEngine) -> None:
     """Function for generating random starting positions and velocities.
 
     This is used to generate new test cases for the integration test.
@@ -104,15 +105,15 @@ def _generate_fixed_starts(n_tests: int) -> None:
     # First atom (Cl-) is fixed at (0, 0, 0)
 
     # Second atom (Ca2+) is randomly generated about the middle of the two fixed
-    # atoms. Centered at (10, 10, 10) angstroms with sigma=0.1
-    positions[1, :, :] = np.random.normal(10, .1, (3, n_tests))
+    # atoms. Centered at (5, 5, 5) angstroms with sigma=0.1
+    positions[1, :, :] = np.random.normal(5, .1, (3, n_tests))
 
-    # Third atom (Cl-) is fixed at (20, 20, 20)
-    positions[2, :, :] += 20
+    # Third atom (Cl-) is fixed at (10, 10, 10)
+    positions[2, :, :] += 10
 
     # Starting velocities for all atoms. Technically this only applies to atom 2
     # because atoms 1 and 3 are fixed and will not move.
-    velocities = np.random.normal(0, 0.003, (3, 3, n_tests))
+    velocities = generate_velocities(engine.atoms, engine.temp)
 
     # Save these to be loaded for the test
     np.save(os.path.join(CUR_DIR, "test_data/starting_pos.npy"), positions)

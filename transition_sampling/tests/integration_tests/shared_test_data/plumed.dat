@@ -3,10 +3,10 @@ d1:  DISTANCE ATOMS=1,2
 d2:  DISTANCE ATOMS=2,3
 COMMITTOR ...
   ARG=d1,d2
-  # Atom 2 gets close to atom 1, within 7A
+  # Atom 2 gets close to atom 1, within 3A
   BASIN_LL1=0,.5
-  BASIN_UL1=.7,100
-  # Atom 2 gets close to atom 3, within 7A
+  BASIN_UL1=.3,100
+  # Atom 2 gets close to atom 3, within 3A
   BASIN_LL2=.5,0
-  BASIN_UL2=100,.7
+  BASIN_UL2=100,.3
 ... COMMITTOR
