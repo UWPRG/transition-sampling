@@ -23,4 +23,4 @@ jobs:
       shell: bash
       run: |
         source /src/plumed/sourceme.sh        
-        python -m unittest discover transition_sampling/tests/integration_tests/
+        python -m unittest discover -s transition_sampling/tests/integration_tests/
