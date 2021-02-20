@@ -15,12 +15,12 @@ jobs:
     - name: Setup
       shell: bash
       run: |
-
+        pip3 install pytest
         pip3 install -r requirements.txt
         pip3 install .
 
-    - name: Test
+    - name: Integration Tests
       shell: bash
       run: |
         source /src/plumed/sourceme.sh        
-        python -m unittest discover -s transition_sampling/tests/integration_tests/
+        pytest transition_sampling/tests/integration_tests/
