@@ -33,7 +33,14 @@ class TestAimlessShootingIntegration(TestCase):
     """Test running the aimless shooting algorithm with CP2K"""
 
     def test_integration(self):
-        """
+        """Run some aimless shooting trials with CP2K.
+
+        Uses the 3 ion system shared with the engine integration test. Attempts
+        to kickstart with 3 initial guesses, one of which is not a transition
+        state. After that, two separate calls to aimless shooting are made.
+        This tests that the files are not overwritten and just appended to.
+
+        Finally, the results are compared to a previous running.
 
         Test data built with Plumed v2.6.1 and CP2K v7.1.0
         """
@@ -91,10 +98,3 @@ class TestAimlessShootingIntegration(TestCase):
                 # Make sure nothing at the end of the results
                 _, result_eof = read_xyz_frame(results_xyzf)
                 self.assertTrue(result_eof, msg="Results xyz should have ended")
-
-
-
-
-
-
-
