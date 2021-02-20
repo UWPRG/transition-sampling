@@ -212,6 +212,10 @@ class AimlessShooting:
                 print(f"{xyz_file} is accepted as a transition state")
                 self.accepted_states.append(self.current_start)
 
+            else:
+                print(f"{xyz_file} NOT accepted as a transition state")
+
+        print("Evaluation of initial guesses complete")
         return accepted
 
     def _run_velocity_attempts(self, n_attempts: int) -> Optional[ShootingResult]:
