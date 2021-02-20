@@ -6,11 +6,12 @@ import asyncio
 
 import numpy as np
 
-from transition_sampling.engines import CP2KEngine
+from transition_sampling.engines import AbstractEngine, CP2KEngine
+from transition_sampling.algo.aimless_shooting import generate_velocities
 
 CUR_DIR = os.path.dirname(__file__)
-TEST_INPUT = os.path.join(CUR_DIR, "test_data/cp2k.inp")
-TEST_PLUMED = os.path.join(CUR_DIR, "test_data/plumed.dat")
+TEST_INPUT = os.path.join(CUR_DIR, "../shared_test_data/cp2k.inp")
+TEST_PLUMED = os.path.join(CUR_DIR, "../shared_test_data/plumed.dat")
 
 # Location of the cp2k executable in docker image lemmoi:transition_sampling
 CP2K_CMD = "/src/cp2k.ssmp"
@@ -65,32 +66,20 @@ class TestCP2KIntegration(TestCase):
                 # Compare the expected ShootingResult to the returned one.
                 self.assertEqual(sr.fwd["commit"], result.fwd["commit"])
                 self.assertEqual(sr.rev["commit"], result.rev["commit"])
-                self._compare_arrays(sr.fwd["frames"], result.fwd["frames"])
-                self._compare_arrays(sr.rev["frames"], result.rev["frames"])
+                np.testing.assert_allclose(sr.fwd["frames"],
+                                           result.fwd["frames"],
+                                           err_msg=f"Run {i} fwd did not match")
+                np.testing.assert_allclose(sr.rev["frames"],
+                                           result.rev["frames"],
+                                           err_msg=f"Run {i} rev did not match")
 
         # This can be used to generate expected results for new tests if needed
         # by making a result_list and appending the result of each to it
         # with open(RESULTS, "wb") as out:
         #     pickle.dump(result_list, out, pickle.HIGHEST_PROTOCOL)
 
-    def _compare_arrays(self, arr1: np.array, arr2: np.array,
-                        places: int = 7) -> None:
-        """Tests two arrays are equal elementwise to the given decimal place
 
-        Parameters
-        ----------
-        arr1
-            First array to compare
-        arr2
-            Second array to compare
-        """
-        arr1_flat = arr1.flatten()
-        arr2_flat = arr2.flatten()
-        for i in range(arr1_flat.size):
-            self.assertAlmostEqual(arr1_flat[i], arr2_flat[i], places=places)
-
-
-def _generate_fixed_starts(n_tests: int) -> None:
+def _generate_fixed_starts(n_tests: int, engine: AbstractEngine) -> None:
     """Function for generating random starting positions and velocities.
 
     This is used to generate new test cases for the integration test.
@@ -101,18 +90,20 @@ def _generate_fixed_starts(n_tests: int) -> None:
         Number of starting positions/velocities to generate.
     """
     positions = np.zeros((3, 3, n_tests))
+    velocities = np.zeros((3, 3, n_tests))
     # First atom (Cl-) is fixed at (0, 0, 0)
 
     # Second atom (Ca2+) is randomly generated about the middle of the two fixed
-    # atoms. Centered at (10, 10, 10) angstroms with sigma=0.1
-    positions[1, :, :] = np.random.normal(10, .1, (3, n_tests))
+    # atoms. Centered at (5, 5, 5) angstroms with sigma=0.5
+    positions[1, :, :] = np.random.normal(5, 0.5, (3, n_tests))
 
-    # Third atom (Cl-) is fixed at (20, 20, 20)
-    positions[2, :, :] += 20
+    # Third atom (Cl-) is fixed at (10, 10, 10)
+    positions[2, :, :] += 10
 
     # Starting velocities for all atoms. Technically this only applies to atom 2
     # because atoms 1 and 3 are fixed and will not move.
-    velocities = np.random.normal(0, 0.003, (3, 3, n_tests))
+    for i in range(n_tests):
+        velocities[:, :, i] = generate_velocities(engine.atoms, engine.temp)
 
     # Save these to be loaded for the test
     np.save(os.path.join(CUR_DIR, "test_data/starting_pos.npy"), positions)
