@@ -187,6 +187,7 @@ class AimlessShooting:
             If the number of atoms in each structure is not the same.
         """
         xyz_files = glob.glob(f"{self.position_dir}/*.xyz")
+        xyz_files.sort()
         accepted = False
 
         for i, xyz_file in enumerate(xyz_files):
