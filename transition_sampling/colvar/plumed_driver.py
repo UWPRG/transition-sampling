@@ -26,7 +26,8 @@ class PlumedDriver:
         """Run the plumed driver with the given xyz file.
 
         All CVs given a label in plumed_file will be printed to the output
-        colvar_file. This print is added automatically.
+        colvar_file. This print is added automatically, and any other user.
+        defined prints will still occur.
 
         Parameters
         ----------
@@ -44,9 +45,7 @@ class PlumedDriver:
             plumed.
         """
         with tempfile.NamedTemporaryFile("a") as running_file:
-            with open(plumed_file, "r") as source:
-                shutil.copyfileobj(source, running_file)
-            self._set_output(colvar_output, running_file)
+            self._set_output(plumed_file, colvar_output, running_file)
 
             metadata_df = pd.read_csv(csv_file, sep=r",\s?", engine="python")
             box_sizes = metadata_df[["box_x", "box_y", "box_z"]].drop_duplicates()
@@ -56,19 +55,25 @@ class PlumedDriver:
 
             box_string = ",".join([str(x) for x in box_sizes])
 
+            # TODO: Log a failure rather than fatal exception w/ plumed output
             subprocess.run([self.plumed_bin, "driver", "--ixyz", xyz_file,
                             "--plumed", running_file.name, "--box", box_string,
-                            "--length-units", length_units], capture_output=True)
+                            "--length-units", length_units], check=True)
 
     @staticmethod
-    def _set_output(colvar_output_file: str, running_file: typing.IO) -> None:
-        """Add print statement with CVs and output to the plumed running file.
+    def _set_output(plumed_file: str, colvar_output_file: str,
+                    running_file: typing.IO) -> None:
+        """Copy template plumed input and set printed output file.
 
         Parameters
         ----------
+        plumed_file
+            Template file that contains the CVs to be calculated.
         colvar_output_file
             File for the CVs to be printed to
         running_file
-            Open file in append mode for
+            Open file in append mode to copy plumed and print statement to
         """
+        with open(plumed_file, "r") as source:
+            shutil.copyfileobj(source, running_file)
         running_file.write(f"PRINT ARG=* FILE={colvar_output_file}")
