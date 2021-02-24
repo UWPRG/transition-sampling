@@ -28,4 +28,4 @@ class TestPlumedDriverIntegration(TestCase):
 
             driver = PlumedDriver(PLUMED_BIN)
 
-            driver.run(DEFAULT_PLUMED_DAT, INPUT_CSV, INPUT_XYZ, results_colvar)
+            driver.run(DEFAULT_PLUMED_DAT, INPUT_XYZ, INPUT_CSV, results_colvar)

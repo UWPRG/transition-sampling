@@ -1,5 +1,8 @@
 import shutil
 import subprocess
+import tempfile
+import typing
+
 import pandas as pd
 
 
@@ -15,10 +18,8 @@ class PlumedDriver:
         Name of the plumed input file to be created as input to the driver. This
         is used as to not modify the plumed file passed to `run`.
     """
-    def __init__(self, plumed_bin: str,
-                 running_file: str = "plumed_colvar.dat"):
+    def __init__(self, plumed_bin: str):
         self.plumed_bin = plumed_bin
-        self.running_file = running_file
 
     def run(self, plumed_file: str, xyz_file: str, csv_file: str,
             colvar_output: str, length_units: str = "A") -> None:
@@ -42,28 +43,32 @@ class PlumedDriver:
             plumed string representation of the xyz units, passed directly to
             plumed.
         """
-        shutil.copy(plumed_file, self.running_file)
-        self._set_output(colvar_output)
+        with tempfile.NamedTemporaryFile("a") as running_file:
+            with open(plumed_file, "r") as source:
+                shutil.copyfileobj(source, running_file)
+            self._set_output(colvar_output, running_file)
 
-        metadata_df = pd.read_csv(csv_file)
-        box_sizes = metadata_df[["box_x", "box_y", "box_z"]].drop_duplicates()
+            metadata_df = pd.read_csv(csv_file, sep=r",\s?", engine="python")
+            box_sizes = metadata_df[["box_x", "box_y", "box_z"]].drop_duplicates()
 
-        if box_sizes.shape[0] != 1:
-            raise ValueError("Not exactly one unique box size in the csv file")
+            if box_sizes.shape[0] != 1:
+                raise ValueError("Not exactly one unique box size in the csv file")
 
-        box_string = ",".join([str(x) for x in box_sizes])
+            box_string = ",".join([str(x) for x in box_sizes])
 
-        subprocess.run([self.plumed_bin, "driver", "--ixyz", xyz_file,
-                        "--plumed", self.running_file, "--box", box_string,
-                        "--length-units", length_units], capture_output=True)
+            subprocess.run([self.plumed_bin, "driver", "--ixyz", xyz_file,
+                            "--plumed", running_file.name, "--box", box_string,
+                            "--length-units", length_units], capture_output=True)
 
-    def _set_output(self, colvar_output_file: str) -> None:
+    @staticmethod
+    def _set_output(colvar_output_file: str, running_file: typing.IO) -> None:
         """Add print statement with CVs and output to the plumed running file.
 
         Parameters
         ----------
         colvar_output_file
             File for the CVs to be printed to
+        running_file
+            Open file in append mode for
         """
-        with open(self.running_file, "a") as f:
-            f.write(f"PRINT ARG=* FILE={colvar_output_file}")
+        running_file.write(f"PRINT ARG=* FILE={colvar_output_file}")
