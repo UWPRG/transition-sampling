@@ -56,9 +56,11 @@ class PlumedDriver:
             box_string = ",".join([str(x) for x in box_sizes])
 
             # TODO: Log a failure rather than fatal exception w/ plumed output
+            # Hide typical stdout, but stderr will still print
             subprocess.run([self.plumed_bin, "driver", "--ixyz", xyz_file,
                             "--plumed", running_file.name, "--box", box_string,
-                            "--length-units", length_units], check=True)
+                            "--length-units", length_units], check=True,
+                           stdout=subprocess.PIPE)
 
     @staticmethod
     def _set_output(plumed_file: str, colvar_output_file: str,
@@ -77,3 +79,4 @@ class PlumedDriver:
         with open(plumed_file, "r") as source:
             shutil.copyfileobj(source, running_file)
         running_file.write(f"PRINT ARG=* FILE={colvar_output_file}")
+        running_file.flush()
