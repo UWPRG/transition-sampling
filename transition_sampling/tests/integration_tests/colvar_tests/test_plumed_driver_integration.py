@@ -21,6 +21,10 @@ class TestPlumedDriverIntegration(TestCase):
     """Test running the plumed driver with an aimless shooting output"""
 
     def test_integration(self):
+        """
+        Starting with an xyz and csv output from aimless shooting, run with
+        plumed and compare to the expected
+        """
         # Create directory for algo results and engine working space
         with tempfile.TemporaryDirectory() as directory:
             results_colvar = f"{directory}/COLVAR"
@@ -35,6 +39,10 @@ class TestPlumedDriverIntegration(TestCase):
                                  msg="Files are expected to be equal")
 
     def test_invalid_plumed_fails(self):
+        """
+        Test that a syntax error in the input plumed file will cause an
+        exception.
+        """
         with tempfile.TemporaryDirectory() as directory:
             results_colvar = f"{directory}/COLVAR"
 

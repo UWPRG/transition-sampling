@@ -47,7 +47,7 @@ class PlumedDriver:
         with tempfile.NamedTemporaryFile("a") as running_file:
             self._set_output(plumed_file, colvar_output, running_file)
 
-            metadata_df = pd.read_csv(csv_file, sep=r",\s?", engine="python")
+            metadata_df = pd.read_csv(csv_file)
             box_sizes = metadata_df[["box_x", "box_y", "box_z"]].drop_duplicates()
 
             if box_sizes.shape[0] != 1:
