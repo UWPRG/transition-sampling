@@ -13,10 +13,6 @@ class PlumedDriver:
     ----------
     plumed_bin
         Path to the plumed binary
-
-    running_file
-        Name of the plumed input file to be created as input to the driver. This
-        is used as to not modify the plumed file passed to `run`.
     """
     def __init__(self, plumed_bin: str):
         self.plumed_bin = plumed_bin

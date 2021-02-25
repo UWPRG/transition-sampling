@@ -14,6 +14,9 @@ INPUT_XYZ = os.path.join(CUR_DIR, "test_data/input.xyz")
 INPUT_CSV = os.path.join(CUR_DIR, "test_data/input.csv")
 EXPECTED_DEFAULT_CV = os.path.join(CUR_DIR, "test_data/expected_default_COLVAR")
 
+MULTIPLE_BOX_CSV = os.path.join(CUR_DIR, "test_data/multiple_box_input.csv")
+
+# Global plumed executable in docker image lemmoi:transition_sampling
 PLUMED_BIN = "plumed"
 
 
@@ -49,6 +52,20 @@ class TestPlumedDriverIntegration(TestCase):
             driver = PlumedDriver(PLUMED_BIN)
 
             with self.assertRaises(subprocess.CalledProcessError,
-                                   msg="Invalid plumed file should have raised an exception"):
+                                   msg="Invalid plumed file should have "
+                                       "raised an exception"):
                 driver.run(FAILING_PLUMED_DAT, INPUT_XYZ, INPUT_CSV,
+                           results_colvar)
+
+    def test_multiple_boxsizes_fails(self):
+        """Test that multiple box sizes in the CSV causes a failure"""
+        with tempfile.TemporaryDirectory() as directory:
+            results_colvar = f"{directory}/COLVAR"
+
+            driver = PlumedDriver(PLUMED_BIN)
+
+            with self.assertRaises(ValueError,
+                                   msg="Multiple box sizes in CSV should "
+                                       "raise an exception"):
+                driver.run(DEFAULT_PLUMED_DAT, INPUT_XYZ, MULTIPLE_BOX_CSV,
                            results_colvar)
