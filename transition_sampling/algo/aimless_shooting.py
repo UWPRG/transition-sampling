@@ -38,6 +38,11 @@ class AimlessShooting:
         such as forward and reverse committed basins. Both files are necessary
         for likelihood maximization. Appended to if it already exists, otherwise
         it is created.
+    acceptor:
+        An acceptor that implements an `is_accepted` method to determine if a
+        shooting point should be considered accepted or not. If None, the
+        DefaultAcceptor is used, which accepts if both trajectories commit to
+        different basins.
 
     Attributes
     ----------
@@ -56,6 +61,9 @@ class AimlessShooting:
         xyz array of the current starting position. Has shape (num_atoms, 3)
     accepted_states : list[np.ndarray]
         A list of the accepted positions. Contains duplicates.
+    acceptor:
+        An acceptor that implements an `is_accepted` method to determine if a
+        shooting point should be considered accepted or not.
     """
     def __init__(self, engine: AbstractEngine, position_dir: str,
                  results_xyz: str, results_csv: str,

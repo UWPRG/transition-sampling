@@ -6,6 +6,9 @@ from transition_sampling.engines import ShootingResult
 
 
 class AbstractAcceptor(ABC):
+    """Abstract class that defines what shooting points should be accepted
+
+    """
     @abstractmethod
     def is_accepted(self, result: ShootingResult) -> bool:
         """Determines if a ShootingResult should be accepted or rejected
@@ -40,14 +43,38 @@ class MultiBasinAcceptor(AbstractAcceptor):
 
     Parameters
     ----------
-    reactants:
+    reactants
         Set of basins to be considered as reactants, as defined in the plumed
         input
-    products:
+    products
         Set of basins to be considered as products, as defined in the plumed
-         input
+        input
+
+    Attributes
+    ----------
+    reactants
+        Set of basins to be considered as reactants, as defined in the plumed
+        input
+    products
+        Set of basins to be considered as products, as defined in the plumed
+        input
+
+    Raises
+    ------
+    ValueError
+        If the intersection of reactants and products is not empty, i.e. there
+        is a basin shared by both.
     """
     def __init__(self, reactants: set[int], products: set[int]):
+        if len(reactants) < 1:
+            raise ValueError("Reactants must have at least one entry.")
+
+        if len(products) < 1:
+            raise ValueError("Products must have at least one entry.")
+
+        if len(reactants.intersection(products)) != 0:
+            raise ValueError("Reactants and products cannot contain the same "
+                             f"basin(s): {reactants.intersection(products)}")
         self.reactants = reactants
         self.products = products
 
