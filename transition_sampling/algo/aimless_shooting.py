@@ -67,8 +67,8 @@ class AimlessShooting:
         # index we're writing to.
         if not os.path.isfile(self.results_csv):
             with open(self.results_csv, "w") as f:
-                f.write("index, accepted, forward_basin, reverse_basin, box_x,"
-                        " box_y, box_z\n")
+                f.write("index,accepted,forward_basin,reverse_basin,box_x,"
+                        "box_y,box_z\n")
 
             self.cur_index = 0
 
@@ -371,7 +371,7 @@ class AimlessShooting:
                    self.engine.box_size[2]]
 
         with open(self.results_csv, "a") as file:
-            file.write(", ".join([str(x) for x in columns]))
+            file.write(",".join([str(x) for x in columns]))
             file.write("\n")
 
 
