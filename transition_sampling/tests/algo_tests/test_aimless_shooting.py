@@ -1,8 +1,8 @@
 import unittest
 
 from transition_sampling.engines import ShootingResult
-from transition_sampling.algo import AsyncAimlessShooting
-from transition_sampling.algo.aimless_shooting import generate_velocities
+from transition_sampling.algo.aimless_shooting import AsyncAimlessShooting, \
+    generate_velocities
 import numpy as np
 
 import tempfile
