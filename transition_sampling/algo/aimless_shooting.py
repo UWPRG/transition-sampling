@@ -1,6 +1,8 @@
 """Implementation of the aimless shooting algorithm"""
 from __future__ import annotations
 
+import asyncio
+import copy
 import glob
 import os
 import random
@@ -15,7 +17,96 @@ from transition_sampling.util.periodic_table import atomic_symbols_to_mass
 from transition_sampling.engines import AbstractEngine, ShootingResult
 
 
-class AimlessShooting:
+class AimlessShootingDriver:
+    """Driver to run one or multiple aimless shootings.
+
+    Given parameters are copied and used for each shooting, making the only
+    difference the randomness that the aimless shooting algorithm introduces.
+
+    Parameters
+    ----------
+    engine
+        Engine to be used. This specific engine will not be modified, but deep
+        copies of it made for each parallel shooting.
+    position_dir
+        Directory containing starting xyz positions
+    log_name
+        Base name for the log (csv and xyz) files. A call to run will generate
+        `log_name`.csv and `log_name`.xyz files that hold results from all
+        shootings. For each parallel shooting, there will be an additional
+        `log_name`{i}.csv and `log_name`{i}.xyz files that track results from
+        that specific shooting.
+    acceptor
+        An acceptor that implements an `is_accepted` method to determine if a
+        shooting point should be considered accepted or not. Deep copied and
+        used as a template for all parallel shootings.
+
+    Attributes
+    ----------
+    base_engine : AbstractEngine
+        Engine template to be used for all shootings
+    position_dir : str
+        Directory containing starting xyz positions to be used for all shootings
+    log_name : str
+        Root name for all logging
+    base_acceptor : AbstractAcceptor
+        Acceptor template to be used for all shootings
+    """
+    def __init__(self, engine: AbstractEngine, position_dir: str, log_name: str,
+                 acceptor: AbstractAcceptor = None):
+        self.base_engine = engine
+        self.position_dir = position_dir
+        self.base_acceptor = acceptor
+        self.log_name = log_name
+
+    def run(self, n_parallel: int, **run_args) -> None:
+        """Run multiple AimlessShootings in parallel.
+
+        Note that calling this method after completion will start new aimless
+        shootings, not continue them from the previous call.
+
+        Parameters
+        ----------
+        n_parallel
+            Number of parallel AimlessShootings to execute. Note this will lead
+            to 2 * `n_parallel` simulations running simultaneously.
+        run_args
+            Keyword arguments to pass to each aimless shootings `run` method.
+        """
+        asyncio.run(self._gather_runs(n_parallel, **run_args))
+
+    async def _gather_runs(self, n_parallel: int, **run_args) -> None:
+        """Setup multiple AimlessShootings in parallel into a single coroutine
+
+        This function should be called with asyncio.run to execute.
+
+        Parameters
+        ----------
+        n_parallel
+            Number of parallel AimlessShootings to execute. Note this will lead
+            to 2 * `n_parallel` simulations running simultaneously.
+        run_args
+            Keyword arguments to pass to each aimless shootings `run` method.
+        """
+        tasks = []
+        base_logger = ResultsLogger(self.log_name)
+        for i in range(n_parallel):
+            engine = copy.deepcopy(self.base_engine)
+
+            # I don't think its necessary to copy acceptors with the ones we
+            # have now, but someone could potentially define one that depends
+            # on the accept status of the previous call, so we will to be safe.
+            acceptor = copy.deepcopy(self.base_acceptor)
+
+            logger = ResultsLogger(f"{self.log_name}{i}", base_logger)
+            algo = AsyncAimlessShooting(engine, self.position_dir, logger, acceptor)
+
+            tasks.append(asyncio.create_task(algo.run(*run_args)))
+
+        await asyncio.gather(*tasks)
+
+
+class AsyncAimlessShooting:
     """Aimless Shooting runner.
 
     Implements the aimless shooting algorithm by interacting with a given
@@ -28,16 +119,10 @@ class AimlessShooting:
     position_dir
         A directory containing only xyz positions of guesses at transition
         states. These positions will be used to try to kickstart the algorithm.
-    results_xyz
-        A file which all states, accepted or rejected, will be written to as
-        an individual frame. Appended to if it already exists, otherwise it is
-        created.
-    results_csv
-        A corresponding file to results_xyz that stores metadata for each state,
-        such as forward and reverse committed basins. Both files are necessary
-        for likelihood maximization. Appended to if it already exists, otherwise
-        it is created.
-    acceptor:
+    logger
+        Logger to write xyz and csv results to. Use a logger with a defined
+        `base_logger` to record these in more than one location.
+    acceptor
         An acceptor that implements an `is_accepted` method to determine if a
         shooting point should be considered accepted or not. If None, the
         DefaultAcceptor is used, which accepts if both trajectories commit to
@@ -49,18 +134,17 @@ class AimlessShooting:
         Engine used to run the simulations
     position_dir : str
         Directory containing initial xyz guesses of transition states.
-    results_xyz : str
-        xyz file where all generated states, accepted or rejected will be stored
-    results_csv : str
-        csv file where metadata about results_xyz states is stored
     current_offset : int
         -1, 0 or +1. The delta-t offset the point being run with engine
         currently represents for purposes of choosing the next point.
+    logger : ResultsLogger
+        Logger to write xyz and csv results to. Log function is invoked on every
+        successful shooting point, no matter if it is accepted or unaccepted.
     current_start : np.ndarray
         xyz array of the current starting position. Has shape (num_atoms, 3)
     accepted_states : list[np.ndarray]
         A list of the accepted positions. Contains duplicates.
-    acceptor:
+    acceptor : AbstractAcceptor
         An acceptor that implements an `is_accepted` method to determine if a
         shooting point should be considered accepted or not.
     """
@@ -259,7 +343,7 @@ class AimlessShooting:
             if result is not None:
                 # Record all runs that did not end in an Exception
                 # Save forward and backwards basin commits as minimum recovery
-                accepted = self.acceptor.is_accepted()
+                accepted = self.acceptor.is_accepted(result)
                 self.logger.log(result, self.engine.atoms, self.current_start,
                                 accepted, self.engine.box_size)
 

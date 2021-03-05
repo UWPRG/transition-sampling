@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 from transition_sampling.engines import CP2KEngine
-from transition_sampling.algo import AimlessShooting
+from transition_sampling.algo import AimlessShootingDriver
 from transition_sampling.util.xyz import read_xyz_frame
 
 CUR_DIR = os.path.dirname(__file__)
@@ -50,26 +50,24 @@ class TestAimlessShootingIntegration(TestCase):
 
         # Create directory for algo results and engine working space
         with tempfile.TemporaryDirectory() as algo_dir:
-            results_xyz = f"{algo_dir}/results.xyz"
-            results_csv = f"{algo_dir}/results.csv"
+            result_name = f"{algo_dir}/results"
 
             with tempfile.TemporaryDirectory() as engine_dir:
                 engine = CP2KEngine(INPUTS, engine_dir)
 
-                algo = AimlessShooting(engine, STARTS_DIR,
-                                       results_xyz, results_csv)
+                algo = AimlessShootingDriver(engine, STARTS_DIR, result_name)
 
                 # Run algorithm to generate 5 accepteds with 3 state attempts
                 # and 5 velocity attempts
-                algo.run(5, 3, 5)
+                algo.run(1, n_points=5, n_state_tries=3, n_vel_tries=5)
 
                 # Run algorithm to generate 5 accepteds with 3 state attempts
                 # and 1 velocity attempt
-                algo.run(5, 3, 1)
+                algo.run(1, n_points=5, n_state_tries=3, n_vel_tries=1)
 
             # Start comparing results
             expected_df = pd.read_csv(EXPECTED_CSV)
-            result_df = pd.read_csv(results_csv)
+            result_df = pd.read_csv(f"{result_name}.csv")
 
             # Test rows in the CSV
             self.assertEqual(expected_df.shape[0], result_df.shape[0],
@@ -80,7 +78,7 @@ class TestAimlessShootingIntegration(TestCase):
 
             # Testing coordinates picked are the same
             with open(EXPECTED_XYZ, "r") as expected_xyzf,\
-                    open(results_xyz, "r") as results_xyzf:
+                    open(f"{result_name}.xyz", "r") as results_xyzf:
                 expected_frame, expected_eof = read_xyz_frame(expected_xyzf)
 
                 frame = 0

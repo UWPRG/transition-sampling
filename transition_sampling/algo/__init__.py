@@ -1,2 +1,2 @@
-from .aimless_shooting import AimlessShooting
+from .aimless_shooting import AimlessShootingDriver
 from .acceptors import DefaultAcceptor, MultiBasinAcceptor

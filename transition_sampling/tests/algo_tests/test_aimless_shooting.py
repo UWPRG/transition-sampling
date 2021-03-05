@@ -1,7 +1,7 @@
 import unittest
 
 from transition_sampling.engines import ShootingResult
-from transition_sampling.algo import AimlessShooting
+from transition_sampling.algo import AsyncAimlessShooting
 from transition_sampling.algo.aimless_shooting import generate_velocities
 import numpy as np
 
@@ -18,7 +18,7 @@ class NextPositionTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temp_dir:
 
-            aimless = AimlessShooting(None, None, None, f"{temp_dir}/csv.csv")
+            aimless = AsyncAimlessShooting(None, None, None)
             aimless.current_start = np.zeros((2, 3))
 
             fwd = {"commit": 1,
