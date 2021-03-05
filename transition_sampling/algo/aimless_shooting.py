@@ -10,6 +10,7 @@ from typing import Sequence, Optional
 import numpy as np
 import pandas as pd
 
+from .acceptors import AbstractAcceptor, DefaultAcceptor
 import transition_sampling.util.xyz as xyz
 from transition_sampling.util.periodic_table import atomic_symbols_to_mass
 from transition_sampling.engines import AbstractEngine, ShootingResult
@@ -37,6 +38,11 @@ class AimlessShooting:
         such as forward and reverse committed basins. Both files are necessary
         for likelihood maximization. Appended to if it already exists, otherwise
         it is created.
+    acceptor:
+        An acceptor that implements an `is_accepted` method to determine if a
+        shooting point should be considered accepted or not. If None, the
+        DefaultAcceptor is used, which accepts if both trajectories commit to
+        different basins.
 
     Attributes
     ----------
@@ -55,13 +61,21 @@ class AimlessShooting:
         xyz array of the current starting position. Has shape (num_atoms, 3)
     accepted_states : list[np.ndarray]
         A list of the accepted positions. Contains duplicates.
+    acceptor:
+        An acceptor that implements an `is_accepted` method to determine if a
+        shooting point should be considered accepted or not.
     """
     def __init__(self, engine: AbstractEngine, position_dir: str,
-                 results_xyz: str, results_csv: str = "aimless_shooting.csv"):
+                 results_xyz: str, results_csv: str,
+                 acceptor: AbstractAcceptor = None):
         self.engine = engine
         self.position_dir = position_dir
         self.results_xyz = results_xyz
         self.results_csv = results_csv
+        self.acceptor = acceptor
+
+        if self.acceptor is None:
+            self.acceptor = DefaultAcceptor()
 
         # Write the CSV header if doesn't exist, otherwise figure out what
         # index we're writing to.
@@ -268,7 +282,7 @@ class AimlessShooting:
                 self.write_csv_line(result)
                 self.cur_index += 1
 
-                if self.is_accepted(result):
+                if self.acceptor.is_accepted(result):
                     # Break out of try loop, we found an accepted state
                     # Record it in our list
                     self.accepted_states.append(self.current_start)
@@ -336,23 +350,6 @@ class AimlessShooting:
         chosen_index = np.random.choice(indices)
 
         return concat_frames[chosen_index, :, :]
-
-    @staticmethod
-    def is_accepted(result: ShootingResult) -> bool:
-        """Determines if a ShootingResult should be accepted or rejected
-
-        Parameters
-        ----------
-        result
-            The ShootingResult to be tested
-
-        Returns
-        -------
-        True if it should be accepted, False otherwise.
-        """
-        return result.fwd["commit"] is not None and \
-            result.rev["commit"] is not None and \
-            result.fwd["commit"] != result.rev["commit"]
 
     def write_csv_line(self, result: ShootingResult) -> None:
         """Write a single line to the results_csv for the given result.
