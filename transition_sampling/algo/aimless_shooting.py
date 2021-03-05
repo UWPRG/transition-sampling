@@ -362,7 +362,7 @@ class AimlessShooting:
             Shooting result of the state to write. Used for fwd and rev basin
             commits.
         """
-        columns = [self.cur_index, self.is_accepted(result),
+        columns = [self.cur_index, self.acceptor.is_accepted(result),
                    result.fwd["commit"], result.rev["commit"],
                    self.engine.box_size[0], self.engine.box_size[1],
                    self.engine.box_size[2]]
