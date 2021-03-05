@@ -332,6 +332,23 @@ class AimlessShooting:
 
         return concat_frames[chosen_index, :, :]
 
+    @staticmethod
+    def is_accepted(result: ShootingResult) -> bool:
+        """Determines if a ShootingResult should be accepted or rejected
+
+        Parameters
+        ----------
+        result
+            The ShootingResult to be tested
+
+        Returns
+        -------
+        True if it should be accepted, False otherwise.
+        """
+        return result.fwd["commit"] is not None and \
+            result.rev["commit"] is not None and \
+            result.fwd["commit"] != result.rev["commit"]
+
 
 class ResultsLogger:
     def __init__(self, name: str, base_logger: ResultsLogger = None):
@@ -389,7 +406,10 @@ class ResultsLogger:
 
         else:
             df = pd.read_csv(self.csv_name)
-            self.cur_index = df["index"].max() + 1
+            if "index" in df:
+                self.cur_index = df["index"].max() + 1
+            else:
+                self.cur_index = 0
 
 
 def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
