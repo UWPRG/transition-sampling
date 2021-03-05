@@ -1,7 +1,6 @@
 """Implementation of the aimless shooting algorithm"""
 from __future__ import annotations
 
-import asyncio
 import glob
 import os
 import random
@@ -95,7 +94,8 @@ class AimlessShooting:
 
         self.accepted_states = []
 
-    def run(self, n_points: int, n_state_tries: int, n_vel_tries: int) -> None:
+    async def run(self, n_points: int, n_state_tries: int,
+                  n_vel_tries: int) -> None:
         """Run the aimless shooting algorithm to generate n_points.
 
         Each state that is generated is written as a .xyz to the given results
@@ -131,14 +131,15 @@ class AimlessShooting:
         accepted_states = 0
         states_since_success = 0
         if len(self.accepted_states) == 0:
-            if not self._kickstart(n_vel_tries):
+            kickstart = await self._kickstart(n_vel_tries)
+            if not kickstart:
                 raise RuntimeError("No initial guesses were accepted as "
                                    "transition states")
 
         self.current_start = random.choice(self.accepted_states)
 
         while accepted_states < n_points:
-            result = self._run_velocity_attempts(n_vel_tries)
+            result = await self._run_velocity_attempts(n_vel_tries)
 
             if result is None:
                 # We tried regenerating velocities n_tries times for the current
@@ -173,7 +174,7 @@ class AimlessShooting:
             # No matter what, we should pick a new offset to remain stochastic
             self.current_offset = random.choice([-1, 0, 1])
 
-    def _kickstart(self, n_vel_tries: int) -> bool:
+    async def _kickstart(self, n_vel_tries: int) -> bool:
         """Loop through provided initial guesses to see if any are accepted.
 
         Each starting structure in the position directory tested to see if it is
@@ -222,7 +223,7 @@ class AimlessShooting:
                     f"atoms, which is inconsistent with {n_atoms} "
                     f"atoms in {xyz_files[0]}")
 
-            result = self._run_velocity_attempts(n_vel_tries)
+            result = await self._run_velocity_attempts(n_vel_tries)
 
             if result is not None:
                 accepted = True
@@ -235,7 +236,7 @@ class AimlessShooting:
         print("Evaluation of initial guesses complete")
         return accepted
 
-    def _run_velocity_attempts(self, n_attempts: int) -> Optional[ShootingResult]:
+    async def _run_velocity_attempts(self, n_attempts: int) -> Optional[ShootingResult]:
         """Run from the current start, regenerating velocities if not accepted.
 
         This is a wrapper for running a single starting position with multiple
@@ -268,7 +269,7 @@ class AimlessShooting:
             vels = generate_velocities(self.engine.atoms, self.engine.temp)
             # Set the position
             self.engine.set_positions(self.current_start)
-            result = self._run_one_velocity(vels)
+            result = await self._run_one_velocity(vels)
 
             if result is not None:
                 # Record all runs that did not end in an Exception
@@ -291,7 +292,7 @@ class AimlessShooting:
         # Did not have an accepted state by changing velocity in n_attempts
         return None
 
-    def _run_one_velocity(self, vels: np.ndarray) -> Optional[ShootingResult]:
+    async def _run_one_velocity(self, vels: np.ndarray) -> Optional[ShootingResult]:
         """Run one shooting point from the current start with given velocity.
 
         Attempts to run a single shooting point from this object's current start
@@ -316,7 +317,7 @@ class AimlessShooting:
             self.engine.set_velocities(vels)
 
             # Run forwards and backwards with engine
-            return asyncio.run(self.engine.run_shooting_point())
+            return await self.engine.run_shooting_point()
 
         except Exception as e:
             print(e)
