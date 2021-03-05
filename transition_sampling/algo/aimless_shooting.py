@@ -65,29 +65,14 @@ class AimlessShooting:
         shooting point should be considered accepted or not.
     """
     def __init__(self, engine: AbstractEngine, position_dir: str,
-                 results_xyz: str, results_csv: str,
-                 acceptor: AbstractAcceptor = None):
+                 logger: ResultsLogger, acceptor: AbstractAcceptor = None):
         self.engine = engine
         self.position_dir = position_dir
-        self.results_xyz = results_xyz
-        self.results_csv = results_csv
         self.acceptor = acceptor
+        self.logger = logger
 
         if self.acceptor is None:
             self.acceptor = DefaultAcceptor()
-
-        # Write the CSV header if doesn't exist, otherwise figure out what
-        # index we're writing to.
-        if not os.path.isfile(self.results_csv):
-            with open(self.results_csv, "w") as f:
-                f.write("index,accepted,forward_basin,reverse_basin,box_x,"
-                        "box_y,box_z\n")
-
-            self.cur_index = 0
-
-        else:
-            df = pd.read_csv(self.results_csv)
-            self.cur_index = df["index"].max() + 1
 
         self.current_offset = random.choice([-1, 0, 1])
         self.current_start = None
@@ -274,16 +259,11 @@ class AimlessShooting:
             if result is not None:
                 # Record all runs that did not end in an Exception
                 # Save forward and backwards basin commits as minimum recovery
-                comment = f"{result.fwd['commit']}, {result.rev['commit']}"
+                accepted = self.acceptor.is_accepted()
+                self.logger.log(result, self.engine.atoms, self.current_start,
+                                accepted, self.engine.box_size)
 
-                with open(self.results_xyz, "a") as xyz_file:
-                    xyz.write_xyz_frame(xyz_file, self.engine.atoms,
-                                        self.current_start, comment=comment)
-
-                self.write_csv_line(result)
-                self.cur_index += 1
-
-                if self.acceptor.is_accepted(result):
+                if accepted:
                     # Break out of try loop, we found an accepted state
                     # Record it in our list
                     self.accepted_states.append(self.current_start)
@@ -352,7 +332,26 @@ class AimlessShooting:
 
         return concat_frames[chosen_index, :, :]
 
-    def write_csv_line(self, result: ShootingResult) -> None:
+
+class ResultsLogger:
+    def __init__(self, name: str, base_logger: ResultsLogger = None):
+        self.name = name
+        self.base_logger = base_logger
+        self._init_csv()
+
+    def log(self, result, atoms, frame, accepted, box_size):
+        comment = f"{result.fwd['commit']}, {result.rev['commit']}"
+
+        with open(self.xyz_name, "a") as xyz_file:
+            xyz.write_xyz_frame(xyz_file, atoms, frame, comment=comment)
+
+        self.write_csv_line(result, accepted, box_size)
+        self.cur_index += 1
+
+        if self.base_logger is not None:
+            self.base_logger.log(result, atoms, frame, accepted, box_size)
+
+    def write_csv_line(self, result: ShootingResult, accepted, box_size) -> None:
         """Write a single line to the results_csv for the given result.
 
         Uses self.cur_index as the index for this line.
@@ -363,14 +362,34 @@ class AimlessShooting:
             Shooting result of the state to write. Used for fwd and rev basin
             commits.
         """
-        columns = [self.cur_index, self.acceptor.is_accepted(result),
-                   result.fwd["commit"], result.rev["commit"],
-                   self.engine.box_size[0], self.engine.box_size[1],
-                   self.engine.box_size[2]]
+        columns = [self.cur_index, accepted, result.fwd["commit"],
+                   result.rev["commit"], box_size[0], box_size[1], box_size[2]]
 
-        with open(self.results_csv, "a") as file:
+        with open(self.csv_name, "a") as file:
             file.write(",".join([str(x) for x in columns]))
             file.write("\n")
+
+    @property
+    def csv_name(self):
+        return f"{self.name}.csv"
+
+    @property
+    def xyz_name(self):
+        return f"{self.name}.xyz"
+
+    def _init_csv(self) -> None:
+        # Write the CSV header if doesn't exist, otherwise figure out what
+        # index we're writing to.
+        if not os.path.isfile(self.csv_name):
+            with open(self.csv_name, "w") as f:
+                f.write("index,accepted,forward_basin,reverse_basin,box_x,"
+                        "box_y,box_z\n")
+
+            self.cur_index = 0
+
+        else:
+            df = pd.read_csv(self.csv_name)
+            self.cur_index = df["index"].max() + 1
 
 
 def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
