@@ -351,7 +351,37 @@ class AimlessShooting:
 
 
 class ResultsLogger:
-    """TODO
+    """Class for logging everything from aimless shooting with multiple levels.
+
+    An instance of this class is passed to an AimlessShooting instance in order
+    to log the results to an xyz file and csv file. If constructed with another
+    ResultLogger, that logger is invoked at the same time and duplicates to its
+    respective files.
+
+    This allows one "parent" logger to keep all results in a single pair of
+    files, while many "child loggers" are attached to parallel shootings, each
+    recording only their respective results in a separate pair of files.
+
+    The tracked files are `name`.csv and `name`.xyz. If these files already exist,
+    they are appended to.
+
+    Parameters
+    ----------
+    name
+        The root name of the xyz and csv file
+    base_logger
+        An optional "parent" logger to pass logs up to. If not None, everything
+        logged to this logger is also logged by the `base_logger`
+
+    Attributes
+    ----------
+    name : str
+        The root name of the xyz and csv file to use, e.g. "results"
+    base_logger : ResultsLogger
+        An optional "parent" logger to pass logs up to. If not None, everything
+        logged to this logger is also logged by the `base_logger`
+    cur_index : int
+        The next index that will be written in the CSV.
     """
     def __init__(self, name: str, base_logger: ResultsLogger = None):
         self.name = name
