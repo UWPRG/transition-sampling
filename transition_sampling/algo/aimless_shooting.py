@@ -351,50 +351,69 @@ class AimlessShooting:
 
 
 class ResultsLogger:
+    """TODO
+    """
     def __init__(self, name: str, base_logger: ResultsLogger = None):
         self.name = name
         self.base_logger = base_logger
         self._init_csv()
 
-    def log(self, result, atoms, frame, accepted, box_size):
-        comment = f"{result.fwd['commit']}, {result.rev['commit']}"
+    def log(self, result: ShootingResult, atoms: Sequence[str],
+            frame: np.ndarray, accepted: bool, box_size: Sequence[float]) -> None:
+        """Log results to xyz and csv. Invoke the base logger if we have one.
 
-        with open(self.xyz_name, "a") as xyz_file:
-            xyz.write_xyz_frame(xyz_file, atoms, frame, comment=comment)
-
-        self.write_csv_line(result, accepted, box_size)
-        self.cur_index += 1
-
-        if self.base_logger is not None:
-            self.base_logger.log(result, atoms, frame, accepted, box_size)
-
-    def write_csv_line(self, result: ShootingResult, accepted, box_size) -> None:
-        """Write a single line to the results_csv for the given result.
-
-        Uses self.cur_index as the index for this line.
+        This writes all the passed results synchronously to the corresponding
+        XYZ and CSV. The base logger is also invoked, allowing synchronous
+        logging to it as well.
 
         Parameters
         ----------
         result
-            Shooting result of the state to write. Used for fwd and rev basin
-            commits.
+            The shooting result we're logging
+        atoms
+            Periodic table format sequence of atom names
+        frame
+            xyz frame we're logging, each row corresponding to the atoms
+        accepted
+            True if this result was accepted, false otherwise
+        box_size
+            x, y, z of the box size used.
         """
+
+        # XYZ
+        comment = f"{result.fwd['commit']}, {result.rev['commit']}"
+        with open(self.xyz_name, "a") as xyz_file:
+            xyz.write_xyz_frame(xyz_file, atoms, frame, comment=comment)
+
+        # CSV
         columns = [self.cur_index, accepted, result.fwd["commit"],
                    result.rev["commit"], box_size[0], box_size[1], box_size[2]]
-
         with open(self.csv_name, "a") as file:
             file.write(",".join([str(x) for x in columns]))
             file.write("\n")
 
+        self.cur_index += 1
+
+        # Log to the base logger if we have one.
+        if self.base_logger is not None:
+            self.base_logger.log(result, atoms, frame, accepted, box_size)
+
     @property
-    def csv_name(self):
+    def csv_name(self) -> str:
+        """Name of the CSV file"""
         return f"{self.name}.csv"
 
     @property
-    def xyz_name(self):
+    def xyz_name(self) -> str:
+        """Name of the XYZ file"""
         return f"{self.name}.xyz"
 
     def _init_csv(self) -> None:
+        """Set up the CSV file and index tracking.
+
+        If there is no CSV by this instance's name, create one with the header.
+        If there is one, read the last index and increment by 1 as our current.
+        """
         # Write the CSV header if doesn't exist, otherwise figure out what
         # index we're writing to.
         if not os.path.isfile(self.csv_name):
@@ -406,8 +425,9 @@ class ResultsLogger:
 
         else:
             df = pd.read_csv(self.csv_name)
-            if "index" in df:
+            if df.size != 0:
                 self.cur_index = df["index"].max() + 1
+            # Handle header only
             else:
                 self.cur_index = 0
 
