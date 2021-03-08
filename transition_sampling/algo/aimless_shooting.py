@@ -101,7 +101,7 @@ class AimlessShootingDriver:
             logger = ResultsLogger(f"{self.log_name}{i}", base_logger)
             algo = AsyncAimlessShooting(engine, self.position_dir, logger, acceptor)
 
-            tasks.append(asyncio.create_task(algo.run(*run_args)))
+            tasks.append(asyncio.create_task(algo.run(**run_args)))
 
         await asyncio.gather(*tasks)
 
