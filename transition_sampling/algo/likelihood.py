@@ -26,6 +26,19 @@ def calc_r(alphas: np.ndarray, colvars: np.ndarray) -> np.ndarray:
     return alphas[0] + np.matmul(colvars, alphas[1:])
 
 
+def calc_r_jacobian(alphas: np.ndarray, colvars: np.ndarray) -> np.ndarray:
+    # returns an (n states x m_parameters)
+    # First column is p_0 (all zeros for this function)
+    # second column is alpha_0 (all ones)
+    # rest is just the nultiplied alphas, which are just the colvars since
+    # they are the coffecients
+
+    result = np.zeros((colvars.shape[0], alphas.size + 1))
+    result[:, 1] = 1
+    result[:, 2:] = colvars
+    return result
+
+
 def calc_p(p_0: float, r_vals: np.ndarray) -> np.ndarray:
     """
     Calculate P(TP|r) for reaction coordinate given a weights vector and colvars
@@ -54,6 +67,43 @@ def calc_p(p_0: float, r_vals: np.ndarray) -> np.ndarray:
         f = np.where(f > upper_threshold, upper_threshold, f)
 
     return f
+
+
+def calc_p_jacobian(p_0: float, r_vals: np.ndarray, r_vals_jac) -> np.ndarray:
+    # Returns an (n x n) matrix
+
+    # d/dr are all on diagonal since no r values affect one another here
+    diag = np.diag(-2 * p_0 * np.tanh(r_vals) * np.power(np.cosh(r_vals), -2))
+
+    # multiply by the r jacobian to get an (n x m_parameters)
+    result = np.matmul(diag, r_vals_jac)
+
+    # update the first column, previously all 0s, because this is where p0 comes
+    # into play
+    result[:, 0] = 1 - np.power(np.tanh(r_vals), 2)
+    return result
+
+
+def calc_obj_jacobian(to_opt: np.ndarray, colvars: np.ndarray,
+                      is_accepted: typing.Sequence[bool]) -> np.ndarray:
+    # Returns a (1 x m_parameters) matrix where m_parameters = len(to_opt)
+
+    r_jac = calc_r_jacobian(to_opt[1:], colvars)
+    r_vals = calc_r(to_opt[1:], colvars)
+    p_jac = calc_p_jacobian(to_opt[0], r_vals, r_jac)
+    p_vals = calc_p(to_opt[0], calc_r(to_opt[1:], colvars))
+
+    # this is (1 x n)
+    jac = np.ones(colvars.shape[0])
+
+    # derivatives of log of each p_val
+    jac[is_accepted] = 1 / p_vals[is_accepted]
+    jac[~is_accepted] = -1 / (1 - p_vals[~is_accepted])
+
+    # -1 because of the optimization
+    jac *= -1
+
+    return np.matmul(jac, p_jac)
 
 
 def obj(to_opt: np.ndarray, colvars: np.ndarray,
