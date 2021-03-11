@@ -92,7 +92,11 @@ class PlumedInputHandler:
         # regex to match the start of the committor section. This is where
         # we will insert the FILE arg. Handle the optional ... block format
         # allowed by PLUMED. If \2 matches, we know is format was used.
-        pattern = re.compile(r"(COMMITTOR (\.\.\.\s*\n)?)")
+        # The first section is to state that COMMITTOR must be the first
+        # non-horizontal whitespace in a line, thus ignoring any lines that have
+        # preceding characters (such as comments) and ignoring multi-line breaks
+        # that \s matches.
+        pattern = re.compile(r"^[^\S\r\n]*(COMMITTOR (\.\.\.\s*\n)?)", re.MULTILINE)
 
         # Match is a list of all the matching patterns. Each entry is a tuple,
         # with one entry for each group

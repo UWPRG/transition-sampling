@@ -75,6 +75,21 @@ class TestPlumedOutputWriting(TestCase):
         self.assertTrue(filecmp.cmp(correct, self.tempfile.name, True),
                         "Files are expected to be equal")
 
+    def test_committor_comment(self):
+        """Test that a comment containing 'COMMITTOR' won't be flagged as a
+        committor section"""
+        comment = os.path.join(PLUMED_DATA_DIR,
+                                  "committor_comment_base.dat")
+        correct = os.path.join(PLUMED_DATA_DIR,
+                               "committor_comment_correct.dat")
+
+        handler = PlumedInputHandler(comment)
+        handler.write_plumed(self.tempfile.name, self.SET_FILE_ARG_TO)
+
+        self.assertTrue(filecmp.cmp(correct, self.tempfile.name, True),
+                        "Files are expected to be equal")
+
+
 
 class TestPlumedReadingBasins(TestCase):
     """Tests for PlumedOutputHandler and reading committed basins"""
