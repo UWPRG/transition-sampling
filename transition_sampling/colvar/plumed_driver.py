@@ -11,11 +11,12 @@ class PlumedDriver:
 
     Parameters
     ----------
-    plumed_bin
-        Path to the plumed binary
+    plumed_cmd
+        Command to run plumed with from command line.
+        E.g. "plumed" or "mpirun plumed"
     """
-    def __init__(self, plumed_bin: str):
-        self.plumed_bin = plumed_bin
+    def __init__(self, plumed_cmd: str):
+        self.plumed_cmd = plumed_cmd.split()
 
     def run(self, plumed_file: str, xyz_file: str, csv_file: str,
             colvar_output: str, length_units: str = "A") -> None:
@@ -53,7 +54,7 @@ class PlumedDriver:
 
             # TODO: Log a failure rather than fatal exception w/ plumed output
             # Hide typical stdout, but stderr will still print
-            subprocess.run([self.plumed_bin, "driver", "--ixyz", xyz_file,
+            subprocess.run([*self.plumed_cmd, "driver", "--ixyz", xyz_file,
                             "--plumed", running_file.name, "--box", box_string,
                             "--length-units", length_units], check=True,
                            stdout=subprocess.PIPE)
