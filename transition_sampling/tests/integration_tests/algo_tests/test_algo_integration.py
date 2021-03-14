@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import asyncio
 import os
 import tempfile
 from unittest import TestCase
@@ -61,17 +64,17 @@ class TestAimlessShootingIntegration(TestCase):
 
                 # Run algorithm to generate 5 accepteds with 3 state attempts
                 # and 5 velocity attempts.
-                algo.run(n_points=5, n_state_tries=3, n_vel_tries=5)
+                asyncio.run(algo.run(n_points=5, n_state_tries=3, n_vel_tries=5))
 
                 # Run algorithm to generate 5 accepteds with 3 state attempts
                 # and 1 velocity attempt
-                algo.run(n_points=5, n_state_tries=3, n_vel_tries=1)
+                asyncio.run(algo.run(n_points=5, n_state_tries=3, n_vel_tries=1))
 
-            self._compare_results([*(f"{SINGLE_EXPECTED_DIR}/expected.{ext}" for ext in ("xyz", "csv"))],
+            self._compare_results([tuple(f"{SINGLE_EXPECTED_DIR}/expected.{ext}" for ext in ("xyz", "csv"))],
                                   [(f"{result_name}.xyz", f"{result_name}.csv")])
 
     def test_integration_parallel(self):
-        """Run some aimless shooting trials with CP2K.
+        """Run some aimless shooting trials with CP2K, in parallel.
 
         Uses the 3 ion system shared with the engine integration test. Attempts
         to kickstart with 3 initial guesses, one of which is not a transition
@@ -98,6 +101,9 @@ class TestAimlessShootingIntegration(TestCase):
                 # Run 4 parallel algorithms to generate 3 accepteds with 3
                 # state attempts and 5 velocity attempts.
                 algo.run(4, n_points=3, n_state_tries=3, n_vel_tries=5)
+
+            self._compare_results([tuple(f"{PARALLEL_EXPECTED_DIR}/expected{i}.{ext}" for ext in ("xyz", "csv")) for i in range(4)],
+                                  [tuple(f"{result_name}{i}.{ext}" for ext in ("xyz", "csv")) for i in range(4)])
 
     def _compare_results(self, expected: list[tuple[str, str]],
                          results: list[tuple[str, str]]) -> None:
