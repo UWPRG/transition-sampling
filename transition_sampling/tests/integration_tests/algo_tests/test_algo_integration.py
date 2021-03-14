@@ -67,7 +67,7 @@ class TestAimlessShootingIntegration(TestCase):
                 # and 1 velocity attempt
                 algo.run(n_points=5, n_state_tries=3, n_vel_tries=1)
 
-            self._compare_results([tuple(f"{SINGLE_EXPECTED_DIR}/expected.{ext}" for ext in ("xyz", "csv"))],
+            self._compare_results([*(f"{SINGLE_EXPECTED_DIR}/expected.{ext}" for ext in ("xyz", "csv"))],
                                   [(f"{result_name}.xyz", f"{result_name}.csv")])
 
     def test_integration_parallel(self):
