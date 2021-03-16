@@ -23,7 +23,6 @@ CP2K_CMD = "/src/cp2k.ssmp"
 # Paths of starting configs and stored results
 STARTS_DIR = os.path.join(CUR_DIR, "test_data/starts")
 SINGLE_EXPECTED_DIR = os.path.join(CUR_DIR, "test_data/single")
-PARALLEL_EXPECTED_DIR = os.path.join(CUR_DIR, "test_data/parallel")
 
 INPUTS = {"engine": "cp2k",
           "cp2k_inputs": TEST_INPUT,
@@ -76,6 +75,12 @@ class TestAimlessShootingIntegration(TestCase):
     def test_integration_parallel(self):
         """Run some aimless shooting trials with CP2K, in parallel.
 
+        This test cannot truly assert that these are running concurrently, or
+        compare them to an expected result because of the non-deterministic
+        execution order. The best we can do is check that three different
+        instances got run that produced three different results. A higher number
+        of accepted points is generated to ensure that the three diverge.
+
         Uses the 3 ion system shared with the engine integration test. Attempts
         to kickstart with 3 initial guesses, one of which is not a transition
         state. After that, two separate calls to aimless shooting are made.
@@ -85,7 +90,8 @@ class TestAimlessShootingIntegration(TestCase):
 
         Test data built with Plumed v2.6.1 and CP2K v7.1.0
         """
-        # Set seed for reproducible comparison
+        # Set seed for reproducible comparison, but not really because the
+        # execution order is non-deterministic.
         np.random.seed(1)
         random.seed(2)
 
@@ -104,6 +110,7 @@ class TestAimlessShootingIntegration(TestCase):
 
             xyzs = [xyzlib.read_xyz_file(f"{result_name}{i}.xyz") for i in range (3)]
 
+            # check that each of the XYZ outputs are different
             for i in range(len(xyzs)):
                 for j in range(i+1, len(xyzs)):
                     self.assertFalse(np.array_equal(xyzs[i], xyzs[j]),
