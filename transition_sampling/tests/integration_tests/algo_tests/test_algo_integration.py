@@ -11,7 +11,7 @@ import pandas as pd
 
 from transition_sampling.engines import CP2KEngine
 from transition_sampling.algo.aimless_shooting import AimlessShootingDriver, AsyncAimlessShooting, ResultsLogger
-from transition_sampling.util.xyz import read_xyz_frame
+import transition_sampling.util.xyz as xyzlib
 
 CUR_DIR = os.path.dirname(__file__)
 TEST_INPUT = os.path.join(CUR_DIR, "../shared_test_data/cp2k.inp")
@@ -70,8 +70,8 @@ class TestAimlessShootingIntegration(TestCase):
                 # and 1 velocity attempt
                 asyncio.run(algo.run(n_points=5, n_state_tries=3, n_vel_tries=1))
 
-            self._compare_results([tuple(f"{SINGLE_EXPECTED_DIR}/expected.{ext}" for ext in ("xyz", "csv"))],
-                                  [(f"{result_name}.xyz", f"{result_name}.csv")])
+            self._compare_results([f"{SINGLE_EXPECTED_DIR}/expected"],
+                                  [result_name])
 
     def test_integration_parallel(self):
         """Run some aimless shooting trials with CP2K, in parallel.
@@ -98,26 +98,35 @@ class TestAimlessShootingIntegration(TestCase):
 
                 algo = AimlessShootingDriver(engine, STARTS_DIR, result_name)
 
-                # Run 4 parallel algorithms to generate 3 accepteds with 3
+                # Run 3 parallel algorithms to generate 10 accepteds with 3
                 # state attempts and 5 velocity attempts.
-                algo.run(4, n_points=3, n_state_tries=3, n_vel_tries=5)
+                algo.run(3, n_points=10, n_state_tries=3, n_vel_tries=5)
 
-            self._compare_results([tuple(f"{PARALLEL_EXPECTED_DIR}/expected{i}.{ext}" for ext in ("xyz", "csv")) for i in range(4)],
-                                  [tuple(f"{result_name}{i}.{ext}" for ext in ("xyz", "csv")) for i in range(4)])
+            xyzs = [xyzlib.read_xyz_file(f"{result_name}{i}.xyz") for i in range (3)]
 
-    def _compare_results(self, expected: list[tuple[str, str]],
-                         results: list[tuple[str, str]]) -> None:
+            for i in range(len(xyzs)):
+                for j in range(i+1, len(xyzs)):
+                    self.assertFalse(np.array_equal(xyzs[i], xyzs[j]),
+                                     msg=f"xyz of {i} and {j} were equal")
+
+    def _compare_results(self, expected: list[str], results: list[str]) -> None:
         """Compare n xyz and csv results
 
         Parameters
         ----------
         expected
-            List of pairs of expected xyz/csv file names,
-            e.g. [("res1.xyz", "res1.csv"), ("res2.xyz", "res2.csv")]
+            List of base names for expected file pairs, e.g. ["exp1", "exp2"],
+            which would correspond to file pairs ("exp1.xyz", "exp1.csv") and
+            ("exp2.xyz", "exp2.csv")
         results
-            List of tuples corresponding to the expected list to be compared
+            List of results corresponding to the expected list to be compared
         """
-        for (exp_xyz, exp_csv), (res_xyz, res_csv) in zip(expected, results):
+        for exp_name, res_name in zip(expected, results):
+            exp_csv = f"{exp_name}.csv"
+            res_csv = f"{res_name}.csv"
+            exp_xyz = f"{exp_name}.xyz"
+            res_xyz = f"{res_name}.xyz"
+
             expected_df = pd.read_csv(exp_csv)
             result_df = pd.read_csv(res_csv)
 
@@ -133,20 +142,20 @@ class TestAimlessShootingIntegration(TestCase):
             # Testing coordinates picked are the same
             with open(exp_xyz, "r") as expected_xyzf, \
                     open(res_xyz, "r") as results_xyzf:
-                expected_frame, expected_eof = read_xyz_frame(expected_xyzf)
+                expected_frame, expected_eof = xyzlib.read_xyz_frame(expected_xyzf)
 
                 frame = 0
                 while not expected_eof:
-                    result_frame, result_eof = read_xyz_frame(results_xyzf)
+                    result_frame, result_eof = xyzlib.read_xyz_frame(results_xyzf)
                     self.assertFalse(result_eof, msg=f"{res_xyz} ended early")
 
                     np.testing.assert_allclose(expected_frame, result_frame,
                                                rtol=1e-7,
                                                err_msg=f"Frame {frame} does not match for {res_xyz}")
 
-                    expected_frame, expected_eof = read_xyz_frame(expected_xyzf)
+                    expected_frame, expected_eof = xyzlib.read_xyz_frame(expected_xyzf)
                     frame += 1
 
                 # Make sure nothing at the end of the results
-                _, result_eof = read_xyz_frame(results_xyzf)
+                _, result_eof = xyzlib.read_xyz_frame(results_xyzf)
                 self.assertTrue(result_eof, msg=f"{res_xyz} should have ended")
