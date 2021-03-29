@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import glob
 import os
 import random
@@ -16,7 +17,96 @@ from transition_sampling.util.periodic_table import atomic_symbols_to_mass
 from transition_sampling.engines import AbstractEngine, ShootingResult
 
 
-class AimlessShooting:
+class AimlessShootingDriver:
+    """Driver to run one or multiple aimless shootings.
+
+    Given parameters are copied and used for each shooting, making the only
+    difference the randomness that the aimless shooting algorithm introduces.
+
+    Parameters
+    ----------
+    engine
+        Engine to be used. This specific engine will not be modified, but deep
+        copies of it made for each parallel shooting.
+    position_dir
+        Directory containing starting xyz positions
+    log_name
+        Base name for the log (csv and xyz) files. A call to run will generate
+        `log_name`.csv and `log_name`.xyz files that hold results from all
+        shootings. For each parallel shooting, there will be an additional
+        `log_name`{i}.csv and `log_name`{i}.xyz files that track results from
+        that specific shooting.
+    acceptor
+        An acceptor that implements an `is_accepted` method to determine if a
+        shooting point should be considered accepted or not. Deep copied and
+        used as a template for all parallel shootings.
+
+    Attributes
+    ----------
+    base_engine : AbstractEngine
+        Engine template to be used for all shootings
+    position_dir : str
+        Directory containing starting xyz positions to be used for all shootings
+    log_name : str
+        Root name for all logging
+    base_acceptor : AbstractAcceptor
+        Acceptor template to be used for all shootings
+    """
+    def __init__(self, engine: AbstractEngine, position_dir: str, log_name: str,
+                 acceptor: AbstractAcceptor = None):
+        self.base_engine = engine
+        self.position_dir = position_dir
+        self.base_acceptor = acceptor
+        self.log_name = log_name
+
+    def run(self, n_parallel: int, **run_args) -> None:
+        """Run multiple AimlessShootings in parallel.
+
+        Note that calling this method after completion will start new aimless
+        shootings, not continue them from the previous call.
+
+        Parameters
+        ----------
+        n_parallel
+            Number of parallel AimlessShootings to execute. Note this will lead
+            to 2 * `n_parallel` simulations running simultaneously.
+        run_args
+            Keyword arguments to pass to each aimless shootings `run` method.
+        """
+        asyncio.run(self._gather_runs(n_parallel, **run_args))
+
+    async def _gather_runs(self, n_parallel: int, **run_args) -> None:
+        """Setup multiple AimlessShootings in parallel into a single coroutine
+
+        This function should be called with asyncio.run to execute.
+
+        Parameters
+        ----------
+        n_parallel
+            Number of parallel AimlessShootings to execute. Note this will lead
+            to 2 * `n_parallel` simulations running simultaneously.
+        run_args
+            Keyword arguments to pass to each aimless shootings `run` method.
+        """
+        tasks = []
+        base_logger = ResultsLogger(self.log_name)
+        for i in range(n_parallel):
+            engine = copy.deepcopy(self.base_engine)
+
+            # I don't think its necessary to copy acceptors with the ones we
+            # have now, but someone could potentially define one that depends
+            # on the accept status of the previous call, so we will to be safe.
+            acceptor = copy.deepcopy(self.base_acceptor)
+
+            logger = ResultsLogger(f"{self.log_name}{i}", base_logger)
+            algo = AsyncAimlessShooting(engine, self.position_dir, logger, acceptor)
+
+            tasks.append(asyncio.create_task(algo.run(**run_args)))
+
+        await asyncio.gather(*tasks)
+
+
+class AsyncAimlessShooting:
     """Aimless Shooting runner.
 
     Implements the aimless shooting algorithm by interacting with a given
@@ -29,16 +119,10 @@ class AimlessShooting:
     position_dir
         A directory containing only xyz positions of guesses at transition
         states. These positions will be used to try to kickstart the algorithm.
-    results_xyz
-        A file which all states, accepted or rejected, will be written to as
-        an individual frame. Appended to if it already exists, otherwise it is
-        created.
-    results_csv
-        A corresponding file to results_xyz that stores metadata for each state,
-        such as forward and reverse committed basins. Both files are necessary
-        for likelihood maximization. Appended to if it already exists, otherwise
-        it is created.
-    acceptor:
+    logger
+        Logger to write xyz and csv results to. Use a logger with a defined
+        `base_logger` to record these in more than one location.
+    acceptor
         An acceptor that implements an `is_accepted` method to determine if a
         shooting point should be considered accepted or not. If None, the
         DefaultAcceptor is used, which accepts if both trajectories commit to
@@ -50,52 +134,37 @@ class AimlessShooting:
         Engine used to run the simulations
     position_dir : str
         Directory containing initial xyz guesses of transition states.
-    results_xyz : str
-        xyz file where all generated states, accepted or rejected will be stored
-    results_csv : str
-        csv file where metadata about results_xyz states is stored
     current_offset : int
         -1, 0 or +1. The delta-t offset the point being run with engine
         currently represents for purposes of choosing the next point.
+    logger : ResultsLogger
+        Logger to write xyz and csv results to. Log function is invoked on every
+        successful shooting point, no matter if it is accepted or unaccepted.
     current_start : np.ndarray
         xyz array of the current starting position. Has shape (num_atoms, 3)
     accepted_states : list[np.ndarray]
         A list of the accepted positions. Contains duplicates.
-    acceptor:
+    acceptor : AbstractAcceptor
         An acceptor that implements an `is_accepted` method to determine if a
         shooting point should be considered accepted or not.
     """
     def __init__(self, engine: AbstractEngine, position_dir: str,
-                 results_xyz: str, results_csv: str,
-                 acceptor: AbstractAcceptor = None):
+                 logger: ResultsLogger, acceptor: AbstractAcceptor = None):
         self.engine = engine
         self.position_dir = position_dir
-        self.results_xyz = results_xyz
-        self.results_csv = results_csv
         self.acceptor = acceptor
+        self.logger = logger
 
         if self.acceptor is None:
             self.acceptor = DefaultAcceptor()
-
-        # Write the CSV header if doesn't exist, otherwise figure out what
-        # index we're writing to.
-        if not os.path.isfile(self.results_csv):
-            with open(self.results_csv, "w") as f:
-                f.write("index,accepted,forward_basin,reverse_basin,box_x,"
-                        "box_y,box_z\n")
-
-            self.cur_index = 0
-
-        else:
-            df = pd.read_csv(self.results_csv)
-            self.cur_index = df["index"].max() + 1
 
         self.current_offset = random.choice([-1, 0, 1])
         self.current_start = None
 
         self.accepted_states = []
 
-    def run(self, n_points: int, n_state_tries: int, n_vel_tries: int) -> None:
+    async def run(self, n_points: int, n_state_tries: int,
+                  n_vel_tries: int) -> None:
         """Run the aimless shooting algorithm to generate n_points.
 
         Each state that is generated is written as a .xyz to the given results
@@ -131,14 +200,15 @@ class AimlessShooting:
         accepted_states = 0
         states_since_success = 0
         if len(self.accepted_states) == 0:
-            if not self._kickstart(n_vel_tries):
+            kickstart = await self._kickstart(n_vel_tries)
+            if not kickstart:
                 raise RuntimeError("No initial guesses were accepted as "
                                    "transition states")
 
         self.current_start = random.choice(self.accepted_states)
 
         while accepted_states < n_points:
-            result = self._run_velocity_attempts(n_vel_tries)
+            result = await self._run_velocity_attempts(n_vel_tries)
 
             if result is None:
                 # We tried regenerating velocities n_tries times for the current
@@ -173,7 +243,7 @@ class AimlessShooting:
             # No matter what, we should pick a new offset to remain stochastic
             self.current_offset = random.choice([-1, 0, 1])
 
-    def _kickstart(self, n_vel_tries: int) -> bool:
+    async def _kickstart(self, n_vel_tries: int) -> bool:
         """Loop through provided initial guesses to see if any are accepted.
 
         Each starting structure in the position directory tested to see if it is
@@ -222,7 +292,7 @@ class AimlessShooting:
                     f"atoms, which is inconsistent with {n_atoms} "
                     f"atoms in {xyz_files[0]}")
 
-            result = self._run_velocity_attempts(n_vel_tries)
+            result = await self._run_velocity_attempts(n_vel_tries)
 
             if result is not None:
                 accepted = True
@@ -235,7 +305,7 @@ class AimlessShooting:
         print("Evaluation of initial guesses complete")
         return accepted
 
-    def _run_velocity_attempts(self, n_attempts: int) -> Optional[ShootingResult]:
+    async def _run_velocity_attempts(self, n_attempts: int) -> Optional[ShootingResult]:
         """Run from the current start, regenerating velocities if not accepted.
 
         This is a wrapper for running a single starting position with multiple
@@ -268,21 +338,16 @@ class AimlessShooting:
             vels = generate_velocities(self.engine.atoms, self.engine.temp)
             # Set the position
             self.engine.set_positions(self.current_start)
-            result = self._run_one_velocity(vels)
+            result = await self._run_one_velocity(vels)
 
             if result is not None:
                 # Record all runs that did not end in an Exception
                 # Save forward and backwards basin commits as minimum recovery
-                comment = f"{result.fwd['commit']}, {result.rev['commit']}"
+                accepted = self.acceptor.is_accepted(result)
+                self.logger.log(result, self.engine.atoms, self.current_start,
+                                accepted, self.engine.box_size)
 
-                with open(self.results_xyz, "a") as xyz_file:
-                    xyz.write_xyz_frame(xyz_file, self.engine.atoms,
-                                        self.current_start, comment=comment)
-
-                self.write_csv_line(result)
-                self.cur_index += 1
-
-                if self.acceptor.is_accepted(result):
+                if accepted:
                     # Break out of try loop, we found an accepted state
                     # Record it in our list
                     self.accepted_states.append(self.current_start)
@@ -291,7 +356,7 @@ class AimlessShooting:
         # Did not have an accepted state by changing velocity in n_attempts
         return None
 
-    def _run_one_velocity(self, vels: np.ndarray) -> Optional[ShootingResult]:
+    async def _run_one_velocity(self, vels: np.ndarray) -> Optional[ShootingResult]:
         """Run one shooting point from the current start with given velocity.
 
         Attempts to run a single shooting point from this object's current start
@@ -316,7 +381,7 @@ class AimlessShooting:
             self.engine.set_velocities(vels)
 
             # Run forwards and backwards with engine
-            return asyncio.run(self.engine.run_shooting_point())
+            return await self.engine.run_shooting_point()
 
         except Exception as e:
             print(e)
@@ -351,25 +416,134 @@ class AimlessShooting:
 
         return concat_frames[chosen_index, :, :]
 
-    def write_csv_line(self, result: ShootingResult) -> None:
-        """Write a single line to the results_csv for the given result.
-
-        Uses self.cur_index as the index for this line.
+    @staticmethod
+    def is_accepted(result: ShootingResult) -> bool:
+        """Determines if a ShootingResult should be accepted or rejected
 
         Parameters
         ----------
         result
-            Shooting result of the state to write. Used for fwd and rev basin
-            commits.
-        """
-        columns = [self.cur_index, self.acceptor.is_accepted(result),
-                   result.fwd["commit"], result.rev["commit"],
-                   self.engine.box_size[0], self.engine.box_size[1],
-                   self.engine.box_size[2]]
+            The ShootingResult to be tested
 
-        with open(self.results_csv, "a") as file:
+        Returns
+        -------
+        True if it should be accepted, False otherwise.
+        """
+        return result.fwd["commit"] is not None and \
+            result.rev["commit"] is not None and \
+            result.fwd["commit"] != result.rev["commit"]
+
+
+class ResultsLogger:
+    """Class for logging everything from aimless shooting with multiple levels.
+
+    An instance of this class is passed to an AimlessShooting instance in order
+    to log the results to an xyz file and csv file. If constructed with another
+    ResultLogger, that logger is invoked at the same time and duplicates to its
+    respective files.
+
+    This allows one "parent" logger to keep all results in a single pair of
+    files, while many "child loggers" are attached to parallel shootings, each
+    recording only their respective results in a separate pair of files.
+
+    The tracked files are `name`.csv and `name`.xyz. If these files already exist,
+    they are appended to.
+
+    Parameters
+    ----------
+    name
+        The root name of the xyz and csv file
+    base_logger
+        An optional "parent" logger to pass logs up to. If not None, everything
+        logged to this logger is also logged by the `base_logger`
+
+    Attributes
+    ----------
+    name : str
+        The root name of the xyz and csv file to use, e.g. "results"
+    base_logger : ResultsLogger
+        An optional "parent" logger to pass logs up to. If not None, everything
+        logged to this logger is also logged by the `base_logger`
+    cur_index : int
+        The next index that will be written in the CSV.
+    """
+    def __init__(self, name: str, base_logger: ResultsLogger = None):
+        self.name = name
+        self.base_logger = base_logger
+        self._init_csv()
+
+    def log(self, result: ShootingResult, atoms: Sequence[str],
+            frame: np.ndarray, accepted: bool, box_size: Sequence[float]) -> None:
+        """Log results to xyz and csv. Invoke the base logger if we have one.
+
+        This writes all the passed results synchronously to the corresponding
+        XYZ and CSV. The base logger is also invoked, allowing synchronous
+        logging to it as well.
+
+        Parameters
+        ----------
+        result
+            The shooting result we're logging
+        atoms
+            Periodic table format sequence of atom names
+        frame
+            xyz frame we're logging, each row corresponding to the atoms
+        accepted
+            True if this result was accepted, false otherwise
+        box_size
+            x, y, z of the box size used.
+        """
+
+        # XYZ
+        comment = f"{self.cur_index}, {result.fwd['commit']}, {result.rev['commit']}"
+        with open(self.xyz_name, "a") as xyz_file:
+            xyz.write_xyz_frame(xyz_file, atoms, frame, comment=comment)
+
+        # CSV
+        columns = [self.cur_index, accepted, result.fwd["commit"],
+                   result.rev["commit"], box_size[0], box_size[1], box_size[2]]
+        with open(self.csv_name, "a") as file:
             file.write(",".join([str(x) for x in columns]))
             file.write("\n")
+
+        self.cur_index += 1
+
+        # Log to the base logger if we have one.
+        if self.base_logger is not None:
+            self.base_logger.log(result, atoms, frame, accepted, box_size)
+
+    @property
+    def csv_name(self) -> str:
+        """Name of the CSV file"""
+        return f"{self.name}.csv"
+
+    @property
+    def xyz_name(self) -> str:
+        """Name of the XYZ file"""
+        return f"{self.name}.xyz"
+
+    def _init_csv(self) -> None:
+        """Set up the CSV file and index tracking.
+
+        If there is no CSV by this instance's name, create one with the header.
+        If there is one, read the last index and increment by 1 as our current.
+        """
+        # Write the CSV header if doesn't exist, otherwise figure out what
+        # index we're writing to.
+        if not os.path.isfile(self.csv_name):
+            with open(self.csv_name, "w") as f:
+                f.write("index,accepted,forward_basin,reverse_basin,box_x,"
+                        "box_y,box_z\n")
+
+            self.cur_index = 0
+
+        else:
+            df = pd.read_csv(self.csv_name)
+            if df.size != 0:
+                self.cur_index = df["index"].max() + 1
+            # Handle header only
+            else:
+                self.cur_index = 0
 
 
 def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
