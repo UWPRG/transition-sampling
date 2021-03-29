@@ -495,7 +495,7 @@ class ResultsLogger:
         """
 
         # XYZ
-        comment = f"{result.fwd['commit']}, {result.rev['commit']}"
+        comment = f"{self.cur_index}, {result.fwd['commit']}, {result.rev['commit']}"
         with open(self.xyz_name, "a") as xyz_file:
             xyz.write_xyz_frame(xyz_file, atoms, frame, comment=comment)
 

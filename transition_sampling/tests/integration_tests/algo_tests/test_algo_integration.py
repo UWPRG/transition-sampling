@@ -108,7 +108,7 @@ class TestAimlessShootingIntegration(TestCase):
                 # state attempts and 5 velocity attempts.
                 algo.run(3, n_points=10, n_state_tries=3, n_vel_tries=5)
 
-            xyzs = [xyzlib.read_xyz_file(f"{result_name}{i}.xyz") for i in range (3)]
+            xyzs = [xyzlib.read_xyz_file(f"{result_name}{i}.xyz") for i in range(3)]
 
             # check that each of the XYZ outputs are different
             for i in range(len(xyzs)):
