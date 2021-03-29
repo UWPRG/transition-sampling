@@ -16,7 +16,7 @@ The specific system is a chloromethane Sn2 reaction with PM6 theory.
  - `sourceme.sh` - Sets up python environment, CP2K, and plumed binaries. Adjust as needed.
  - `job.sh` - Script to launch `main.py` with `slurm`. **NOTE: CURRENTLY MUST USE AN INTERACTIVE NODE
    to have parallel cp2k simulations i.e. don't use this**
- - ####`main.py` - Python script to be executed. Puts everything together.
+ - #### `main.py` - Python script to be executed. Puts everything together.
 
 ## `main.py` Walkthrough
 

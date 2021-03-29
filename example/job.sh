@@ -7,8 +7,7 @@
 ## Resources 
 ## Nodes 
 #SBATCH --nodes=1
-## Tasks per node (Slurm assumes you want to run 28 tasks, remove 2x # and adjust parameter if needed)
-# SBATCH --ntasks-per-node=4
+# SBATCH --ntasks-per-node=8
 ## Walltime (ten minutes) 
 #SBATCH --time=3:00:00
 # E-mail Notification, see man sbatch for options
