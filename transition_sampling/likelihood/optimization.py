@@ -70,8 +70,8 @@ def optimize(colvars, is_accepted, niter=100) -> np.ndarray:
 
     sol = basinhopping(obj_func, x0, niter=niter, minimizer_kwargs=min_args)
 
-    if not sol.success:
-        raise RuntimeWarning(f"Solution did not converge {sol}")
+    # if not sol.success:
+    #     raise RuntimeWarning(f"Solution did not converge {sol}")
 
     return sol.x
 
