@@ -1,0 +1,119 @@
+&GLOBAL
+  PROJECT md
+  PRINT_LEVEL LOW
+  RUN_TYPE MD
+&END GLOBAL
+
+
+&FORCE_EVAL
+  METHOD Quickstep
+  &DFT
+    CHARGE -1
+    MULTIPLICITY 1
+
+    &MGRID
+       CUTOFF [Ry] 300
+    &END
+
+    &QS
+       METHOD PM6
+       EPS_DEFAULT 1.0E-10 
+       EXTRAPOLATION ASPC 
+       &SE
+         INTEGRAL_SCREENING KDSO-D
+         &COULOMB
+           CUTOFF 5.0
+         &END
+       &END SE
+    &END
+
+    &POISSON
+       PERIODIC XYZ ! the default, gas phase systems should have and a wavelet solver
+       POISSON_SOLVER PERIODIC
+    &END
+
+    &SCF                              
+      SCF_GUESS ATOMIC ! can be used to RESTART an interrupted calculation
+      MAX_SCF 30
+      EPS_SCF 1.0E-6 ! accuracy of the SCF procedure typically 1.0E-6 - 1.0E-7
+      &OT
+        ! an accurate preconditioner suitable also for larger systems
+        PRECONDITIONER FULL_SINGLE_INVERSE
+        ! the most robust choice (DIIS might sometimes be faster, but not as stable).
+        MINIMIZER DIIS
+      &END OT
+      &OUTER_SCF ! repeat the inner SCF cycle 10 times
+        MAX_SCF 30
+        EPS_SCF 1.0E-6 ! must match the above
+      &END
+      &PRINT
+          &RESTART OFF
+          &END
+      &END
+    &END SCF
+  &END DFT
+ 
+  ! description of the system
+  &SUBSYS
+    &CELL 
+      ! unit cells that are orthorhombic are more efficient with CP2K
+      ABC [angstrom] 10.00 10.00 10.00
+      PERIODIC XYZ
+    &END CELL
+
+    &COORD
+      C                  0.00000000    0.00000000   -0.00000100
+      H                  1.06520800   -0.18215400   -0.01243600
+      H                 -0.69070000   -0.83018900   -0.04149100
+      H                 -0.37450800    1.01234300    0.05392400
+      Cl                -0.00611600    0.11671500   -2.23359800
+      Cl                 0.00611600   -0.11671600    2.23359800
+    &END COORD
+
+    ! atom coordinates can be in the &COORD section,
+    ! or provided as an external file.
+  &END SUBSYS
+&END FORCE_EVAL
+
+! how to propagate the system, selection via RUN_TYPE in the &GLOBAL section
+&MOTION
+ &PRINT
+       &TRAJECTORY
+           &EACH
+               MD 1
+           &END
+       &END
+       &VELOCITIES OFF
+       &END VELOCITIES
+       &FORCES OFF
+       &END FORCES
+       &RESTART_HISTORY OFF
+       &END RESTART_HISTORY
+       &RESTART OFF
+       &END RESTART
+ &END PRINT
+ &FREE_ENERGY
+     &METADYN
+         USE_PLUMED .TRUE.
+         PLUMED_INPUT_FILE ./plumed.dat
+     &END METADYN
+ &END FREE_ENERGY
+ &MD
+   ENSEMBLE NVT
+   TEMPERATURE [K] 300
+   TIMESTEP [fs] 0.5
+   STEPS 4000
+   &THERMOSTAT
+       &NOSE
+           TIMECON [fs] 10
+       &END NOSE
+   &END THERMOSTAT
+   &PRINT
+       &ENERGY
+           &EACH
+               MD 1
+           &END
+       &END
+   &END
+ &END
+&END
