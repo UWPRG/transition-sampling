@@ -20,7 +20,7 @@ Some specific things for the CP2K input.
  ### Required Fields:
    - `&TEMPERATURE` Any CP2K units
    - `&TIMESTEP` - Any CP2K units
-   - `&CELl` - Only supports `ABC` for the time being
+   - `&CELL` - Only supports `ABC` for the time being
    - `&COORD` - Required for the time being. Must have an entry for each atom in the
       system and each atom type must correspond exactly to those provided in the 
       `initial_starts` `xyz` files.
