@@ -15,7 +15,7 @@ from scipy.optimize import basinhopping
 
 
 def optimize(colvars: np.ndarray, is_accepted: np.ndarray,
-             niter: int = 100, use_jac: bool = True) -> np.ndarray:
+             niter: int = 100, use_jac: bool = True) -> tuple[float, np.ndarray]:
     """
     Use basinhopping for global optimization of rxn coords as a linear
     combination of CVs.
@@ -55,7 +55,8 @@ def optimize(colvars: np.ndarray, is_accepted: np.ndarray,
 
     Returns
     -------
-        Array of length (m+2) of optimized parameters as [p0, alpha0, alphas]
+        The objective function of the solution and the solution which is an
+        array of length (m+2) of optimized parameters as [p0, alpha0, alphas]
 
     Raises
     ------
@@ -80,7 +81,7 @@ def optimize(colvars: np.ndarray, is_accepted: np.ndarray,
 
     sol = basinhopping(obj_func, x0, niter=niter, minimizer_kwargs=min_args)
 
-    return sol.x
+    return sol.fun, sol.x
 
 
 # Let n refer to the number of shooting points and m refer to the number of CVs
