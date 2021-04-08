@@ -14,7 +14,8 @@ import numpy as np
 from scipy.optimize import basinhopping
 
 
-def optimize(colvars, is_accepted, niter=100, use_jac=True) -> np.ndarray:
+def optimize(colvars: np.ndarray, is_accepted: np.ndarray,
+             niter: int = 100, use_jac: bool = True) -> np.ndarray:
     """
     Use basinhopping for global optimization of rxn coords as a linear
     combination of CVs.
