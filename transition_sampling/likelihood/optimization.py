@@ -9,10 +9,9 @@ to the reaction coordinate.
 from __future__ import annotations
 
 from typing import Optional
-import typing
 
-from scipy.optimize import basinhopping
 import numpy as np
+from scipy.optimize import basinhopping
 
 
 def optimize(colvars, is_accepted, niter=100, use_jac=True) -> np.ndarray:
