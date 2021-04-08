@@ -47,7 +47,6 @@ def optimize(colvars, is_accepted, niter=100, use_jac=True) -> np.ndarray:
     niter
         Number of local optimizations to perform with basinhopping. Linearly
         scales.
-
     use_jac
         True if the analytical jacobian should be used during gradient descent.
         Otherwise, the default finite difference approximation will be used.
@@ -97,11 +96,9 @@ def calc_r(alphas: np.ndarray, colvars: np.ndarray,
     alphas
         a length m+1 array where m is the number of collective variables being
         analyzed. alphas[0] refers to the constant added term.
-
     colvars
         an (n x m) matrix where n is the number of shooting points and m is
         the number of collective variables.
-
     calc_jac
         True if the jacobian should be calculated and returned.
 
@@ -119,13 +116,15 @@ def calc_r(alphas: np.ndarray, colvars: np.ndarray,
     """
     r_vals = alphas[0] + np.matmul(colvars, alphas[1:])
 
-    # First column is d/dp_0 (all zeros for this function)
-    r_jacobian = np.zeros((colvars.shape[0], alphas.size + 1))
-    # second column is d/dalpha_0 (all ones since constant)
-    r_jacobian[:, 1] = 1
-    # rest is just the d/dalphas, which are just the respective colvars
-    # since the alphas are the coefficients
-    r_jacobian[:, 2:] = colvars
+    r_jacobian = None
+    if calc_jac:
+        # First column is d/dp_0 (all zeros for this function)
+        r_jacobian = np.zeros((colvars.shape[0], alphas.size + 1))
+        # second column is d/dalpha_0 (all ones since constant)
+        r_jacobian[:, 1] = 1
+        # rest is just the d/dalphas, which are just the respective colvars
+        # since the alphas are the coefficients
+        r_jacobian[:, 2:] = colvars
 
     return r_vals, r_jacobian
 
@@ -140,10 +139,8 @@ def calc_p(p_0: float, r_vals: np.ndarray,
     ----------
     p_0
         Constant multiplier
-
     r_vals
         A length n vector of calculated reaction coordinates.
-
     r_jac
         If None, the jacobian will not be calculated. Otherwise, this should be
         an (n x m + 2) matrix representing the jacobian of each r with respect
@@ -211,15 +208,12 @@ def obj_func(to_opt: np.ndarray, colvars: np.ndarray, is_accepted: np.ndarray,
         - to_opt[0] : p_0 term
         - to_opt[1] : alpha_0, i.e. the constant added weight
         - to_opt[2:] : alphas_1...alphas_m for m collective variables.
-
     colvars:
         an (n x m) matrix where n is the number of shooting points and m is
         the number of collective variables.
-
     is_accepted:
         A length n boolean np array corresponding to if the ith state in colvars
         was accepted
-
     calc_jac:
         True if the jacobian should be calculated and also returned
 
