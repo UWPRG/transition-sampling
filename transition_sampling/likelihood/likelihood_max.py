@@ -56,6 +56,12 @@ class Maximizer:
         a given number of cvs. Length == # of cvs
     use_jac : bool
         True if the analytical jacobian should be used in optimization
+
+    Raises
+    ------
+    ValueError
+        If the number of states in the colvars_file != number of states in
+        the csv_file
     """
 
     def __init__(self, colvars_file: str, csv_file: str,
@@ -65,12 +71,14 @@ class Maximizer:
         # as the index to compare to the metadata indices.
         cv_names = self._read_header(colvars_file)
         self.colvars = pd.read_csv(colvars_file, skiprows=1, sep="\s+",
-                                   names=cv_names).astype({'time': 'int64'}).set_index('time')
+                                   names=cv_names).astype(
+            {'time': 'int64'}).set_index('time')
 
         self.metadata = pd.read_csv(csv_file)
 
         if self.colvars.shape[0] != self.metadata.shape[0]:
-            raise ValueError("Number of states in colvars != number of metadata")
+            raise ValueError(
+                "Number of states in colvars != number of metadata")
 
         # Initialize the niter list
         try:
@@ -85,7 +93,7 @@ class Maximizer:
 
         self.use_jac = use_jac
 
-    def maximize(self) -> tuple[tuple, np.ndarray]:
+    def maximize(self) -> MaximizerSolution:
         """
         Find the combination of CVs that maximize the likelihood of this data.
 
@@ -94,45 +102,33 @@ class Maximizer:
 
         Returns
         -------
-        The CV names that represent the maximum and the parameters that optimize
-        it. The parameters list corresponds to [p0, alpha0, <weights of each CV>]
+        All values for each tested combination, as well as the maximum
+        significant combination. See `MaximizerSolution`
         """
         available_colvars = self.colvars.columns
-        improvement = 0.5 * np.log(self.colvars.shape[0])
-
-        last_obj = np.NINF
-        last_sol = None
-        last_combination = None
         num_cvs = 1
+        result = MaximizerSolution(0.5 * np.log(self.colvars.shape[0]))
 
         # Do while loop according to PEP 315. Will at least evaluate all single
         # CVs and all pairs of CVs.
         while True:
-            max_obj = np.NINF
-            max_combination = None
-            max_sol = None
+            # Empty solution to compare initially
+            max_sol = SingleSolution(None, np.NINF, None)
+            result.combinations[num_cvs] = {}
 
             # For each possible combination with a given number of cvs, find the
             # one with the maximum likelihood
-            for cv_combination in combinations(available_colvars, num_cvs):
-                obj, sol = self._optimize_set(cv_combination)
+            for cv_comb in combinations(available_colvars, num_cvs):
+                cur_sol = self._optimize_set(cv_comb)
+                result.combinations[num_cvs][frozenset(cv_comb)] = cur_sol
 
-                print(f"obj for {cv_combination}: {obj}")
-
-                if obj > max_obj:
-                    max_obj = obj
-                    max_sol = sol
-                    max_combination = cv_combination
-
-            print(f"Max for {num_cvs}: obj for {max_combination}: {max_obj}")
+                if cur_sol.obj > max_sol.obj:
+                    max_sol = cur_sol
 
             # See if that combination improved enough over the last one. If yes,
             # continue to do more
-            if max_obj - last_obj > improvement:
-                last_obj = max_obj
-                last_sol = max_sol
-                last_combination = max_combination
-                print("Good enough to continue")
+            if max_sol.obj - result.max.obj > result.req_improvement:
+                result.max = max_sol
 
                 # Exit if there are no more CVs to maximize
                 if num_cvs == len(available_colvars):
@@ -143,11 +139,9 @@ class Maximizer:
             else:
                 break
 
-        print("Exiting")
+        return result
 
-        return last_combination, last_sol
-
-    def _optimize_set(self, cvs: tuple) -> tuple[float, np.ndarray]:
+    def _optimize_set(self, cvs: tuple) -> SingleSolution:
         """
         Optimize a set of cvs and return the maximum likelihood and solution
 
@@ -158,7 +152,7 @@ class Maximizer:
 
         Returns
         -------
-        The objective function of the optimized solution and the solution
+        A SingleSolution representation of the optimized result
         """
         niter = self.niter[len(cvs) - 1]
 
@@ -169,7 +163,7 @@ class Maximizer:
 
         # objective function comes out as a minimizer, take negative to make
         # maximizer
-        return -1 * sol[0], sol[1]
+        return SingleSolution(cvs, -1 * sol[0], sol[1])
 
     @staticmethod
     def _read_header(colvars_file: str) -> list[str]:
@@ -191,3 +185,61 @@ class Maximizer:
 
         cols = line.split()
         return cols[2:]
+
+
+class MaximizerSolution:
+    """
+    Wrapper class to carry results for all tested combinations in maximization.
+
+    Parameters
+    ----------
+    req_improvement
+        The required improvement of the objective function for an additional CV
+        to be added to max
+
+    Attributes
+    ----------
+    combinations : dict[int: dict[frozenset: SingleSolution]]
+        A dictionary representing the solution to all tested combinations. The
+        first key indicates the length of the combination. Within that
+        dictionary, the keys are sets of CV combinations, with values being a
+        the SingleSolution representation of the optimization.
+
+    max : SingleSolution
+        The solution that has the maximum likelihood while still being
+        significant as determined by `req_improvement` to add another CV
+
+    req_improvement : float
+        The required improvement of the objective function for an additional CV
+        to be added to max
+    """
+
+    def __init__(self, req_improvement: float):
+        self.combinations = {}
+        self.max = SingleSolution(None, np.NINF, None)
+        self.req_improvement = req_improvement
+
+
+class SingleSolution:
+    """
+    Carries the result of a single CV combination optimization.
+
+    Parameters
+    ----------
+    comb
+        An ordered tuple of CVs that this solution represents
+    obj
+        The objective function of this result
+    sol
+        The optimized solution. An ordered array of
+        [`p0`, `alpha0`, `coeffs_for_each_CV in comb`]
+
+    Attributes
+    ----------
+    See Parameters
+    """
+
+    def __init__(self, comb: tuple, obj: float, sol: np.ndarray):
+        self.comb = comb
+        self.obj = obj
+        self.sol = sol
