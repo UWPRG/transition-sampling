@@ -58,8 +58,13 @@ class TestOptimizer(TestCase):
 
 
 class TestMaximizer(TestCase):
-
+    """Test the full maximizer over a full set of CVs"""
     def test_determines_significant(self):
+        """Generate random orthogonal CVs and a random separating surface where
+        only a subset of CVs are significant in determining if a point is
+        accepted. Find those that are significant and their weights, then
+        confirm that they were found.
+        """
         np.random.seed(2)
         std = 0.2
 
