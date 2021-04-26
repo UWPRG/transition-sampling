@@ -93,12 +93,19 @@ class Maximizer:
 
         self.use_jac = use_jac
 
-    def maximize(self) -> MaximizerSolution:
+    def maximize(self, max_num_cvs: int = None) -> MaximizerSolution:
         """
         Find the combination of CVs that maximize the likelihood of this data.
 
         Only adds more CVs if they result in a statistically significant
         increase.
+
+        Parameters
+        ----------
+        max_num_cvs
+            The maximum number of CVs in a combination to evaluate (inclusive).
+            If this number is reached before the statistical threshold for adding
+            new CVs is, this function returns early. Set to None to set no limit
 
         Returns
         -------
@@ -109,9 +116,12 @@ class Maximizer:
         num_cvs = 1
         result = MaximizerSolution(0.5 * np.log(self.colvars.shape[0]))
 
+        if max_num_cvs is None:
+            max_num_cvs = len(available_colvars)
+
         # Do while loop according to PEP 315. Will at least evaluate all single
-        # CVs and all pairs of CVs.
-        while True:
+        # CVs and all pairs of CVs given appropriate max_num_cvs
+        while num_cvs <= max_num_cvs:
             # Empty solution to compare initially
             max_sol = SingleSolution(None, np.NINF, None)
             result.combinations[num_cvs] = {}
