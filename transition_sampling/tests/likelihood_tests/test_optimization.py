@@ -1,14 +1,12 @@
-import os
+from __future__ import annotations
+
 from unittest import TestCase
 
 import numpy as np
 import scipy.optimize
 import scipy.stats
 
-from transition_sampling.likelihood.optimization import obj_func, optimize
-
-CUR_DIR = os.path.dirname(__file__)
-PLUMED_DATA_DIR = os.path.join(CUR_DIR, "test_data/plumed")
+from transition_sampling.likelihood.optimization import obj_func
 
 
 class TestObjectiveFunction(TestCase):
@@ -53,66 +51,3 @@ class TestObjectiveFunction(TestCase):
             except Exception as e:
                 self.fail(msg=f"Exception {e} thrown. {n_states} states,"
                               f" {m_colvars} colvars")
-
-
-class TestOptimizer(TestCase):
-    """Test that the optimizer converges with fake data."""
-
-    def test_optimizer(self):
-        """Generate random orthogonal CVs and a random separating surface.
-
-        Accept CVs closer to the generated surface with a normally distributed
-        probability, centered on the surface. Confirm that the optimizer is able
-        to find this underlying surface a minimum.
-        """
-        np.random.seed(2)
-        std = 0.3
-
-        for i in range(5):
-            n_states = np.random.choice(range(1000, 5000))
-            m_colvars = np.random.choice(range(2, 4))
-
-            # Our CV data, randomly distributed between [-1, 1]
-            cvs = np.random.random_sample((n_states, m_colvars)) * 2 - 1
-
-            # Separating surface given by constant offset and normal vector
-            # This is a hyper plane in R^(m_colvars)
-            surf_offset = np.random.random(1)[0]
-            surf_vector = np.random.random(m_colvars)
-            surf_norm = np.linalg.norm(surf_vector)
-
-            distances = (np.dot(cvs, surf_vector) + surf_offset) / surf_norm
-
-            max_val = scipy.stats.norm.pdf(0, 0, std)
-
-            # Make the centered location have a probability of 1
-            # not a true PDF!
-            probs = scipy.stats.norm.pdf(distances, 0, std) / max_val
-
-            # Randomly accept or reject a state based on its distance's prob.
-            is_accepted = np.array(
-                [np.random.choice([True, False], 1, p=[prob, 1 - prob]) for prob
-                 in probs]).reshape(-1)
-
-            sol = optimize(cvs, is_accepted, use_jac=True)
-            final_jac = obj_func(sol, cvs, is_accepted, True)[1]
-
-            # Check that derivatives are close to 0, i.e. at a minimum
-            # The p0 jacobian can be non zero because its bounded.
-            self.assertFalse(np.any(np.abs(final_jac[1:]) > 1e-3),
-                             msg=f"{n_states} states, {m_colvars} colvars failed"
-                                 f" to have a 0 jacobian: {final_jac} (first entry okay)")
-
-            # Both the constant offset and vector need to be normalized by the
-            # distance of the vector to compare
-            comparable_surf = np.append(np.array([surf_offset]),
-                                        surf_vector) / surf_norm
-
-            # Same normalization for our solution
-            comparable_opt = sol[1:] / np.linalg.norm(sol[2:])
-
-            # Compare that all values are close
-            self.assertTrue(np.allclose(comparable_surf, comparable_opt,
-                                        rtol=0.1, atol=1e-2),
-                            msg=f"{n_states} states, {m_colvars} colvars failed, "
-                                f"true: {comparable_surf}, actual: {comparable_opt}")
