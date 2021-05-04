@@ -4,6 +4,7 @@ import os
 from colvar import PlumedDriver
 from engines import CP2KEngine, AbstractEngine
 from algo import AimlessShootingDriver, MultiBasinAcceptor
+from likelihood import Maximizer
 
 import yaml
 import sys
@@ -16,18 +17,42 @@ master_schema = Schema({Optional("md_inputs"): dict,
 
 name_schema = Schema({"md_inputs": {"aimless_inputs": {"output_name": str}}}, ignore_extra_keys=True)
 
+# GLOBALS to be overwritten as they are parsed
+csv_file = None
+xyz_file = None
+colvar_file = None
 
-def run_aimless(md_inputs: dict):
+
+def run_aimless(md_inputs: dict) -> None:
+    """
+    Validate and run the aimless shooting section
+
+    Parameters
+    ----------
+    md_inputs
+        The "md_inputs" dictionary of the input file
+    """
     md_schema = Schema({"engine_inputs": dict, "aimless_inputs": dict})
     md_schema.validate(md_inputs)
     engine = parse_engine(md_inputs["engine_inputs"])
     algo = parse_aimless(md_inputs["aimless_inputs"], engine)
 
     print("Starting aimless shooting")
-    algo.run(4, **md_inputs["aimless_inputs"])
+    algo.run(**md_inputs["aimless_inputs"])
 
 
 def parse_engine(engine_inputs: dict) -> AbstractEngine:
+    """
+    Validate engine_inputs section of input file and create the engine.
+    Parameters
+    ----------
+    engine_inputs
+        The "engine_inputs" dictionary of the input file
+
+    Returns
+    -------
+    The AbstractEngine representation of this input section
+    """
     # other engine parsing should be handled by the engine
     if engine_inputs["engine"] == "cp2k":
         engine = CP2KEngine(engine_inputs, engine_inputs["engine_dir"])
@@ -38,6 +63,23 @@ def parse_engine(engine_inputs: dict) -> AbstractEngine:
 
 
 def parse_aimless(aimless_inputs: dict, engine: AbstractEngine) -> AimlessShootingDriver:
+    """
+    Validate aimless_inputs section of input file and create the Driver.
+
+    Defines global variables for xyz and csv to be used in later sections if
+    not explicitly set.
+
+    Parameters
+    ----------
+    aimless_inputs
+        The "aimless_inputs" dictionary of the input file
+    engine
+        The corresponding AbstractEngine created from the "engine_inputs" section
+
+    Returns
+    -------
+    The AimlessShootingDriver that is ready to be run.
+    """
     def check_is_dir(path: str):
         if not os.path.isdir(path):
             raise Exception(f"{path} is not a directory")
@@ -53,6 +95,7 @@ def parse_aimless(aimless_inputs: dict, engine: AbstractEngine) -> AimlessShooti
 
     aimless_schema.validate(aimless_inputs)
 
+    # Handle creating acceptors
     acceptor = None
     if "acceptor" in aimless_inputs:
         if aimless_inputs["acceptor"] is not None:
@@ -67,23 +110,46 @@ def parse_aimless(aimless_inputs: dict, engine: AbstractEngine) -> AimlessShooti
                 multi_schema.validate(aimless_inputs["acceptor"])
                 acceptor = MultiBasinAcceptor(set(aimless_inputs["acceptor"]["reactants"]),
                                               set(aimless_inputs["acceptor"]["products"]))
-            else:
+
+            elif aimless_inputs["acceptor"]["type"] != "default":
                 sys.exit(f"Unknown acceptor type: {aimless_inputs['acceptor']['type']}")
 
-    if engine is not None:
-        return AimlessShootingDriver(engine, aimless_inputs["starts_dir"],
-                                     aimless_inputs["output_name"], acceptor)
+    # globals being overwritten
+    global csv_file, xyz_file
+    csv_file = f"{aimless_inputs['output_name']}.csv"
+    xyz_file = f"{aimless_inputs['output_name']}.xyz"
+
+    return AimlessShootingDriver(engine, aimless_inputs["starts_dir"],
+                                 aimless_inputs["output_name"], acceptor)
 
 
-def run_colvar(inputs: dict):
-    parse_colvar(inputs)
-    colvar_inputs = inputs["colvar_inputs"]
+def run_colvar(colvar_inputs: dict) -> None:
+    """
+    Validate and run the colvar section
+
+    Parameters
+    ----------
+    colvar_inputs
+        The "colvar_inputs" dictionary of the input file
+    """
+    parse_colvar(colvar_inputs)
     plumed_driver = PlumedDriver(colvar_inputs["plumed_cmd"])
     plumed_driver.run(colvar_inputs["plumed_file"], colvar_inputs["xyz_input"],
                       colvar_inputs["csv_file"], colvar_inputs["output_name"])
 
 
-def parse_colvar(inputs: dict):
+def parse_colvar(colvar_inputs: dict) -> None:
+    """
+    Validate colvar_inputs section of input file.
+
+    If xyz and csv files are not explicitly in the inputs, checks the globals
+    set above, then errors if those are not set.
+
+    Parameters
+    ----------
+    colvar_inputs
+        The "engine_inputs" dictionary of the input file
+    """
     def check_is_file(path: str):
         open(path).close()
 
@@ -93,28 +159,95 @@ def parse_colvar(inputs: dict):
                             Optional("csv_input"): Or(None, str),
                             Optional("xyz_input"): Or(None, str)})
 
-    colvar_inputs = inputs["colvar_inputs"]
     colvar_schema.validate(colvar_inputs)
 
     if "csv_input" not in colvar_inputs or colvar_inputs["csv_input"] is None:
-        if not name_schema.is_valid(inputs):
+        if csv_file is None:
             sys.exit("If not providing csv_input for colvar_inputs, output_name"
                      " must be be given in aimless_inputs")
-        colvar_inputs["cvs_input"] = inputs["md_inputs"]["aimless_inputs"]["output_name"] + ".csv"
+        colvar_inputs["cvs_input"] = csv_file
 
     if "xyz_input" not in colvar_inputs or colvar_inputs["xyz_input"] is None:
-        if not name_schema.is_valid(inputs):
+        if xyz_file is None:
             sys.exit("If not providing xyz_input for colvar_inputs, output_name"
                      " must be be given in aimless_inputs")
-        colvar_inputs["xyz_input"] = inputs["md_inputs"]["aimless_inputs"]["output_name"] + ".xyz"
+        colvar_inputs["xyz_input"] = xyz_file
 
-    file = "csv_input"
+    cur_file = "csv_input"
     try:
-        check_is_file(colvar_inputs[file])
-        file = "xyz_input"
-        check_is_file(colvar_inputs[file])
+        check_is_file(colvar_inputs[cur_file])
+        cur_file = "xyz_input"
+        check_is_file(colvar_inputs[cur_file])
     except:
-        sys.exit(f"{file} cannot be opened")
+        sys.exit(f"{cur_file} file {colvar_inputs[cur_file]} cannot be opened")
+
+    # Setting globals
+    global colvar_file
+    colvar_file = colvar_inputs["output_name"]
+
+
+def run_likelihood(likelihood_inputs: dict) -> None:
+    """
+    Validate and run the likelihood section
+
+    Parameters
+    ----------
+    likelihood_inputs
+        The "likelihood_inputs" dictionary of the input file
+    """
+    parse_likelihood(likelihood_inputs)
+    maximizer = Maximizer(likelihood_inputs["colvar_input"], likelihood_inputs["csv_input"],
+                          likelihood_inputs["n_iters"], likelihood_inputs["use_jac"])
+    solution = maximizer.maximize(likelihood_inputs["max_cvs"])
+    solution.to_csv(likelihood_inputs["output_name"])
+
+
+def parse_likelihood(likelihood_inputs: dict) -> None:
+    """
+    Validate likelihood_inputs section of input file.
+
+    If colvar and csv files are not explicitly in the inputs, checks the globals
+    set above, then errors if those are not set.
+
+    Parameters
+    ----------
+    likelihood_inputs
+        The "likelihood_inputs" dictionary of the input file
+    """
+
+    def check_is_file(path: str):
+        open(path).close()
+
+    likelihood_schema = Schema({Optional("max_cvs"): And(int, lambda x: x >= 1,
+                                                         error="max_cvs must be >= 1"),
+                                "output_name": str,
+                                Optional("csv_input"): Or(None, str),
+                                Optional("colvar_input"): Or(None, str),
+                                Optional("n_iter"): And(int, lambda x: x >= 1,
+                                                        error="n_iter must be >= 1"),
+                                Optional("use_jac"): bool})
+
+    likelihood_schema.validate(likelihood_inputs)
+
+    if "csv_input" not in likelihood_inputs or likelihood_inputs["csv_input"] is None:
+        if csv_file is None:
+            sys.exit("If not providing csv_input for colvar_inputs, output_name"
+                     " must be be given in aimless_inputs")
+        likelihood_inputs["cvs_input"] = csv_file
+
+    if "colvar_input" not in likelihood_inputs or likelihood_inputs["colvar_input"] is None:
+        if xyz_file is None:
+            sys.exit("If not providing colvar_input for likelihood_inputs, output_name"
+                     " must be be given in colvar_inputs")
+        likelihood_inputs["xyz_input"] = xyz_file
+
+    cur_file = "csv_input"
+    try:
+        check_is_file(likelihood_inputs[cur_file])
+        cur_file = "colvar_input"
+        check_is_file(likelihood_inputs[cur_file])
+    except:
+        sys.exit(f"{cur_file} file {likelihood_inputs[cur_file]} cannot be opened")
 
 
 def execute(inputs: dict):
@@ -123,7 +256,10 @@ def execute(inputs: dict):
         run_aimless(inputs["md_inputs"])
 
     if "colvar_inputs" in inputs:
-        run_colvar(inputs)
+        run_colvar(inputs["colvar_inputs"])
+
+    if "likelihood_inputs" in inputs:
+        run_likelihood(inputs["likelihood_inputs"])
 
 
 if __name__ == "__main__":

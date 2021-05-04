@@ -22,7 +22,7 @@ md_inputs:
     # Directory containg .xyz files of initial starting points
     starts_dir: '.'
     # Prefix to the output names. Two files will be created, <output_name>.xyz and
-    # <output_name>.csv
+    # <output_name>.csv. Note that this string should not include an extension.
     output_name: './results_files/results'
     # Number of aimless shootings to run in parallel. Total number of simulations
     # running at any given point is given by <n_parallel> * 2
@@ -63,3 +63,19 @@ likelihood_inputs:
   max_cvs: null
   # File to put results of maximization in
   output_name: './results_files/maximizer_results.csv'
+
+  # OPTIONAL - if you just want to run this by itself, you can provide
+  # COLVAR and .csv files from a previous aimless shooting. Otherwise, the output_name given
+  # in aimless_inputs will be used for the CSV and the output_name given in colvar_inputs
+  # used for the COLVAR if these are null or excluded
+  csv_input: null
+  colvar_input: null
+
+  # OPTIONAL - parameters for tuning the global optimization
+  # global optimization is done by basinhopping. This is the number of local
+  # optimizations to perform per global optimizations. Defaults to 100 if not given.
+  n_iters: 100
+  # Set to true if you want to use use the analytical calculation for the jacobian
+  # during optimization, which generally is faster. Set to false to use a finite
+  # difference approximation.
+  use_jac: true
