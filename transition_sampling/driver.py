@@ -152,12 +152,13 @@ def parse_colvar(colvar_inputs: dict) -> None:
     """
     def check_is_file(path: str):
         open(path).close()
+        return path
 
     colvar_schema = Schema({"plumed_cmd": str,
-                            "plumed_file": And(str, check_is_file),
+                            "plumed_file": And(str, Use(check_is_file)),
                             "output_name": str,
-                            Optional("csv_input"): Or(None, str),
-                            Optional("xyz_input"): Or(None, str)})
+                            Optional("csv_input"): Or(None, And(str, Use(check_is_file))),
+                            Optional("xyz_input"): Or(None, And(str, Use(check_is_file)))})
 
     colvar_schema.validate(colvar_inputs)
 
@@ -165,7 +166,7 @@ def parse_colvar(colvar_inputs: dict) -> None:
         if csv_file is None:
             sys.exit("If not providing csv_input for colvar_inputs, output_name"
                      " must be be given in aimless_inputs")
-        colvar_inputs["cvs_input"] = csv_file
+        colvar_inputs["csv_input"] = csv_file
 
     if "xyz_input" not in colvar_inputs or colvar_inputs["xyz_input"] is None:
         if xyz_file is None:
@@ -217,12 +218,14 @@ def parse_likelihood(likelihood_inputs: dict) -> None:
 
     def check_is_file(path: str):
         open(path).close()
+        return path
 
-    likelihood_schema = Schema({Optional("max_cvs"): And(int, lambda x: x >= 1,
-                                                         error="max_cvs must be >= 1"),
+    likelihood_schema = Schema({Optional("max_cvs"): Or(None,
+                                                        And(int, lambda x: x >= 1,
+                                                            error="max_cvs must be null or >= 1")),
                                 "output_name": str,
-                                Optional("csv_input"): Or(None, str),
-                                Optional("colvar_input"): Or(None, str),
+                                Optional("csv_input"): Or(None, And(str, Use(check_is_file))),
+                                Optional("colvar_input"): Or(None, And(str, Use(check_is_file))),
                                 Optional("n_iter"): And(int, lambda x: x >= 1,
                                                         error="n_iter must be >= 1"),
                                 Optional("use_jac"): bool})
@@ -233,13 +236,13 @@ def parse_likelihood(likelihood_inputs: dict) -> None:
         if csv_file is None:
             sys.exit("If not providing csv_input for colvar_inputs, output_name"
                      " must be be given in aimless_inputs")
-        likelihood_inputs["cvs_input"] = csv_file
+        likelihood_inputs["csv_input"] = csv_file
 
     if "colvar_input" not in likelihood_inputs or likelihood_inputs["colvar_input"] is None:
-        if xyz_file is None:
+        if colvar_file is None:
             sys.exit("If not providing colvar_input for likelihood_inputs, output_name"
                      " must be be given in colvar_inputs")
-        likelihood_inputs["xyz_input"] = xyz_file
+        likelihood_inputs["colvar_input"] = colvar_file
 
     cur_file = "csv_input"
     try:
@@ -262,7 +265,7 @@ def execute(inputs: dict):
         run_likelihood(inputs["likelihood_inputs"])
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", help="YAML file with all required inputs")
     args = parser.parse_args()
@@ -286,3 +289,7 @@ if __name__ == "__main__":
         sys.exit("File could not be parsed")
 
     execute(inputs)
+
+
+if __name__ == "__main__":
+    main()
