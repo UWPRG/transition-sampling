@@ -258,7 +258,7 @@ class MaximizerSolution:
         """
         df_list = []
         for length_dict in self.combinations.values():
-            for sol in length_dict.values:
+            for sol in length_dict.values():
                 cur_dict = {"n_cvs": len(sol.comb), "obj_val": sol.obj,
                             "p0": sol.sol[0], "alpha0": sol.sol[1]}
                 for i, cv in enumerate(sol.comb):

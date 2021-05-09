@@ -19,11 +19,11 @@ md_inputs:
 
   # Inputs for running aimless shooting
   aimless_inputs:
-    # Directory containg .xyz files of initial starting points
-    starts_dir: '.'
+    # Directory containing .xyz files of initial starting points
+    starts_dir: './input_files/initial_starts/'
     # Prefix to the output names. Two files will be created, <output_name>.xyz and
     # <output_name>.csv. Note that this string should not include an extension.
-    output_name: './results_files/results'
+    output_name: './result_files/results'
     # Number of aimless shootings to run in parallel. Total number of simulations
     # running at any given point is given by <n_parallel> * 2
     n_parallel: 4
@@ -74,7 +74,7 @@ likelihood_inputs:
   # OPTIONAL - parameters for tuning the global optimization
   # global optimization is done by basinhopping. This is the number of local
   # optimizations to perform per global optimizations. Defaults to 100 if not given.
-  n_iters: 100
+  n_iter: 100
   # Set to true if you want to use use the analytical calculation for the jacobian
   # during optimization, which generally is faster. Set to false to use a finite
   # difference approximation.

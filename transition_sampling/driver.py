@@ -135,7 +135,7 @@ def run_colvar(colvar_inputs: dict) -> None:
     parse_colvar(colvar_inputs)
     plumed_driver = PlumedDriver(colvar_inputs["plumed_cmd"])
     plumed_driver.run(colvar_inputs["plumed_file"], colvar_inputs["xyz_input"],
-                      colvar_inputs["csv_file"], colvar_inputs["output_name"])
+                      colvar_inputs["csv_input"], colvar_inputs["output_name"])
 
 
 def parse_colvar(colvar_inputs: dict) -> None:
@@ -179,7 +179,7 @@ def parse_colvar(colvar_inputs: dict) -> None:
         check_is_file(colvar_inputs[cur_file])
         cur_file = "xyz_input"
         check_is_file(colvar_inputs[cur_file])
-    except:
+    except (IOError, FileNotFoundError):
         sys.exit(f"{cur_file} file {colvar_inputs[cur_file]} cannot be opened")
 
     # Setting globals
@@ -198,7 +198,7 @@ def run_likelihood(likelihood_inputs: dict) -> None:
     """
     parse_likelihood(likelihood_inputs)
     maximizer = Maximizer(likelihood_inputs["colvar_input"], likelihood_inputs["csv_input"],
-                          likelihood_inputs["n_iters"], likelihood_inputs["use_jac"])
+                          likelihood_inputs["n_iter"], likelihood_inputs["use_jac"])
     solution = maximizer.maximize(likelihood_inputs["max_cvs"])
     solution.to_csv(likelihood_inputs["output_name"])
 
@@ -249,7 +249,7 @@ def parse_likelihood(likelihood_inputs: dict) -> None:
         check_is_file(likelihood_inputs[cur_file])
         cur_file = "colvar_input"
         check_is_file(likelihood_inputs[cur_file])
-    except:
+    except (IOError, FileNotFoundError):
         sys.exit(f"{cur_file} file {likelihood_inputs[cur_file]} cannot be opened")
 
 
