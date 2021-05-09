@@ -1,10 +1,10 @@
 import argparse
 import os
 
-from colvar import PlumedDriver
-from engines import CP2KEngine, AbstractEngine
-from algo import AimlessShootingDriver, MultiBasinAcceptor
-from likelihood import Maximizer
+from .colvar import PlumedDriver
+from .engines import CP2KEngine, AbstractEngine
+from .algo import AimlessShootingDriver, MultiBasinAcceptor
+from .likelihood import Maximizer
 
 import yaml
 import sys
