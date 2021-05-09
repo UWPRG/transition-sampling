@@ -80,6 +80,7 @@ def parse_aimless(aimless_inputs: dict, engine: AbstractEngine) -> AimlessShooti
     -------
     The AimlessShootingDriver that is ready to be run.
     """
+
     def check_is_dir(path: str):
         if not os.path.isdir(path):
             raise Exception(f"{path} is not a directory")
@@ -150,6 +151,7 @@ def parse_colvar(colvar_inputs: dict) -> None:
     colvar_inputs
         The "engine_inputs" dictionary of the input file
     """
+
     def check_is_file(path: str):
         open(path).close()
         return path
@@ -254,6 +256,14 @@ def parse_likelihood(likelihood_inputs: dict) -> None:
 
 
 def execute(inputs: dict):
+    """
+    Run from the yml input parsed as a dictionary
+
+    Parameters
+    ----------
+    inputs
+        yml file in dictionary format
+    """
     assert master_schema.validate(inputs)
     if "md_inputs" in inputs:
         run_aimless(inputs["md_inputs"])
@@ -265,16 +275,20 @@ def execute(inputs: dict):
         run_likelihood(inputs["likelihood_inputs"])
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("input", help="YAML file with all required inputs")
-    args = parser.parse_args()
+def read_and_run(input_yml: str):
+    """
+    Parse the yml input and run
 
+    Parameters
+    ----------
+    input_yml
+        Path to the yml file to parse
+    """
     try:
-        with open(args.input, 'r') as file:
+        with open(input_yml, 'r') as file:
             inputs = yaml.safe_load(file)
     except (IOError, FileNotFoundError, yaml.YAMLError) as e:
-        print(f"Error parsing YAML file: {args.input}")
+        print(f"Error parsing YAML file: {input_yml}")
         print(os.curdir)
         if type(e) is IOError or type(e) is FileNotFoundError:
             print(f"File could not be read: {e}")
@@ -289,6 +303,14 @@ def main():
         sys.exit("File could not be parsed")
 
     execute(inputs)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input", help="YAML file with all required inputs")
+    args = parser.parse_args()
+    
+    read_and_run(args.input)
 
 
 if __name__ == "__main__":
