@@ -15,7 +15,6 @@ master_schema = Schema({Optional("md_inputs"): dict,
                         Optional("colvar_inputs"): dict,
                         Optional("likelihood_inputs"): dict})
 
-name_schema = Schema({"md_inputs": {"aimless_inputs": {"output_name": str}}}, ignore_extra_keys=True)
 
 # GLOBALS to be overwritten as they are parsed
 csv_file = None
@@ -233,6 +232,12 @@ def parse_likelihood(likelihood_inputs: dict) -> None:
                                 Optional("use_jac"): bool})
 
     likelihood_schema.validate(likelihood_inputs)
+
+    if "n_iter" not in likelihood_inputs:
+        likelihood_inputs["n_iter"] = 100
+
+    if "use_jac" not in likelihood_inputs:
+        likelihood_inputs["use_jac"] = True
 
     if "csv_input" not in likelihood_inputs or likelihood_inputs["csv_input"] is None:
         if csv_file is None:

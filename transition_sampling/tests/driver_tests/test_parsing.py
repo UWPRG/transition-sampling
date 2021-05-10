@@ -172,7 +172,6 @@ class TestColvarParsing(unittest.TestCase):
             self.inputs[field] = original_value
 
     def test_parsing_earlier_fields(self):
-        _clear_globals()
         # parse the earlier sections to extract those fields
         driver.parse_aimless(copy.deepcopy(TestAimlessParsing.VALID_INPUTS),
                              copy.deepcopy(TestAimlessParsing.VALID_ENGINE))
@@ -223,10 +222,17 @@ class TestLikelihoodParsing(unittest.TestCase):
             with self.assertRaises(SchemaError, msg=f"{field} should not be a string"):
                 driver.parse_likelihood(self.inputs)
 
+            # Remove, check default
+            self.inputs.pop(field)
+            driver.parse_likelihood(self.inputs)
+
             # Restore the original value so we can test the others
             self.inputs[field] = original_value
 
     def test_use_jac(self):
+        self.inputs.pop("use_jac")  # remove use_jac, make sure defaults
+        driver.parse_likelihood(self.inputs)
+
         self.inputs["use_jac"] = 123
         with self.assertRaises(SchemaError):
             driver.parse_likelihood(self.inputs)
