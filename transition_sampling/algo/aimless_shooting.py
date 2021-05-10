@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import copy
 import glob
+import logging
 import os
 import random
 from typing import Sequence, Optional
@@ -73,6 +74,7 @@ class AimlessShootingDriver:
         run_args
             Keyword arguments to pass to each aimless shootings `run` method.
         """
+        logging.info("Starting %s parallel aimless shootings", n_parallel)
         asyncio.run(self._gather_runs(n_parallel, **run_args))
 
     async def _gather_runs(self, n_parallel: int, **run_args) -> None:
@@ -89,17 +91,20 @@ class AimlessShootingDriver:
             Keyword arguments to pass to each aimless shootings `run` method.
         """
         tasks = []
-        base_logger = ResultsLogger(self.log_name)
+        base_results_logger = ResultsLogger(self.log_name)
         for i in range(n_parallel):
+            logger = logging.getLogger(f"aimless_{i}")
             engine = copy.deepcopy(self.base_engine)
+            engine.logger = logger
 
             # I don't think its necessary to copy acceptors with the ones we
             # have now, but someone could potentially define one that depends
             # on the accept status of the previous call, so we will to be safe.
             acceptor = copy.deepcopy(self.base_acceptor)
 
-            logger = ResultsLogger(f"{self.log_name}{i}", base_logger)
-            algo = AsyncAimlessShooting(engine, self.position_dir, logger, acceptor)
+            results_logger = ResultsLogger(f"{self.log_name}{i}", base_results_logger)
+            algo = AsyncAimlessShooting(engine, self.position_dir, results_logger,
+                                        acceptor, logger)
 
             tasks.append(asyncio.create_task(algo.run(**run_args)))
 
@@ -119,7 +124,7 @@ class AsyncAimlessShooting:
     position_dir
         A directory containing only xyz positions of guesses at transition
         states. These positions will be used to try to kickstart the algorithm.
-    logger
+    results_logger
         Logger to write xyz and csv results to. Use a logger with a defined
         `base_logger` to record these in more than one location.
     acceptor
@@ -137,7 +142,7 @@ class AsyncAimlessShooting:
     current_offset : int
         -1, 0 or +1. The delta-t offset the point being run with engine
         currently represents for purposes of choosing the next point.
-    logger : ResultsLogger
+    results_logger : ResultsLogger
         Logger to write xyz and csv results to. Log function is invoked on every
         successful shooting point, no matter if it is accepted or unaccepted.
     current_start : np.ndarray
@@ -149,11 +154,17 @@ class AsyncAimlessShooting:
         shooting point should be considered accepted or not.
     """
     def __init__(self, engine: AbstractEngine, position_dir: str,
-                 logger: ResultsLogger, acceptor: AbstractAcceptor = None):
+                 results_logger: ResultsLogger, acceptor: AbstractAcceptor = None,
+                 logger: logging.Logger = None):
+        if logger is None:
+            self.logger = logging
+        else:
+            self.logger = logger
+
         self.engine = engine
         self.position_dir = position_dir
         self.acceptor = acceptor
-        self.logger = logger
+        self.results_logger = results_logger
 
         if self.acceptor is None:
             self.acceptor = DefaultAcceptor()
@@ -210,6 +221,7 @@ class AsyncAimlessShooting:
         self.current_start = random.choice(self.accepted_states)
 
         while accepted_states < n_points:
+            self.logger.debug("Offset of this position: %s", self.current_offset)
             result = await self._run_velocity_attempts(n_vel_tries)
 
             if result is None:
@@ -219,6 +231,9 @@ class AsyncAimlessShooting:
 
                 # If we've had to re-pick a new state more than n_state_tries,
                 # we've failed
+                self.logger.info("Configuration failed to commit after %s "
+                                 "velocity resamplings. Falling back on a "
+                                 "previously accepted state", n_vel_tries)
                 states_since_success += 1
                 if states_since_success == n_state_tries:
                     raise RuntimeError(
@@ -280,6 +295,7 @@ class AsyncAimlessShooting:
         # Make order deterministic solely for testing purposes
         xyz_files.sort()
         accepted = False
+        self.logger.info("Evaluating initial starting guesses")
 
         for i, xyz_file in enumerate(xyz_files):
             with open(xyz_file, "r") as file:
@@ -301,13 +317,13 @@ class AsyncAimlessShooting:
 
             if result is not None:
                 accepted = True
-                print(f"{xyz_file} is accepted as a transition state")
+                self.logger.info("%s is accepted as a shooting point", xyz_file)
                 self.accepted_states.append(self.current_start)
 
             else:
-                print(f"{xyz_file} NOT accepted as a transition state")
+                self.logger.info("%s NOT accepted as a shooting point", xyz_file)
 
-        print("Evaluation of initial guesses complete")
+        self.logger.info("Evaluation of initial guesses complete")
         return accepted
 
     async def _run_velocity_attempts(self, n_attempts: int) -> Optional[ShootingResult]:
@@ -349,14 +365,24 @@ class AsyncAimlessShooting:
                 # Record all runs that did not end in an Exception
                 # Save forward and backwards basin commits as minimum recovery
                 accepted = self.acceptor.is_accepted(result)
-                self.logger.log(result, self.engine.atoms, self.current_start,
-                                accepted, self.engine.box_size)
+                self.results_logger.log_result(result, self.engine.atoms, self.current_start,
+                                               accepted, self.engine.box_size)
 
                 if accepted:
                     # Break out of try loop, we found an accepted state
                     # Record it in our list
                     self.accepted_states.append(self.current_start)
+                    self.logger.info("Shooting point accepted with fwd basin: %s"
+                                     " and rev basin: %s",
+                                     result.fwd["commit"], result.rev["commit"])
                     return result
+
+                self.logger.info("Shooting point not accepted on attempt %s with"
+                                 " fwd basin: %s and rev basin: %s.",
+                                 i, result.fwd["commit"], result.rev["commit"])
+
+            else:
+                self.logger.warning("An error occurred with running this shooting point")
 
         # Did not have an accepted state by changing velocity in n_attempts
         return None
@@ -419,6 +445,10 @@ class AsyncAimlessShooting:
         indices = np.array([1, 2, 3]) - self.current_offset
         chosen_index = np.random.choice(indices)
 
+        # subtract 2 to print out one of [-2, -1, 0, +1, +2]
+        self.logger.debug("Next chosen point: %s (current offset: %s)",
+                          chosen_index - 2, self.current_offset)
+
         return concat_frames[chosen_index, :, :]
 
     @staticmethod
@@ -477,8 +507,8 @@ class ResultsLogger:
         self.base_logger = base_logger
         self._init_csv()
 
-    def log(self, result: ShootingResult, atoms: Sequence[str],
-            frame: np.ndarray, accepted: bool, box_size: Sequence[float]) -> None:
+    def log_result(self, result: ShootingResult, atoms: Sequence[str],
+                   frame: np.ndarray, accepted: bool, box_size: Sequence[float]) -> None:
         """Log results to xyz and csv. Invoke the base logger if we have one.
 
         This writes all the passed results synchronously to the corresponding
@@ -515,7 +545,7 @@ class ResultsLogger:
 
         # Log to the base logger if we have one.
         if self.base_logger is not None:
-            self.base_logger.log(result, atoms, frame, accepted, box_size)
+            self.base_logger.log_result(result, atoms, frame, accepted, box_size)
 
     @property
     def csv_name(self) -> str:

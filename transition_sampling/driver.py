@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 
 from .colvar import PlumedDriver
@@ -313,8 +314,17 @@ def read_and_run(input_yml: str):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", help="YAML file with all required inputs")
+
+    levels = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+    parser.add_argument('--log-level', default='INFO', choices=levels,
+                        help="Granularity of logging to print at")
+    parser.add_argument("--log-file", default="aimless.log",
+                        help="File to output log to")
     args = parser.parse_args()
-    
+
+    logging.basicConfig(filename=args.log_file, level=args.log_level,
+                        format='%(asctime)s %(levelname)s %(name)s %(message)s')
+
     read_and_run(args.input)
 
 

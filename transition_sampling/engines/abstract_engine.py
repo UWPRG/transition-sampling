@@ -5,6 +5,7 @@ order to be used by the aimless shooting algorithm
 from __future__ import annotations
 
 import glob
+import logging
 import numbers
 import os
 from abc import ABC, abstractmethod
@@ -101,7 +102,8 @@ class AbstractEngine(ABC):
     """
 
     @abstractmethod
-    def __init__(self, inputs: dict, working_dir: str = None):
+    def __init__(self, inputs: dict, working_dir: str = None,
+                 logger: logging.Logger = None):
         """Create an engine.
 
         Pass the required inputs and a working directory for the engine to write
@@ -122,6 +124,11 @@ class AbstractEngine(ABC):
             if inputs are not valid for the concrete engine class or if a given
             working directory is not a real directory.
         """
+        if logger is None:
+            self.logger = logging
+        else:
+            self.logger = logger
+
         validation_res = self.validate_inputs(inputs)
         if not validation_res[0]:
             raise ValueError(f"Invalid inputs: {validation_res[1]}")

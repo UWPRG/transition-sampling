@@ -1,9 +1,12 @@
-import os
 import glob
-from unittest import TestCase
-import yaml
-import numpy as np
+import logging
+import os
 import random
+from unittest import TestCase
+
+import numpy as np
+import yaml
+
 from transition_sampling.driver import execute
 
 CUR_DIR = os.path.dirname(__file__)
@@ -33,6 +36,8 @@ class End2End(TestCase):
         inputs["md_inputs"]["engine_inputs"]["engine_dir"] = WORKING_DIR
         np.random.seed(123)
         random.seed(123)
+        logging.basicConfig(level="INFO",
+                            format='%(asctime)s %(levelname)s %(name)s %(message)s')
         execute(inputs)
 
         # Not sure how best to test this other than making sure the results

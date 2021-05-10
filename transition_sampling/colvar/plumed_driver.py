@@ -1,3 +1,4 @@
+import logging
 import shutil
 import subprocess
 import tempfile
@@ -41,6 +42,9 @@ class PlumedDriver:
             plumed string representation of the xyz units, passed directly to
             plumed.
         """
+        logging.info("running plumed with plumed: %s, xyz: %s, csv: %s",
+                     plumed_file, xyz_file, csv_file)
+
         with tempfile.NamedTemporaryFile("a") as running_file:
             self._set_output(plumed_file, colvar_output, running_file)
 
@@ -52,7 +56,7 @@ class PlumedDriver:
 
             box_string = ",".join([str(x) for x in box_sizes])
 
-            # TODO: Log a failure rather than fatal exception w/ plumed output
+            # TODO: Log a failure rather than fatal exception w/ plumed output (is this still needed?)
             # Hide typical stdout, but stderr will still print
             subprocess.run([*self.plumed_cmd, "driver", "--ixyz", xyz_file,
                             "--plumed", running_file.name, "--box", box_string,
