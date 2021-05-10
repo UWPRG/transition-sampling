@@ -28,7 +28,7 @@ class CP2KInputsHandler:
 
     def __init__(self, cp2k_inputs_file: str, logger: logging.Logger = None):
         if logger is None:
-            self.logger = logging
+            self.logger = logging.getLogger(__name__)
         else:
             self.logger = logger
 

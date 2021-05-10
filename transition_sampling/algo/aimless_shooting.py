@@ -157,7 +157,7 @@ class AsyncAimlessShooting:
                  results_logger: ResultsLogger, acceptor: AbstractAcceptor = None,
                  logger: logging.Logger = None):
         if logger is None:
-            self.logger = logging
+            self.logger = logging.getLogger(__name__)
         else:
             self.logger = logger
 

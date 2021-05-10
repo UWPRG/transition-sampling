@@ -125,7 +125,7 @@ class AbstractEngine(ABC):
             working directory is not a real directory.
         """
         if logger is None:
-            self.logger = logging
+            self.logger = logging.getLogger(__name__)
         else:
             self.logger = logger
 
