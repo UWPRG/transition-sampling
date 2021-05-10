@@ -12,7 +12,7 @@ import sys
 
 from schema import Schema, And, Optional, Use, Or
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("transition_sampling")
 
 master_schema = Schema({Optional("md_inputs"): dict,
                         Optional("colvar_inputs"): dict,
@@ -328,6 +328,7 @@ def main():
     fh.setLevel(args.log_level)
     fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s"))
     logger.addHandler(fh)
+    logger.setLevel(args.log_level)
 
     read_and_run(args.input)
 

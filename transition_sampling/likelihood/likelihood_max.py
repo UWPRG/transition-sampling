@@ -124,7 +124,7 @@ class Maximizer:
 
         logger.info("Starting maximization with colvars: %s, required "
                     "improvement: %s, max length of combination to try: %s",
-                    available_colvars, result.req_improvement, max_num_cvs)
+                    available_colvars.values, result.req_improvement, max_num_cvs)
 
         # Do while loop according to PEP 315. Will at least evaluate all single
         # CVs and all pairs of CVs given appropriate max_num_cvs

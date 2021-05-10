@@ -95,7 +95,7 @@ class AimlessShootingDriver:
         tasks = []
         base_results_logger = ResultsLogger(self.log_name)
         for i in range(n_parallel):
-            logger = logging.getLogger(f"{__name__}_{i}")
+            logger = logging.getLogger(f"{__name__}.{i}")
             logger.setLevel(module_logger.level)
             engine = copy.deepcopy(self.base_engine)
             engine.logger = logger
