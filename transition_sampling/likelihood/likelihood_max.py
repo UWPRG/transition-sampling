@@ -12,6 +12,8 @@ import pandas as pd
 
 from . import optimize
 
+logger = logging.getLogger(__name__)
+
 
 class Maximizer:
     """
@@ -120,9 +122,9 @@ class Maximizer:
         if max_num_cvs is None:
             max_num_cvs = len(available_colvars)
 
-        logging.info("Starting maximization with colvars: %s, required "
-                     "improvement: %s, max length of combination to try: %s",
-                     available_colvars, result.req_improvement, max_num_cvs)
+        logger.info("Starting maximization with colvars: %s, required "
+                    "improvement: %s, max length of combination to try: %s",
+                    available_colvars, result.req_improvement, max_num_cvs)
 
         # Do while loop according to PEP 315. Will at least evaluate all single
         # CVs and all pairs of CVs given appropriate max_num_cvs
@@ -136,7 +138,7 @@ class Maximizer:
             for cv_comb in combinations(available_colvars, num_cvs):
                 cur_sol = self._optimize_set(cv_comb)
                 result.combinations[num_cvs][frozenset(cv_comb)] = cur_sol
-                logging.info("Combination %s optimized to %s", cv_comb, cur_sol.obj)
+                logger.info("Combination %s optimized to %s", cv_comb, cur_sol.obj)
 
                 if cur_sol.obj > max_sol.obj:
                     max_sol = cur_sol
@@ -145,19 +147,19 @@ class Maximizer:
             # continue to do more
             if max_sol.obj - result.max.obj > result.req_improvement:
                 result.max = max_sol
-                logging.info("Improved enough to proceed. CVs %s optimized to %s",
-                             max_sol.comb, max_sol.obj)
+                logger.info("Improved enough to proceed. CVs %s optimized to %s",
+                            max_sol.comb, max_sol.obj)
 
                 # Exit if there are no more CVs to maximize
                 if num_cvs == len(available_colvars):
-                    logging.info("All possible combinations evaluated")
+                    logger.info("All possible combinations evaluated")
                     break
                 else:
                     num_cvs += 1
 
             else:
-                logging.info("No combinations with length %s improved enough to"
-                             " continue", num_cvs)
+                logger.info("No combinations with length %s improved enough to"
+                            " continue", num_cvs)
                 break
 
         return result

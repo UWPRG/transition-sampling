@@ -36,8 +36,11 @@ class End2End(TestCase):
         inputs["md_inputs"]["engine_inputs"]["engine_dir"] = WORKING_DIR
         np.random.seed(123)
         random.seed(123)
-        logging.basicConfig(level="INFO",
-                            format='%(asctime)s %(levelname)s %(name)s %(message)s')
+        fh = logging.StreamHandler()
+        fh.setLevel("INFO")
+
+        fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s"))
+        logging.getLogger("transition_sampling").addHandler(fh)
         execute(inputs)
 
         # Not sure how best to test this other than making sure the results

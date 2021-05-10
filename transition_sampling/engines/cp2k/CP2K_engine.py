@@ -197,7 +197,7 @@ class CP2KEngine(AbstractEngine):
 
         command_list = [*self.cmd, "-i", input_path, "-o", f"{projname}.out"]
         self.logger.debug("Launching trajectory %s with command %s", projname, command_list)
-        
+
         # Start cp2k, expanding the list of commands and setting input/output
         proc = subprocess.Popen(command_list, cwd=self.working_dir,
                                 stderr=subprocess.PIPE,
@@ -233,7 +233,7 @@ class CP2KEngine(AbstractEngine):
                 f.write("\nSTDERR: \n")
                 f.write(stderror_msg)
 
-            self.logger.warning("Trajectory %s exited fatally:\n  stdout: %s\n  stderr:",
+            self.logger.warning("Trajectory %s exited fatally:\n  stdout: %s\n  stderr: %s",
                                 projname, stdout_msg, stderror_msg)
             raise RuntimeError(f"Trajectory {projname} failed")
 

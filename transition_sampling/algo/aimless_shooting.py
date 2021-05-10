@@ -17,6 +17,8 @@ import transition_sampling.util.xyz as xyz
 from transition_sampling.util.periodic_table import atomic_symbols_to_mass
 from transition_sampling.engines import AbstractEngine, ShootingResult
 
+module_logger = logging.getLogger(__name__)
+
 
 class AimlessShootingDriver:
     """Driver to run one or multiple aimless shootings.
@@ -74,7 +76,7 @@ class AimlessShootingDriver:
         run_args
             Keyword arguments to pass to each aimless shootings `run` method.
         """
-        logging.info("Starting %s parallel aimless shootings", n_parallel)
+        module_logger.info("Starting %s parallel aimless shootings", n_parallel)
         asyncio.run(self._gather_runs(n_parallel, **run_args))
 
     async def _gather_runs(self, n_parallel: int, **run_args) -> None:
@@ -93,7 +95,8 @@ class AimlessShootingDriver:
         tasks = []
         base_results_logger = ResultsLogger(self.log_name)
         for i in range(n_parallel):
-            logger = logging.getLogger(f"aimless_{i}")
+            logger = logging.getLogger(f"{__name__}_{i}")
+            logger.setLevel(module_logger.level)
             engine = copy.deepcopy(self.base_engine)
             engine.logger = logger
 
@@ -157,7 +160,7 @@ class AsyncAimlessShooting:
                  results_logger: ResultsLogger, acceptor: AbstractAcceptor = None,
                  logger: logging.Logger = None):
         if logger is None:
-            self.logger = logging.getLogger(__name__)
+            self.logger = module_logger
         else:
             self.logger = logger
 

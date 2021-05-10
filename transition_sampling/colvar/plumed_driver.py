@@ -6,6 +6,8 @@ import typing
 
 import pandas as pd
 
+logger = logging.getLogger(__name__)
+
 
 class PlumedDriver:
     """Interfaces with the Plumed Driver to calculate CVs.
@@ -42,8 +44,8 @@ class PlumedDriver:
             plumed string representation of the xyz units, passed directly to
             plumed.
         """
-        logging.info("running plumed with plumed: %s, xyz: %s, csv: %s",
-                     plumed_file, xyz_file, csv_file)
+        logger.info("running plumed with plumed: %s, xyz: %s, csv: %s",
+                    plumed_file, xyz_file, csv_file)
 
         with tempfile.NamedTemporaryFile("a") as running_file:
             self._set_output(plumed_file, colvar_output, running_file)

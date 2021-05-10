@@ -12,6 +12,8 @@ import sys
 
 from schema import Schema, And, Optional, Use, Or
 
+logger = logging.getLogger(__name__)
+
 master_schema = Schema({Optional("md_inputs"): dict,
                         Optional("colvar_inputs"): dict,
                         Optional("likelihood_inputs"): dict})
@@ -322,8 +324,10 @@ def main():
                         help="File to output log to")
     args = parser.parse_args()
 
-    logging.basicConfig(filename=args.log_file, level=args.log_level,
-                        format='%(asctime)s %(levelname)s %(name)s %(message)s')
+    fh = logging.FileHandler(args.log_file)
+    fh.setLevel(args.log_level)
+    fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s"))
+    logger.addHandler(fh)
 
     read_and_run(args.input)
 
