@@ -36,7 +36,8 @@ class CP2KOutputHandler:
         with open(self.get_out_file(), "r") as f:
             warnings = match_warnings(f.read())
 
-        return warnings['warnings']
+        # remove warnings about truncation for paths that are too long
+        return [warn for warn in warnings['warnings'] if "val_get will truncate" not in warn["message"]]
 
     def get_out_file(self) -> str:
         """Get the full name of the output file

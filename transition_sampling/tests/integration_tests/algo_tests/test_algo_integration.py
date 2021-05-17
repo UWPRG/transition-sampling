@@ -21,7 +21,7 @@ TEST_PLUMED = os.path.join(CUR_DIR, "../shared_test_data/plumed.dat")
 CP2K_CMD = "/src/cp2k.ssmp"
 
 # Paths of starting configs and stored results
-STARTS_DIR = os.path.join(CUR_DIR, "test_data/starts")
+STARTS_DIR = os.path.join(CUR_DIR, "../shared_test_data/starts")
 SINGLE_EXPECTED_DIR = os.path.join(CUR_DIR, "test_data/single")
 
 INPUTS = {"engine": "cp2k",

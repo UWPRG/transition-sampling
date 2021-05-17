@@ -5,6 +5,9 @@ setup(
     version='0.0.1',
     packages=find_packages(include=['transition_sampling',
                                     'transition_sampling.*']),
+    entry_points={
+        'console_scripts': ['aimless_driver=transition_sampling.driver:main'],
+    },
     url='',
     license='MIT',
     author='Isaiah Lemmon',

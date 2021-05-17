@@ -229,6 +229,43 @@ class MaximizerSolution:
         self.max = SingleSolution(None, np.NINF, None)
         self.req_improvement = req_improvement
 
+    def to_csv(self, file: str) -> None:
+        """
+        Write the contents to a CSV. Non-present CVs get a NaN weight.
+
+        Parameters
+        ----------
+        file
+            The filename to write the CSV to. Will append if a file is already
+            present
+        """
+        df = self.to_dataframe()
+        with open(file, "a") as f:
+            df.to_csv(f)
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """
+        Turn the contents into a rectangular data frame, one row per combination
+
+        In order to keep a rectangular format, cvs that aren't in a specific
+        combination get a weight of NaN. The objective function and all weights
+        are
+
+        Returns
+        -------
+        DataFrame with combination results as rows and columns of
+        [n_cvs, obj_val, p0, alpha0, <weight of each CV>]
+        """
+        df_list = []
+        for length_dict in self.combinations.values():
+            for sol in length_dict.values():
+                cur_dict = {"n_cvs": len(sol.comb), "obj_val": sol.obj,
+                            "p0": sol.sol[0], "alpha0": sol.sol[1]}
+                for i, cv in enumerate(sol.comb):
+                    cur_dict[cv] = sol.sol[i + 2]
+                df_list.append(cur_dict)
+        return pd.DataFrame(df_list)
+
 
 class SingleSolution:
     """

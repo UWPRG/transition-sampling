@@ -164,7 +164,7 @@ class AsyncAimlessShooting:
         self.accepted_states = []
 
     async def run(self, n_points: int, n_state_tries: int,
-                  n_vel_tries: int) -> None:
+                  n_vel_tries: int, **kwargs) -> None:
         """Run the aimless shooting algorithm to generate n_points.
 
         Each state that is generated is written as a .xyz to the given results
@@ -196,6 +196,8 @@ class AsyncAimlessShooting:
         n_vel_tries
             Number of times to try resampling velocities on a single state
             before moving on to try a new state
+        kwargs
+            All other kwargs are ignored
         """
         accepted_states = 0
         states_since_success = 0
@@ -271,6 +273,9 @@ class AsyncAimlessShooting:
             If the number of atoms in each structure is not the same.
         """
         xyz_files = glob.glob(f"{self.position_dir}/*.xyz")
+
+        if len(xyz_files) < 1:
+            raise ValueError(f"No .xyz file were found in directory {self.position_dir}")
 
         # Make order deterministic solely for testing purposes
         xyz_files.sort()
