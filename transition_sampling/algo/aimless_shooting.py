@@ -104,7 +104,8 @@ class AimlessShootingDriver:
             acceptor = copy.deepcopy(self.base_acceptor)
 
             logger = ResultsLogger(f"{self.log_name}{i}", base_logger)
-            algo = AsyncAimlessShooting(engine, self.position_dir, logger, acceptor)
+            algo = AsyncAimlessShooting(engine, self.position_dir, self.temp,
+                                        logger, acceptor)
 
             tasks.append(asyncio.create_task(algo.run(**run_args)))
 
