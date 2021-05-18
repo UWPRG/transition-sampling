@@ -55,6 +55,7 @@ class AimlessShootingDriver:
     base_acceptor : AbstractAcceptor
         Acceptor template to be used for all shootings
     """
+
     def __init__(self, engine: AbstractEngine, position_dir: str, log_name: str,
                  acceptor: AbstractAcceptor = None):
         self.base_engine = engine
@@ -156,6 +157,7 @@ class AsyncAimlessShooting:
         An acceptor that implements an `is_accepted` method to determine if a
         shooting point should be considered accepted or not.
     """
+
     def __init__(self, engine: AbstractEngine, position_dir: str,
                  results_logger: ResultsLogger, acceptor: AbstractAcceptor = None,
                  logger: logging.Logger = None):
@@ -239,11 +241,10 @@ class AsyncAimlessShooting:
                                  "previously accepted state", n_vel_tries)
                 states_since_success += 1
                 if states_since_success == n_state_tries:
-                    raise RuntimeError(
-                        f"Next transition state not found in {n_state_tries} "
-                        f"state tries and {n_vel_tries} velocity tries "
-                        f"({n_state_tries * n_vel_tries}) total unsuccessful "
-                        f"runs in a row")
+                    self.logger.error("Next transition state not found in %s "
+                                      "state tries and %s velocity tries (%s) "
+                                      "total unsuccessful runs in a row",
+                                      n_state_tries, n_vel_tries, n_state_tries * n_vel_tries)
 
                 # randomly choose a new start from the list that we know works
                 self.current_start = random.choice(self.accepted_states)
@@ -468,8 +469,8 @@ class AsyncAimlessShooting:
         True if it should be accepted, False otherwise.
         """
         return result.fwd["commit"] is not None and \
-            result.rev["commit"] is not None and \
-            result.fwd["commit"] != result.rev["commit"]
+               result.rev["commit"] is not None and \
+               result.fwd["commit"] != result.rev["commit"]
 
 
 class ResultsLogger:
@@ -505,6 +506,7 @@ class ResultsLogger:
     cur_index : int
         The next index that will be written in the CSV.
     """
+
     def __init__(self, name: str, base_logger: ResultsLogger = None):
         self.name = name
         self.base_logger = base_logger
@@ -601,9 +603,9 @@ def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
     distribution. Has the shape (n_atoms, 3), where 3 is the x,y,z directions.
     """
 
-    kB = 1.380649e-23            # J / K
+    kB = 1.380649e-23  # J / K
     au_time_factor = 0.0242e-15  # s / au_time
-    bohr_factor = 5.29e-11       # m / bohr
+    bohr_factor = 5.29e-11  # m / bohr
 
     mass = atomic_symbols_to_mass(atoms)
     n_atoms = len(mass)
