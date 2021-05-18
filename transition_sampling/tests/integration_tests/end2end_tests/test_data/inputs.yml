@@ -24,6 +24,8 @@ md_inputs:
     # Prefix to the output names. Two files will be created, <output_name>.xyz and
     # <output_name>.csv. Note that this string should not include an extension.
     output_name: './working_dir/results'
+    # temperature to generate velocities at in Kelvin
+    temp: 300.0
     # Number of aimless shootings to run in parallel. Total number of simulations
     # running at any given point is given by <n_parallel> * 2
     n_parallel: 4

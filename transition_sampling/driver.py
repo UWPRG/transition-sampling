@@ -1,4 +1,5 @@
 import argparse
+import numbers
 import os
 
 from .colvar import PlumedDriver
@@ -87,6 +88,7 @@ def parse_aimless(aimless_inputs: dict, engine: AbstractEngine) -> AimlessShooti
 
     aimless_schema = Schema({"starts_dir": And(str, Use(check_is_dir)),
                              "output_name": str,
+                             "temp": And(numbers.Number, lambda x: x > 0, error="temp [K] must be > 0"),
                              "n_parallel": And(int, lambda x: x >= 1, error="n_parallel must be >= 1"),
                              "n_points": And(int, lambda x: x >= 1, error="n_points must be >= 1"),
                              "n_state_tries": And(int, lambda x: x >= 1, error="n_state_tries must be >= 1"),
@@ -119,7 +121,7 @@ def parse_aimless(aimless_inputs: dict, engine: AbstractEngine) -> AimlessShooti
     csv_file = f"{aimless_inputs['output_name']}.csv"
     xyz_file = f"{aimless_inputs['output_name']}.xyz"
 
-    return AimlessShootingDriver(engine, aimless_inputs["starts_dir"],
+    return AimlessShootingDriver(engine, aimless_inputs["starts_dir"], aimless_inputs["temp"],
                                  aimless_inputs["output_name"], acceptor)
 
 
