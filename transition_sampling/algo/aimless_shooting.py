@@ -30,6 +30,8 @@ class AimlessShootingDriver:
         copies of it made for each parallel shooting.
     position_dir
         Directory containing starting xyz positions
+    temp
+        The temperature in Kelvin to generate initial velocities for
     log_name
         Base name for the log (csv and xyz) files. A call to run will generate
         `log_name`.csv and `log_name`.xyz files that hold results from all
@@ -47,15 +49,18 @@ class AimlessShootingDriver:
         Engine template to be used for all shootings
     position_dir : str
         Directory containing starting xyz positions to be used for all shootings
+    temp : float
+        The temperature in Kelvin to generate initial velocities for
     log_name : str
         Root name for all logging
     base_acceptor : AbstractAcceptor
         Acceptor template to be used for all shootings
     """
-    def __init__(self, engine: AbstractEngine, position_dir: str, log_name: str,
-                 acceptor: AbstractAcceptor = None):
+    def __init__(self, engine: AbstractEngine, position_dir: str, temp: float,
+                 log_name: str, acceptor: AbstractAcceptor = None):
         self.base_engine = engine
         self.position_dir = position_dir
+        self.temp = temp
         self.base_acceptor = acceptor
         self.log_name = log_name
 
@@ -99,7 +104,8 @@ class AimlessShootingDriver:
             acceptor = copy.deepcopy(self.base_acceptor)
 
             logger = ResultsLogger(f"{self.log_name}{i}", base_logger)
-            algo = AsyncAimlessShooting(engine, self.position_dir, logger, acceptor)
+            algo = AsyncAimlessShooting(engine, self.position_dir, self.temp,
+                                        logger, acceptor)
 
             tasks.append(asyncio.create_task(algo.run(**run_args)))
 
@@ -119,6 +125,8 @@ class AsyncAimlessShooting:
     position_dir
         A directory containing only xyz positions of guesses at transition
         states. These positions will be used to try to kickstart the algorithm.
+    temp
+        The temperature in Kelvin to generate initial velocities for
     logger
         Logger to write xyz and csv results to. Use a logger with a defined
         `base_logger` to record these in more than one location.
@@ -134,6 +142,8 @@ class AsyncAimlessShooting:
         Engine used to run the simulations
     position_dir : str
         Directory containing initial xyz guesses of transition states.
+    temp : float
+        The temperature in Kelvin to generate initial velocities for
     current_offset : int
         -1, 0 or +1. The delta-t offset the point being run with engine
         currently represents for purposes of choosing the next point.
@@ -148,10 +158,11 @@ class AsyncAimlessShooting:
         An acceptor that implements an `is_accepted` method to determine if a
         shooting point should be considered accepted or not.
     """
-    def __init__(self, engine: AbstractEngine, position_dir: str,
+    def __init__(self, engine: AbstractEngine, position_dir: str, temp: float,
                  logger: ResultsLogger, acceptor: AbstractAcceptor = None):
         self.engine = engine
         self.position_dir = position_dir
+        self.temp = temp
         self.acceptor = acceptor
         self.logger = logger
 
@@ -340,7 +351,7 @@ class AsyncAimlessShooting:
         """
         for i in range(n_attempts):
             # Generate new velocities, run one point from it
-            vels = generate_velocities(self.engine.atoms, self.engine.temp)
+            vels = generate_velocities(self.engine.atoms, self.temp)
             # Set the position
             self.engine.set_positions(self.current_start)
             result = await self._run_one_velocity(vels)

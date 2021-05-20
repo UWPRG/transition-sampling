@@ -23,7 +23,7 @@ RESULTS = os.path.join(CUR_DIR, "test_data/results.pkl")
 
 INPUTS = {"engine": "cp2k",
           "cp2k_inputs": TEST_INPUT,
-          "cmd": CP2K_CMD,
+          "md_cmd": CP2K_CMD,
           "plumed_file": TEST_PLUMED,
           "delta_t": 10}
 

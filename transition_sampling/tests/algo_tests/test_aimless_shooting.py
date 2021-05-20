@@ -18,7 +18,7 @@ class NextPositionTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temp_dir:
 
-            aimless = AsyncAimlessShooting(None, None, None)
+            aimless = AsyncAimlessShooting(None, None, 300, None)
             aimless.current_start = np.zeros((2, 3))
 
             fwd = {"commit": 1,

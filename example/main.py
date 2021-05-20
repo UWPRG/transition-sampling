@@ -35,7 +35,7 @@ PLUMED_CMD = "mpirun plumed"
 # Inputs for the cp2k engine
 INPUTS = {"engine": "cp2k",
           "cp2k_inputs": CP2K_INPUT,
-          "cmd": CP2K_CMD,
+          "md_cmd": CP2K_CMD,
           "plumed_file": PLUMED_COMMITTOR,
           "delta_t": DELTA_T}
 

@@ -6,7 +6,7 @@ md_inputs:
     engine_dir: '/FULL/FILE/PATH/transition-sampling/example/engine_working_dir/'
     # Command to launch the engine with. Can have anything proceeding (e.g. mpirun),
     # but no arguments should actually be given to the engine's binary
-    cmd: 'mpirun -n 1 -genv OMP_NUM_THREADS 1 /gscratch/pfaendtner/codes/cp2k/cp2k/cp2k/exe/Linux-x86-64-intel/cp2k.psmp'
+    md_cmd: 'mpirun -n 1 -genv OMP_NUM_THREADS 1 /gscratch/pfaendtner/codes/cp2k/cp2k/cp2k/exe/Linux-x86-64-intel/cp2k.psmp'
     # Path to plumed file containing COMMITTOR section with defined basins
     plumed_file: './input_files/plumed.dat'
     delta_t: 5   # Delta_t as defined in aimless shooting, in fs
@@ -24,6 +24,8 @@ md_inputs:
     # Prefix to the output names. Two files will be created, <output_name>.xyz and
     # <output_name>.csv. Note that this string should not include an extension.
     output_name: './result_files/results'
+    # temperature to generate velocities at in Kelvin
+    temp: 300.0
     # Number of aimless shootings to run in parallel. Total number of simulations
     # running at any given point is given by <n_parallel> * 2
     n_parallel: 4
