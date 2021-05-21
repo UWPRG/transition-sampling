@@ -294,6 +294,7 @@ class AbstractEngine(ABC):
 
         # random project name so we don't overwrite/append anything
         proj_name = uuid.uuid4().hex
+        self.logger.info("Launching shooting point %s", proj_name)
 
         tasks = (self._launch_traj_fwd(proj_name),
                  self._launch_traj_rev(proj_name))
