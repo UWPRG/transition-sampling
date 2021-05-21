@@ -4,10 +4,12 @@ order to be used by the aimless shooting algorithm
 """
 from __future__ import annotations
 
+import asyncio
 import glob
 import logging
 import numbers
 import os
+import uuid
 from abc import ABC, abstractmethod
 from typing import Sequence, Tuple
 
@@ -86,7 +88,7 @@ class AbstractEngine(ABC):
 
     Attributes
     ----------
-    cmd : list[str]
+    md_cmd : list[str]
         A list of tokens that when joined by spaces, represent the command to
         invoke the actual engine. Additional leading arguments such as mpirun
         can be included.
@@ -134,7 +136,7 @@ class AbstractEngine(ABC):
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
 
         # Split command into a list of args
-        self.cmd = inputs["cmd"].split()
+        self.md_cmd = inputs["md_cmd"].split()
 
         # Create the plumed handler for the give plumed file
         self.plumed_handler = PlumedInputHandler(inputs["plumed_file"])
@@ -158,17 +160,6 @@ class AbstractEngine(ABC):
         Returns
         -------
         An ordered sequence of atoms in the engine.
-        """
-        pass
-
-    @property
-    @abstractmethod
-    def temp(self) -> float:
-        """Get the temperature of the engine in Kelvin.
-
-        Returns
-        -------
-        Temperature the engine is set to in Kelvin
         """
         pass
 
@@ -234,6 +225,11 @@ class AbstractEngine(ABC):
         pass
 
     @abstractmethod
+    def flip_velocity(self) -> None:
+        """Flip the velocities currently held by multiplying by -1"""
+        pass
+
+    @abstractmethod
     def validate_inputs(self, inputs: dict) -> Tuple[bool, str]:
         """Validate the given inputs for the specific engine.
 
@@ -256,11 +252,11 @@ class AbstractEngine(ABC):
         elif inputs["engine"].lower() != self.get_engine_str().lower():
             return False, "engine name does not match instantiated engine"
 
-        elif "cmd" not in inputs:
-            return False, "cmd must be specified in inputs"
+        elif "md_cmd" not in inputs:
+            return False, "md_cmd must be specified in inputs"
 
-        elif not isinstance(inputs["cmd"], str):
-            return False, "cmd must be a string of space separated cmdline args"
+        elif not isinstance(inputs["md_cmd"], str):
+            return False, "md_cmd must be a string of space separated cmdline args"
 
         elif "plumed_file" not in inputs:
             return False, "plumed_file must be specified in inputs"
@@ -276,7 +272,6 @@ class AbstractEngine(ABC):
 
         return True, ""
 
-    @abstractmethod
     async def run_shooting_point(self) -> ShootingResult:
         """Run the forward and reverse trajectories to get a shooting point.
 
@@ -296,6 +291,69 @@ class AbstractEngine(ABC):
         # TODO May be a way to turn them off
         for plumed_backup in glob.glob(f"{self.working_dir}/bck.*.PLUMED.OUT"):
             os.remove(plumed_backup)
+
+        # random project name so we don't overwrite/append anything
+        proj_name = uuid.uuid4().hex
+
+        tasks = (self._launch_traj_fwd(proj_name),
+                 self._launch_traj_rev(proj_name))
+
+        # Wait until both tasks are complete
+        result = await asyncio.gather(*tasks)
+        return ShootingResult(result[0], result[1])
+
+    async def _launch_traj_fwd(self, projname: str):
+        """Launch a trajectory in the forwards direction
+
+        For internal use by an implementing Engine class.
+
+        Parameters
+        ----------
+        projname
+            Root project name
+        """
+        return await self._launch_traj(projname + "_fwd")
+
+    async def _launch_traj_rev(self, projname: str):
+        """Launch a trajectory in the reverse direction
+
+        For internal use by an implementing Engine class.
+
+        Parameters
+        ----------
+        projname
+            Root project name
+        """
+        # Flip the velocity. This could cause an issue if we ever parallelize
+        # this method with shared memory, but shouldn't be a problem with a
+        # completely new proc or asyncio (current implementation)
+        self.flip_velocity()
+        return await self._launch_traj(projname + "_rev")
+
+    @abstractmethod
+    async def _launch_traj(self, projname: str) -> dict:
+        """Launch a trajectory with the current state to completion.
+
+        Launch a trajectory using the current state with the given md command in
+        a new process. Runs in the given working directory. Waits for its
+        completion with async, then checks for failures or warnings.
+
+        For internal use by an implementing Engine class.
+
+        Parameters
+        ----------
+        projname
+            The unique project name. No other project should have this name
+
+        Returns
+        -------
+        A dictionary with the keys:
+            "commit": basin integer the trajectory committed to or None if it
+                did not commit
+            "frames": np.array with the +delta_t and +2delta_t xyz frames. Has
+                the shape (2, n_atoms, 3)
+        """
+        pass
 
     @abstractmethod
     def set_delta_t(self, value: float) -> None:

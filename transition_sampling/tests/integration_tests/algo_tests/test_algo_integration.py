@@ -26,9 +26,11 @@ SINGLE_EXPECTED_DIR = os.path.join(CUR_DIR, "test_data/single")
 
 INPUTS = {"engine": "cp2k",
           "cp2k_inputs": TEST_INPUT,
-          "cmd": CP2K_CMD,
+          "md_cmd": CP2K_CMD,
           "plumed_file": TEST_PLUMED,
           "delta_t": 10}
+
+TEMP = 300
 
 
 class TestAimlessShootingIntegration(TestCase):
@@ -59,7 +61,7 @@ class TestAimlessShootingIntegration(TestCase):
             with tempfile.TemporaryDirectory() as engine_dir:
                 engine = CP2KEngine(INPUTS, engine_dir)
 
-                algo = AsyncAimlessShooting(engine, STARTS_DIR, logger)
+                algo = AsyncAimlessShooting(engine, STARTS_DIR, TEMP, logger)
 
                 # Run algorithm to generate 5 accepteds with 3 state attempts
                 # and 5 velocity attempts.
@@ -102,7 +104,7 @@ class TestAimlessShootingIntegration(TestCase):
             with tempfile.TemporaryDirectory() as engine_dir:
                 engine = CP2KEngine(INPUTS, engine_dir)
 
-                algo = AimlessShootingDriver(engine, STARTS_DIR, result_name)
+                algo = AimlessShootingDriver(engine, STARTS_DIR, TEMP, result_name)
 
                 # Run 3 parallel algorithms to generate 10 accepteds with 3
                 # state attempts and 5 velocity attempts.

@@ -11,7 +11,7 @@ class TestEngineParsing(unittest.TestCase):
     # Most inputs should be validated by the engine itself.
     VALID_INPUTS = {"engine": "cp2k",
                     "cp2k_inputs": os.path.join(CUR_DIR, "test_data/test_cp2k.inp"),
-                    "cmd": "cp2k_cmd",
+                    "md_cmd": "cp2k_cmd",
                     "plumed_file": os.path.join(CUR_DIR, "test_data/test_plumed.dat"),
                     "delta_t": 20,
                     "engine_dir": CUR_DIR}
@@ -34,6 +34,7 @@ class TestAimlessParsing(unittest.TestCase):
     # Most inputs should be validated by the engine itself.
     VALID_INPUTS = {"starts_dir": CUR_DIR,
                     "output_name": os.path.join(CUR_DIR, "test_data/input"),
+                    "temp": 300,
                     "n_parallel": 1,
                     "n_points": 1,
                     "n_state_tries": 1,
@@ -66,6 +67,15 @@ class TestAimlessParsing(unittest.TestCase):
 
     def test_output_name(self):
         self.inputs["output_name"] = 123
+        with self.assertRaises(SchemaError):
+            driver.parse_aimless(self.inputs, self.VALID_ENGINE)
+
+    def test_temperature(self):
+        self.inputs["temperature"] = -1
+        with self.assertRaises(SchemaError):
+            driver.parse_aimless(self.inputs, self.VALID_ENGINE)
+
+        self.inputs["temperature"] = "not a float"
         with self.assertRaises(SchemaError):
             driver.parse_aimless(self.inputs, self.VALID_ENGINE)
 

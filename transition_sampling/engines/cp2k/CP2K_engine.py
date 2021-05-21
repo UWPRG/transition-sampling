@@ -54,10 +54,6 @@ class CP2KEngine(AbstractEngine):
         return self.cp2k_inputs.atoms
 
     @property
-    def temp(self) -> float:
-        return self.cp2k_inputs.temp
-
-    @property
     def box_size(self) -> tuple[float]:
         return tuple(self.cp2k_inputs.box_size)
 
@@ -72,6 +68,9 @@ class CP2KEngine(AbstractEngine):
         super().set_velocities(velocities)
 
         self.cp2k_inputs.set_velocities(velocities)
+
+    def flip_velocity(self) -> None:
+        self.cp2k_inputs.flip_velocity()
 
     def validate_inputs(self, inputs: dict) -> (bool, str):
         if "cp2k_inputs" not in inputs:
@@ -88,27 +87,7 @@ class CP2KEngine(AbstractEngine):
 
         # Otherwise let the base class validate
         return super().validate_inputs(inputs)
-
-    async def run_shooting_point(self) -> ShootingResult:
-        # Remove plumed backups
-        await super().run_shooting_point()
-
-        # random project name so we don't overwrite/append anything
-        proj_name = uuid.uuid4().hex
-        self.logger.info("Launching shooting point %s", proj_name)
-
-        tasks = (self._launch_traj_fwd(proj_name),
-                 self._launch_traj_rev(proj_name))
-
-        # Wait until both tasks are complete
-        result = await asyncio.gather(*tasks)
-
-        # if something went wrong with either, return None
-        if result[0] is None or result[1] is None:
-            return None
-
-        return ShootingResult(result[0], result[1])
-
+      
     def set_delta_t(self, value: float) -> None:
         # Make CP2K print trajectory after every delta_t amount of time rounded
         # to the nearest frame. We can then retrieve multiples of delta_t by
@@ -122,30 +101,6 @@ class CP2KEngine(AbstractEngine):
 
     def get_engine_str(self) -> str:
         return "cp2k"
-
-    async def _launch_traj_fwd(self, projname: str):
-        """Launch a trajectory in the forwards direction
-
-        Parameters
-        ----------
-        projname
-            Root project name
-        """
-        return await self._launch_traj(projname + "_fwd")
-
-    async def _launch_traj_rev(self, projname: str):
-        """Launch a trajectory in the reverse direction
-
-        Parameters
-        ----------
-        projname
-            Root project name
-        """
-        # Flip the velocity. This could cause an issue if we ever parallelize
-        # this method with shared memory, but shouldn't be a problem with a
-        # completely new proc or asyncio (current implementation)
-        self.cp2k_inputs.flip_velocity()
-        return await self._launch_traj(projname + "_rev")
 
     async def _launch_traj(self, projname: str) -> dict:
         """Launch a trajectory with the current state to completion.
@@ -195,7 +150,7 @@ class CP2KEngine(AbstractEngine):
         input_path = os.path.join(self.working_dir, f"{projname}.inp")
         self.cp2k_inputs.write_cp2k_inputs(input_path)
 
-        command_list = [*self.cmd, "-i", input_path, "-o", f"{projname}.out"]
+        command_list = [*self.md_cmd, "-i", input_path, "-o", f"{projname}.out"]
         self.logger.debug("Launching trajectory %s with command %s", projname, command_list)
 
         # Start cp2k, expanding the list of commands and setting input/output
