@@ -1,4 +1,5 @@
 import argparse
+import logging
 import numbers
 import os
 
@@ -11,6 +12,8 @@ import yaml
 import sys
 
 from schema import Schema, And, Optional, Use, Or
+
+logger = logging.getLogger("transition_sampling")
 
 master_schema = Schema({Optional("md_inputs"): dict,
                         Optional("colvar_inputs"): dict,
@@ -315,8 +318,20 @@ def read_and_run(input_yml: str):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", help="YAML file with all required inputs")
+
+    levels = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+    parser.add_argument('--log-level', default='INFO', choices=levels,
+                        help="Granularity of logging to print at")
+    parser.add_argument("--log-file", default="aimless.log",
+                        help="File to output log to")
     args = parser.parse_args()
-    
+
+    fh = logging.FileHandler(args.log_file)
+    fh.setLevel(args.log_level)
+    fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s"))
+    logger.addHandler(fh)
+    logger.setLevel(args.log_level)
+
     read_and_run(args.input)
 
 

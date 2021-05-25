@@ -3,6 +3,7 @@ Likelihood maximization of aimless shooting results.
 """
 from __future__ import annotations
 
+import logging
 from itertools import combinations
 from typing import Union
 
@@ -10,6 +11,8 @@ import numpy as np
 import pandas as pd
 
 from . import optimize
+
+logger = logging.getLogger(__name__)
 
 
 class Maximizer:
@@ -119,6 +122,10 @@ class Maximizer:
         if max_num_cvs is None:
             max_num_cvs = len(available_colvars)
 
+        logger.info("Starting maximization with colvars: %s, required "
+                    "improvement: %s, max length of combination to try: %s",
+                    available_colvars.values, result.req_improvement, max_num_cvs)
+
         # Do while loop according to PEP 315. Will at least evaluate all single
         # CVs and all pairs of CVs given appropriate max_num_cvs
         while num_cvs <= max_num_cvs:
@@ -131,6 +138,7 @@ class Maximizer:
             for cv_comb in combinations(available_colvars, num_cvs):
                 cur_sol = self._optimize_set(cv_comb)
                 result.combinations[num_cvs][frozenset(cv_comb)] = cur_sol
+                logger.info("Combination %s optimized to %s", cv_comb, cur_sol.obj)
 
                 if cur_sol.obj > max_sol.obj:
                     max_sol = cur_sol
@@ -139,14 +147,19 @@ class Maximizer:
             # continue to do more
             if max_sol.obj - result.max.obj > result.req_improvement:
                 result.max = max_sol
+                logger.info("Improved enough to proceed. CVs %s optimized to %s",
+                            max_sol.comb, max_sol.obj)
 
                 # Exit if there are no more CVs to maximize
                 if num_cvs == len(available_colvars):
+                    logger.info("All possible combinations evaluated")
                     break
                 else:
                     num_cvs += 1
 
             else:
+                logger.info("No combinations with length %s improved enough to"
+                            " continue", num_cvs)
                 break
 
         return result

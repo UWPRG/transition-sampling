@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import glob
+import logging
 import numbers
 import os
 import uuid
@@ -103,7 +104,8 @@ class AbstractEngine(ABC):
     """
 
     @abstractmethod
-    def __init__(self, inputs: dict, working_dir: str = None):
+    def __init__(self, inputs: dict, working_dir: str = None,
+                 logger: logging.Logger = None):
         """Create an engine.
 
         Pass the required inputs and a working directory for the engine to write
@@ -124,6 +126,11 @@ class AbstractEngine(ABC):
             if inputs are not valid for the concrete engine class or if a given
             working directory is not a real directory.
         """
+        if logger is None:
+            self.logger = logging.getLogger(__name__)
+        else:
+            self.logger = logger
+
         validation_res = self.validate_inputs(inputs)
         if not validation_res[0]:
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
@@ -287,6 +294,7 @@ class AbstractEngine(ABC):
 
         # random project name so we don't overwrite/append anything
         proj_name = uuid.uuid4().hex
+        self.logger.info("Launching shooting point %s", proj_name)
 
         tasks = (self._launch_traj_fwd(proj_name),
                  self._launch_traj_rev(proj_name))

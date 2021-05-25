@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 from cp2k_input_tools.generator import CP2KInputGenerator
 from cp2k_input_tools.parser import CP2KInputParser
@@ -24,7 +26,12 @@ class CP2KInputsHandler:
         The in-memory data structure representing the current inputs
     """
 
-    def __init__(self, cp2k_inputs_file: str):
+    def __init__(self, cp2k_inputs_file: str, logger: logging.Logger = None):
+        if logger is None:
+            self.logger = logging.getLogger(__name__)
+        else:
+            self.logger = logger
+
         with open(cp2k_inputs_file) as f:
             parser = CP2KInputParser()
             self.cp2k_dict = parser.parse(f)
@@ -47,6 +54,7 @@ class CP2KInputsHandler:
             # TODO: How does this handle coordinates linked in a separate file?
             # Return the first two places for each coordinate entry
             self._atoms = [entry[0:2].strip() for entry in self._get_coord()]
+            self.logger.debug("Atoms %s identified in input file", self._atoms)
 
         return self._atoms
 

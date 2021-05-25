@@ -42,10 +42,10 @@ class CP2KEngine(AbstractEngine):
         manipulation of the inputs.
     """
 
-    def __init__(self, inputs: dict, working_dir: str = None):
-        super().__init__(inputs, working_dir)
+    def __init__(self, inputs: dict, working_dir: str = None, **kwargs):
+        super().__init__(inputs, working_dir, **kwargs)
 
-        self.cp2k_inputs = CP2KInputsHandler(inputs["cp2k_inputs"])
+        self.cp2k_inputs = CP2KInputsHandler(inputs["cp2k_inputs"], self.logger)
 
         self.set_delta_t(inputs["delta_t"])
 
@@ -87,13 +87,15 @@ class CP2KEngine(AbstractEngine):
 
         # Otherwise let the base class validate
         return super().validate_inputs(inputs)
-
+      
     def set_delta_t(self, value: float) -> None:
         # Make CP2K print trajectory after every delta_t amount of time rounded
         # to the nearest frame. We can then retrieve multiples of delta_t by
         # looking at printed frames
         timestep = self.cp2k_inputs.read_timestep()
         frames_in_dt = int(np.round(value / timestep))
+        self.logger.info("dt of %s fs set, corresponding to %s md frames",
+                         value, frames_in_dt)
 
         self.cp2k_inputs.set_traj_print_freq(frames_in_dt)
 
@@ -148,10 +150,11 @@ class CP2KEngine(AbstractEngine):
         input_path = os.path.join(self.working_dir, f"{projname}.inp")
         self.cp2k_inputs.write_cp2k_inputs(input_path)
 
+        command_list = [*self.md_cmd, "-i", input_path, "-o", f"{projname}.out"]
+        self.logger.debug("Launching trajectory %s with command %s", projname, command_list)
+
         # Start cp2k, expanding the list of commands and setting input/output
-        proc = subprocess.Popen([*self.md_cmd, "-i", input_path, "-o",
-                                 f"{projname}.out"],
-                                cwd=self.working_dir,
+        proc = subprocess.Popen(command_list, cwd=self.working_dir,
                                 stderr=subprocess.PIPE,
                                 stdout=subprocess.PIPE)
 
@@ -174,22 +177,26 @@ class CP2KEngine(AbstractEngine):
             output_file = f"{projname}_FATAL.out"
             output_handler.copy_out_file(output_file)
 
+            stdout_msg = stdout.decode('ascii')
+            stderror_msg = stderr.decode('ascii')
+
             # Append the error from stdout to the output file
             with open(output_file, "a") as f:
                 f.write("\nFAILURE \n")
                 f.write("STDOUT: \n")
-                f.write(stdout.decode('ascii'))
+                f.write(stdout_msg)
                 f.write("\nSTDERR: \n")
-                f.write(stderr.decode('ascii'))
+                f.write(stderror_msg)
 
-            raise RuntimeError("Process failed")
+            self.logger.warning("Trajectory %s exited fatally:\n  stdout: %s\n  stderr: %s",
+                                projname, stdout_msg, stderror_msg)
+            raise RuntimeError(f"Trajectory {projname} failed")
 
         # Get the output file for warnings. If there are some, log them
         warnings = output_handler.check_warnings()
         if len(warnings) != 0:
-            # TODO: Log warnings better
-            logging.warning("CP2K run of %s generated warnings: %s",
-                            projname, warnings)
+            self.logger.warning("CP2K trajectory %s generated warnings: %s",
+                                projname, warnings)
 
         parser = PlumedOutputHandler(plumed_out_path)
         basin = parser.check_basin()
@@ -200,10 +207,22 @@ class CP2KEngine(AbstractEngine):
         # should still work in that case
         if basin is not None:
             self._remove_core_dumps()
-            print(f"{projname} committed to basin {basin}.")
+            self.logger.info("Trajectory %s committed to basin %s", projname,
+                             basin)
+        else:
+            self.logger.info("Trajectory %s did not commit before simulation ended",
+                             projname)
 
-        return {"commit": basin,
-                "frames": output_handler.read_frames_2_3()}
+        try:
+            return {"commit": basin,
+                    "frames": output_handler.read_frames_2_3()}
+        except EOFError:
+            self.logger.warning("Required frames could not be be read from the"
+                                " output trajectory. This may be cased by a delta_t"
+                                " that is too large where the traj committed to a"
+                                " basin before 2*delta_t fs or a simulation wall time"
+                                " that is too short and exited before reaching 2*delta_t fs")
+            return None
 
     def _remove_core_dumps(self) -> None:
         """Remove all core files from the working directory"""
