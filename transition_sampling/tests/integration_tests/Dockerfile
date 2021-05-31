@@ -1,40 +1,44 @@
-# CP2K v7.1.0 and PLUMED v2.6.2
+# CP2K v7.1.0, GROMACS 2020.6, and PLUMED v2.6.2
 FROM ubuntu:latest AS base
 
 SHELL ["/bin/bash", "-c"]
+# Libaries that are linked to, needed for building and running
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-                       libblas-dev \
-                       liblapack-dev \
-                       libopenblas-dev \
-                       pkg-config \
-		       git \
-		       python3.8 \
-                       python3-pip \
-		       libfftw3-dev \
-		       libgsl0-dev \
-                       vim-tiny \
-		       libz-dev && apt-get clean && \
-                       rm -r /var/lib/apt && \
-                       ln -s /usr/bin/python3.8 /usr/bin/python
+                libblas-dev \
+                liblapack-dev \
+                libopenblas-dev \
+                pkg-config \
+		        git \
+		        python3.8 \
+                python3-pip \
+		        libfftw3-dev \
+		        libgsl0-dev \
+                vim-tiny \
+		        libz-dev && apt-get clean && \
+                            rm -r /var/lib/apt && \
+                            ln -s /usr/bin/python3.8 /usr/bin/python
 # Link python3.8 as default
 WORKDIR /src
 
 FROM base as build
+# Tools only needed for building
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential \
-    	    	       gcc \
-		       g++ \
-		       gfortran \
-		       wget \
-		       cmake \
-                       xxd \
-		       && apt-get clean && \
-                       rm -r /var/lib/apt
+    	        gcc \
+		        g++ \
+		        gfortran \
+		        wget \
+		        cmake \
+                xxd \
+		        &&  apt-get clean && \
+                    rm -r /var/lib/apt
 RUN git clone --depth 1 --branch v7.1.0 https://github.com/cp2k/cp2k.git /src/cp2k
 RUN git clone --depth 1 --branch v2.6.2 https://github.com/plumed/plumed2.git /src/plumed
 
+# Build PLUMED
 WORKDIR /src/plumed
-RUN ./configure && make -j 16 
-RUN source /src/plumed/sourceme.sh
+RUN ./configure && make -j 16
+
+# Build CP2K
 WORKDIR /src/cp2k
 RUN git checkout v7.1.0
 
@@ -64,20 +68,21 @@ RUN make -j 16 ARCH=local VERSION=ssmp
 RUN make -j 16 ARCH=local VERSION=ssmp clean
 
 
-RUN ln -s /exe/local/cp2k.ssmp /usr/bin/cp2k
-
+# build GROMACS
 RUN git clone --depth 1 --branch v2020.6 https://github.com/gromacs/gromacs /src/gromacs
 
-# build GROMACS
-RUN /bin/bash -c "source /src/plumed/sourceme.sh";\
-    echo 4 | plumed patch -p;\
-    mkdir build;\
-    cd /src/gromacs/build;\
-    cmake .. && make -j 16 install && make clean;\
-
+# option 4 in patch is gromacs2020.4
+RUN cd /src/gromacs/ && \
+    source /src/plumed/sourceme.sh && \
+    echo 4 | plumed patch -p && \
+    mkdir build && \
+    cd /src/gromacs/build && \
+    cmake .. && make -j 16 install && make clean
 RUN ldconfig
 
 
+# runner is what we will actually run on. Copy all the built binaries that are
+# linked to libraries in base.
 FROM base AS runner
 RUN mkdir -p /src/plumed/src/lib && mkdir -p /src/cp2k/tools/toolchain/ \
     && mkdir -p /usr/local/gromacs/
