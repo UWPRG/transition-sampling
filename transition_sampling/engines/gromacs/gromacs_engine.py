@@ -4,11 +4,8 @@ Engine implementation of CP2K
 from __future__ import annotations
 
 import asyncio
-import glob
-import logging
 import os
 import subprocess
-import uuid
 from typing import Sequence
 
 import numpy as np
@@ -17,7 +14,7 @@ from mdtraj.formats import TRRTrajectoryFile
 
 from .mdp import MDPHandler
 
-from .. import AbstractEngine, ShootingResult
+from .. import AbstractEngine
 from ..plumed import PlumedOutputHandler
 
 
@@ -77,17 +74,12 @@ class GromacsEngine(AbstractEngine):
 
     @property
     def atoms(self) -> Sequence[str]:
-        return self.gro_struct.atoms
-
-    @property
-    def temp(self) -> float:
-        # TODO
-        return self.cp2k_inputs.temp
+        return [atom.element_name for atom in self.gro_struct.atoms]
 
     @property
     def box_size(self) -> tuple[float]:
-        # TODO
-        return tuple(self.cp2k_inputs.box_size)
+        # TODO: in gro file 1.8 is returned as 18. Units to use?
+        return tuple(self.gro_struct.box)
 
     def set_positions(self, positions: np.ndarray) -> None:
         # Check positions are valid by passing to base class
@@ -115,25 +107,13 @@ class GromacsEngine(AbstractEngine):
         # Otherwise let the base class validate
         return super().validate_inputs(inputs)
 
-    async def run_shooting_point(self) -> ShootingResult:
-        # Remove plumed backups
-        await super().run_shooting_point()
-
-        # random project name so we don't overwrite/append anything
-        proj_name = uuid.uuid4().hex
-
-        tasks = (self._launch_traj_fwd(proj_name),
-                 self._launch_traj_rev(proj_name))
-
-        # Wait until both tasks are complete
-        result = await asyncio.gather(*tasks)
-        return ShootingResult(result[0], result[1])
-
     def set_delta_t(self, value: float) -> None:
         # Make gromacs print trajectory after every delta_t amount of time
         # rounded to the nearest frame. We can then retrieve multiples of
         # delta_t by looking at printed frames
         frames_in_dt = int(np.round(value / self.mdp.timestep))
+        self.logger.info("dt of %s fs set, corresponding to %s md frames",
+                         value, frames_in_dt)
 
         self.mdp.set_traj_print_freq(frames_in_dt)
 
@@ -142,30 +122,6 @@ class GromacsEngine(AbstractEngine):
 
     def flip_velocity(self) -> None:
         self.gro_struct.velocities *= -1
-
-    async def _launch_traj_fwd(self, projname: str):
-        """Launch a trajectory in the forwards direction
-
-        Parameters
-        ----------
-        projname
-            Root project name
-        """
-        return await self._launch_traj(projname + "_fwd")
-
-    async def _launch_traj_rev(self, projname: str):
-        """Launch a trajectory in the reverse direction
-
-        Parameters
-        ----------
-        projname
-            Root project name
-        """
-        # Flip the velocity. This could cause an issue if we ever parallelize
-        # this method with shared memory, but shouldn't be a problem with a
-        # completely new proc or asyncio (current implementation)
-        self.flip_velocity()
-        return await self._launch_traj(projname + "_rev")
 
     async def _run_grompp(self, projname: str) -> str:
         # Writing files for grompp
@@ -179,9 +135,10 @@ class GromacsEngine(AbstractEngine):
             file.write(self.topology)
         self.mdp.write_mdp(mdp_path)
 
-        grompp_proc = subprocess.Popen([*self.grompp_cmd, "-f", mdp_path, "-c",
-                                        gro_path, "-p", top_path, "-o", tpr_path],
-                                       cwd=self.working_dir,
+        command_list = [*self.grompp_cmd, "-f", mdp_path, "-c",
+                        gro_path, "-p", top_path, "-o", tpr_path]
+        self.logger.debug("Launching trajectory %s with command %s", projname, command_list)
+        grompp_proc = subprocess.Popen(command_list, cwd=self.working_dir,
                                        stderr=subprocess.PIPE,
                                        stdout=subprocess.PIPE)
 
@@ -235,10 +192,11 @@ class GromacsEngine(AbstractEngine):
 
         # TODO: not sure what output needs to be specified or if you can set
         #   a project level one
-        proc = subprocess.Popen([*self.cmd, "-s", tpr_path, "-plumed",
-                                 plumed_in_path, "-o", f"{projname}.trr",
-                                 "-e", f"{projname}.edr", "-g", f"{projname}.log"],
-                                cwd=self.working_dir,
+        command_list = [*self.md_cmd, "-s", tpr_path, "-plumed", plumed_in_path,
+                        "-o", f"{projname}.trr", "-e", f"{projname}.edr",
+                        "-g", f"{projname}.log"]
+        self.logger.debug("Launching trajectory %s with command %s", projname, command_list)
+        proc = subprocess.Popen(command_list, cwd=self.working_dir,
                                 stderr=subprocess.PIPE,
                                 stdout=subprocess.PIPE)
 
@@ -250,34 +208,52 @@ class GromacsEngine(AbstractEngine):
         plumed_out_path = os.path.join(self.working_dir, plumed_out_name)
         # Check if there was a fatal error that wasn't caused by a committing
         # basin
-        if proc.returncode != 0 and not os.path.isfile(plumed_out_path):
+        if proc.returncode != 0:
             stdout, stderr = proc.communicate()
+            stdout_msg = stdout.decode('ascii')
+            stderror_msg = stderr.decode('ascii')
 
-            # TODO: Copy the output file to a place we can see it
-            output_file = f"{projname}_FATAL.out"
+            # Copy the output file to a place we can see it
+            # TODO copy more info (pos)
+            failed_log = os.path.join(self.working_dir, f"{projname}.log")
+            copied_log = f"{projname}_FATAL.log"
+            with open(copied_log, "a") as out:
+                with open(failed_log, "r") as f:
+                    out.write(f.read())
 
-            raise RuntimeError("mdrun failed")
+                out.write("\nFAILURE \n")
+                out.write("STDOUT: \n")
+                out.write(stdout_msg)
+                out.write("\nSTDERR: \n")
+                out.write(stderror_msg)
 
-        # TODO: warnings in log file
+            self.logger.warning("Trajectory %s exited fatally:\n  stdout: %s\n  stderr: %s",
+                                projname, stdout_msg, stderror_msg)
+            raise RuntimeError(f"Trajectory {projname} failed")
 
+        # TODO: check warnings in gromacs log file
         parser = PlumedOutputHandler(plumed_out_path)
         basin = parser.check_basin()
 
-        # TODO: does gromacs generate core dumps on commit?
         if basin is not None:
-            self._remove_core_dumps()
-            print(f"{projname} committed to basin {basin}.")
+            self.logger.info("Trajectory %s committed to basin %s", projname,
+                             basin)
+        else:
+            self.logger.info("Trajectory %s did not commit before simulation ended",
+                             projname)
 
-        # TODO: Does gromacs save the first frame? presumably yes
-        with TRRTrajectoryFile(f"{projname}.trr", "r") as file:
-            xyz, _, _, box, _ = file.read(3, stride=1)
+        try:
+            with TRRTrajectoryFile(f"{projname}.trr", "r") as file:
+                xyz, _, _, box, _ = file.read(3, stride=1)
 
-        # return last two frames of the three read
-        return {"commit": basin,
-                "frames": xyz[1:, :, :]}
+            # return last two frames of the three read
+            return {"commit": basin,
+                    "frames": xyz[1:, :, :]}
 
-    def _remove_core_dumps(self) -> None:
-        """Remove all core files from the working directory"""
-        pattern = os.path.join(self.working_dir, "core.*")
-        for file in glob.glob(pattern):
-            os.remove(file)
+        except EOFError:
+            self.logger.warning("Required frames could not be be read from the"
+                                " output trajectory. This may be cased by a delta_t"
+                                " that is too large where the traj committed to a"
+                                " basin before 2*delta_t fs or a simulation wall time"
+                                " that is too short and exited before reaching 2*delta_t fs")
+            return None
