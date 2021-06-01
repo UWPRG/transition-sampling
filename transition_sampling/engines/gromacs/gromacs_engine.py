@@ -89,6 +89,11 @@ class GromacsEngine(AbstractEngine):
     def set_velocities(self, velocities: np.ndarray) -> None:
         # Check velocities are valid by passing to base class
         super().set_velocities(velocities)
+
+        # convert to gromacs km/s (nm/ps)
+        au_time_factor = 0.0242e-15  # s / au_time
+        bohr_factor = 5.29e-11  # m / bohr
+        velocities = velocities / au_time_factor * bohr_factor / 1000
         self.gro_struct.velocities = velocities
 
     def validate_inputs(self, inputs: dict) -> (bool, str):
@@ -243,7 +248,8 @@ class GromacsEngine(AbstractEngine):
                              projname)
 
         try:
-            with TRRTrajectoryFile(f"{projname}.trr", "r") as file:
+            traj_path = os.path.join(self.working_dir, f"{projname}.trr")
+            with TRRTrajectoryFile(traj_path, "r") as file:
                 xyz, _, _, box, _ = file.read(3, stride=1)
 
             # return last two frames of the three read
