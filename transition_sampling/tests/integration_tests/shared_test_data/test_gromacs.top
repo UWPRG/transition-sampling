@@ -1,0 +1,25 @@
+[ defaults ]
+; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ
+  1             1               no              1.0     1.0
+[ atomtypes ]
+; opls_412   Ca2+ 20  40.08000     2.000       A    2.41203e-01  1.88136e+00
+; 1       opls_412    1       CA          CA       1      2        40.08000
+; opls_401   Cl- 17   35.45300    -1.000       A    4.41724e-01  4.92833e-01
+; 1       opls_401    1       CL          CL       1      -1       35.45300
+CA  40.08000  2.0000    A    2.41203e-01  1.88136e+00
+CL  35.45300 -1.0000    A    4.41724e-01  4.92833e-01
+[ moleculetype ]
+; molname       nrexcl
+Ions            1
+[ atoms ]
+; id    at type res nr  residu name     at name  cg nr   charge
+1       CA       1       Ca              Ca        1       2.000
+2       CL       1       Cl              Cl        1      -1.000
+3       CL       1       Cl              Cl        1      -1.000
+[ system ]
+; Name
+Ions
+[ molecules ]
+; Compound        #mols
+CL                2
+CA                1

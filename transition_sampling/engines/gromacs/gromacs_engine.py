@@ -1,5 +1,5 @@
 """
-Engine implementation of CP2K
+Engine implementation of GROMACS
 """
 from __future__ import annotations
 
