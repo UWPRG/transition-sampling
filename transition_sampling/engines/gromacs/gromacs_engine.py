@@ -27,7 +27,7 @@ class GromacsEngine(AbstractEngine):
     Parameters
     ----------
     inputs
-        In addition to the inputs required by AbstractEngine, CP2KEngine also
+        In addition to the inputs required by AbstractEngine, GromacsEngine also
         requires
 
         - mdp_file : str
@@ -50,12 +50,21 @@ class GromacsEngine(AbstractEngine):
             arguments following grompp should be excluded.
             Example: "gmx grompp"
 
-        # TODO: restraint .gro?
-
-
     Attributes
     ----------
-        manipulation of the inputs.
+    grompp_cmd : list[str]
+        Similar to `md_cmd`, the command to be used to compile input files to a
+        .tpr, e.g. "gmx grompp"
+    mdp : MDPHandler
+        Stores the original passed MDP file and provides methods to modify and
+        write it
+    gro_struct : parmed.Structure
+        Stores atoms, positions and velocities given by the template GRO file.
+        These positions and velocities can then be modified via assignment, and
+        a new GRO file written.
+    topology : str
+        Raw string of the template topology file. This does not need to be
+        modified, so it's just written to new locations as needed
     """
 
     def __init__(self, inputs: dict, working_dir: str = None):
@@ -64,7 +73,6 @@ class GromacsEngine(AbstractEngine):
         self.grompp_cmd = inputs["grompp_cmd"].split()
         self.mdp = MDPHandler(inputs["mdp_file"])
 
-        # TODO: parmed only available on conda-forge or github, not on pip
         self.gro_struct = GromacsGroFile.parse(inputs["gro_file"], skip_bonds=True)
 
         with open(inputs["top_file"], "r") as file:
@@ -78,8 +86,8 @@ class GromacsEngine(AbstractEngine):
 
     @property
     def box_size(self) -> tuple[float]:
-        # TODO: in gro file 1.8 is returned as 18. Units to use?
-        return tuple(self.gro_struct.box)
+        # Parmed uses A. First 3 are box lengths, 2nd 3 are angles (90, 90, 90)
+        return tuple(self.gro_struct.box[:3])
 
     def set_positions(self, positions: np.ndarray) -> None:
         # Check positions are valid by passing to base class
@@ -90,10 +98,8 @@ class GromacsEngine(AbstractEngine):
         # Check velocities are valid by passing to base class
         super().set_velocities(velocities)
 
-        # convert to gromacs km/s (nm/ps)
-        au_time_factor = 0.0242e-15  # s / au_time
-        bohr_factor = 5.29e-11  # m / bohr
-        velocities = velocities / au_time_factor * bohr_factor / 1000
+        # convert from m/s to gromacs km/s (nm/ps)
+        velocities /= 1000
         self.gro_struct.velocities = velocities
 
     def validate_inputs(self, inputs: dict) -> (bool, str):
@@ -142,7 +148,8 @@ class GromacsEngine(AbstractEngine):
 
         command_list = [*self.grompp_cmd, "-f", mdp_path, "-c",
                         gro_path, "-p", top_path, "-o", tpr_path]
-        self.logger.debug("Launching trajectory %s with command %s", projname, command_list)
+        self.logger.debug("grompp-ing trajectory %s with command %s", projname,
+                          command_list)
         grompp_proc = subprocess.Popen(command_list, cwd=self.working_dir,
                                        stderr=subprocess.PIPE,
                                        stdout=subprocess.PIPE)
@@ -154,10 +161,13 @@ class GromacsEngine(AbstractEngine):
 
         if grompp_proc.returncode != 0:
             stdout, stderr = grompp_proc.communicate()
+            stdout_msg = stdout.decode('ascii')
+            stderror_msg = stderr.decode('ascii')
+            self.logger.error("Trajectory %s exited fatally when grompp-ing:\n"
+                              "stdout: %s\n  stderr: %s", projname, stdout_msg,
+                              stderror_msg)
 
-            # TODO: set this up with logging once merged in
-
-            raise RuntimeError(f"grompp failed: {stdout}\n{stderr}")
+            raise RuntimeError(f"grompp of {projname} failed")
 
         return tpr_path
 
@@ -195,11 +205,8 @@ class GromacsEngine(AbstractEngine):
                                       f"{projname}_plumed.dat")
         self.plumed_handler.write_plumed(plumed_in_path, plumed_out_name)
 
-        # TODO: not sure what output needs to be specified or if you can set
-        #   a project level one
         command_list = [*self.md_cmd, "-s", tpr_path, "-plumed", plumed_in_path,
-                        "-o", f"{projname}.trr", "-e", f"{projname}.edr",
-                        "-g", f"{projname}.log"]
+                        "-deffnm", projname]
         self.logger.debug("Launching trajectory %s with command %s", projname, command_list)
         proc = subprocess.Popen(command_list, cwd=self.working_dir,
                                 stderr=subprocess.PIPE,
@@ -219,7 +226,6 @@ class GromacsEngine(AbstractEngine):
             stderror_msg = stderr.decode('ascii')
 
             # Copy the output file to a place we can see it
-            # TODO copy more info (pos)
             failed_log = os.path.join(self.working_dir, f"{projname}.log")
             copied_log = f"{projname}_FATAL.log"
             with open(copied_log, "a") as out:
@@ -251,6 +257,10 @@ class GromacsEngine(AbstractEngine):
             traj_path = os.path.join(self.working_dir, f"{projname}.trr")
             with TRRTrajectoryFile(traj_path, "r") as file:
                 xyz, _, _, box, _ = file.read(3, stride=1)
+
+                # Convert from nm read to A
+                xyz *= 10
+                box *= 10
 
             # return last two frames of the three read
             return {"commit": basin,

@@ -98,7 +98,7 @@ class CP2KInputsHandler:
             coords[i] = f"{self.atoms[i]} {pos_str}"
 
     def set_velocities(self, velocities: np.ndarray) -> None:
-        """Set the velocities of atoms in the inputs.
+        """Set the velocities in au of atoms in the inputs.
 
         Velocities are ordered for n atoms, in shape (n, 3). Rows represent
         atoms and columns represent (x, y, z) dimensions.
@@ -106,7 +106,7 @@ class CP2KInputsHandler:
         Parameters
         ----------
         velocities : np.ndarray with shape (n, 3)
-            The positions for atoms to be set to.
+            The positions for atoms to be set to. Units of au (
         """
         vel = self._get_velocity()
 
