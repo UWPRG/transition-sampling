@@ -31,4 +31,6 @@ maximized again, allowing the user to quickly search through many potential CV c
 
 .. include:: aimless.rst
 
+.. include:: colvar.rst
+
 
