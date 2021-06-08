@@ -40,6 +40,7 @@ def read_xyz_frame(ifile: typing.IO) -> typing.Union[tuple[None, bool],
 
 def read_xyz_file(filename: str) -> np.ndarray:
     """Reads xyz files into an atom list and xyz array
+
     Parameters
     ----------
     filename

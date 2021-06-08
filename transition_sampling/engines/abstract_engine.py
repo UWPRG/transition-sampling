@@ -362,6 +362,7 @@ class AbstractEngine(ABC):
         Set the value of the time offset of frame to save in femtoseconds. If this
         isn't a multiple of the engine's time step, the closest frame will be
         taken.
+
         Parameters
         ----------
         value:

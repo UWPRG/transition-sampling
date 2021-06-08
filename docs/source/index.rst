@@ -5,6 +5,7 @@ Welcome to transition_sampling's documentation!
     :maxdepth: 1
     :caption: Contents:
 
+    workflow/workflow
     engines/engines
     transition_sampling
 
