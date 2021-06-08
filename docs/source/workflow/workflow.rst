@@ -14,7 +14,7 @@ summary is below:
 
 #. **Calculate given collective variables for the configurations**
 
-    From the generated configurations, calculate collective variables (CVs) for each. This step is fast and flexible
+    From the generated configurations, calculate collective variables (colvars or CVs) for each. This step is fast and flexible
     using PLUMED.
 
 #. **Likelihood Maximization**
@@ -32,5 +32,7 @@ maximized again, allowing the user to quickly search through many potential CV c
 .. include:: aimless.rst
 
 .. include:: colvar.rst
+
+.. include:: likelihood.rst
 
 
