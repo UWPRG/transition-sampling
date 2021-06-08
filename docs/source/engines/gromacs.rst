@@ -31,6 +31,7 @@ Additional Commands
 ^^^^^^^^^^^^^^^^^^^
 For ``md_cmd``, you should include ``mdrun``, e.g.:
     * ``"md_cmd": "gmx_mpi mdrun"``
+
     This should use the number of cores desired for `one` simulation. Each parallel simulation will be pinned to different
     cores (if enough are available) automatically by aimless shooting.
 

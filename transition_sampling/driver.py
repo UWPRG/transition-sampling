@@ -47,6 +47,7 @@ def run_aimless(md_inputs: dict) -> None:
 def parse_engine(engine_inputs: dict) -> AbstractEngine:
     """
     Validate engine_inputs section of input file and create the engine.
+
     Parameters
     ----------
     engine_inputs

@@ -8,6 +8,10 @@ Below are all currently supported engines to generate shooting points with.
 
     CP2K <cp2k>
     GROMACS <gromacs>
+    Implementing a New Engine <new_engine>
+
+.. warning::
+    Constant pressure (changing box sizes) is not currently supported
 
 Intro to Engines
 ----------------
