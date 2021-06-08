@@ -84,8 +84,8 @@ class VelocityGenerationTest(unittest.TestCase):
         test_vel_mag1 = np.linalg.norm(test_vel1, axis=1)
         test_vel_mag2 = np.linalg.norm(test_vel2, axis=1)
 
-        counts1, _ = np.histogram(test_vel_mag1, bins=20, range=(1e-5, 1e-3))
-        counts2, _ = np.histogram(test_vel_mag2, bins=20, range=(1e-5, 1e-3))
+        counts1, _ = np.histogram(test_vel_mag1, bins=20, range=(1e2, 1e4))
+        counts2, _ = np.histogram(test_vel_mag2, bins=20, range=(1e2, 1e4))
 
         max1 = np.max(counts1)
         max2 = np.max(counts2)

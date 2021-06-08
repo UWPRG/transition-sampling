@@ -14,14 +14,19 @@ cutoff-scheme            = Verlet
 
 ; NEIGHBORSEARCHING PARAMETERS
 ; nblist update frequency
-nstlist                  = 50
+nstlist                  = 10
 ; ns algorithm (simple or grid)
 ns_type                  = grid
 ; Periodic boundary conditions: xyz (default), no (vacuum)
 ; or full (infinite systems only)
 pbc                      = xyz
-; nblist cut-off        
-rlist                    = 0.85
+; nblist cut-off
+verlet-buffer-tolerance = -1
+rlist                    = 0.995
+
+; freeze the edge chloride ions
+freezegrps = CL
+freezedim = Y Y Y
 
 
 ; OPTIONS FOR ELECTROSTATICS AND VDW
