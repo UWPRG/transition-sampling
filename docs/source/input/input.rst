@@ -20,7 +20,7 @@ Upon installing ``transition_sampling``, a command line entry point ``aimless_dr
 ``inputs.yml`` Format
 =====================
 We've chosen the YAML format to describe the inputs to ``aimless_driver``. It's split into three main sections, one for
-each present in :ref:`workflow`
+each present in :ref:`workflow`. Checkout the `example input file on github. <https://github.com/UWPRG/transition-sampling/blob/main/example/inputs.yml>`_
 
 .. include:: aimless.rst
 
