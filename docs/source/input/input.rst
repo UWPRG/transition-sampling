@@ -11,7 +11,7 @@ Upon installing ``transition_sampling``, a command line entry point ``aimless_dr
     describes all necessary inputs for the full pipeline, shown below.
 
 ``log-level``
-    defaulted to ``INFO``, but can take values ``DEBUG, INFO, WARNING, CRITICAL, FATAL`` in order of
+    defaulted to ``INFO``, but can take values ``DEBUG, INFO, WARNING, ERROR, CRITICAL`` in order of
     decreasing granularity.
 
 ``log-file``
@@ -23,4 +23,6 @@ We've chosen the YAML format to describe the inputs to ``aimless_driver``. It's 
 each present in :ref:`workflow`
 
 .. include:: aimless.rst
+
+.. include:: colvar.rst
 
