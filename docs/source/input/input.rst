@@ -26,3 +26,4 @@ each present in :ref:`workflow`
 
 .. include:: colvar.rst
 
+.. include:: likelihood.rst
