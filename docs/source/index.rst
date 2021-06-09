@@ -6,6 +6,7 @@ Welcome to transition_sampling's documentation!
     :caption: Contents:
 
     workflow/workflow
+    input/input
     engines/engines
     transition_sampling
 

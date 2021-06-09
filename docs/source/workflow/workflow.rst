@@ -1,3 +1,5 @@
+.. _workflow:
+
 Transition Sampling Workflow
 ============================
 The transition sampling package (based on the aimless shooting likelihood maximization algorithm) works in three
@@ -7,7 +9,7 @@ summary is below:
 
 #. **Generate new configurations near the dividing surface (Aimless Shooting)**
 
-    From initial starting guess configuration(s), generate more configurations near the dividing surface of by
+    From initial starting guess configuration(s), generate more configurations near the dividing surface by
     running molecular dynamics simulations. This is by far the most computationally expensive part of the workflow,
     but only has to be done once. If more configurations are needed for better statistics, this can be picked up where
     it left off, meaning more samples can be added at a later point.

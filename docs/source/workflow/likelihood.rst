@@ -24,7 +24,7 @@ to be modeled as a non-gaussian bell curve and is given by:
 
 This probability is maximized for CVs of accepted shooting points and
 minimized for rejected shooting points by optimizing
-:math:`\boldsymbol{\alpha}`, :math:`\alpha_0`, and :math:`p_0` and considering each to be drawn i.i.d.
+:math:`\boldsymbol{\alpha}`, :math:`\alpha_0`, and :math:`p_0` and considering each point to be drawn i.i.d.
 
 .. math ::
     \arg\max_{\boldsymbol{\alpha}, \alpha_0, p_0} \prod_{\mathbf{x} \in \text{Accepted}}\Pr(TP|\mathbf{x}) \prod_{\mathbf{x} \not\in \text{Accepted}} 1 - \Pr(TP|\mathbf{x})
