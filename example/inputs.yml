@@ -1,0 +1,83 @@
+# Inputs for running the MD simulations
+md_inputs:
+  engine_inputs:
+    engine: cp2k  # MD engine to use (currently only cp2k)
+    # Directory where temporary files created by engine (e.g. md.out) will be placed
+    engine_dir: '/FULL/FILE/PATH/transition-sampling/example/engine_working_dir/'
+    # Command to launch the engine with. Can have anything proceeding (e.g. mpirun),
+    # but no arguments should actually be given to the engine's binary
+    md_cmd: 'mpirun -n 1 -genv OMP_NUM_THREADS 1 /gscratch/pfaendtner/codes/cp2k/cp2k/cp2k/exe/Linux-x86-64-intel/cp2k.psmp'
+    # Path to plumed file containing COMMITTOR section with defined basins
+    plumed_file: './input_files/plumed.dat'
+    delta_t: 5   # Delta_t as defined in aimless shooting, in fs
+
+    # Engine specific inputs
+    # Below are fields specific to what engine you're using. For 'cp2k', cp2k_inputs is required
+
+    # CP2K input file for your system. Must contain COORDs section
+    cp2k_inputs: './input_files/md.inp'
+
+  # Inputs for running aimless shooting
+  aimless_inputs:
+    # Directory containing .xyz files of initial starting points
+    starts_dir: './input_files/initial_starts/'
+    # Prefix to the output names. Two files will be created, <output_name>.xyz and
+    # <output_name>.csv. Note that this string should not include an extension.
+    output_name: './result_files/results'
+    # temperature to generate velocities at in Kelvin
+    temp: 300.0
+    # Number of aimless shootings to run in parallel. Total number of simulations
+    # running at any given point is given by <n_parallel> * 2
+    n_parallel: 4
+    # Number of accepteds for a single aimless shooting to generate before considered "done"
+    n_points: 5
+    # Number of times to reselect a known accepting state on failure to accept
+    n_state_tries: 3
+    # Number of times to resample velocities after getting a rejected shooting point
+    # before retrying known accepting states
+    n_vel_tries: 5
+
+    # If acceptor is excluded or 'default', committing to any two different basins
+    # is considered accepted
+    acceptor:
+      type: multibasin # Acceptor type - default or multibasin
+      # For multibasin, provide basins considered to be reactants and products
+      # Must be no overlap and must not be empty
+      reactants: [1]
+      products: [2, 3]
+
+# Inputs for calculation collective variables post aimless shooting with plumed
+colvar_inputs:
+  plumed_cmd: mpirun plumed  # command to launch plumed with
+  plumed_file: './input_files/plumed_colvar.dat' # plumed.dat that contains CVs
+  output_name: './result_files/result_COLVAR' # raw output file for plumed to dump CVs to
+
+  # OPTIONAL - if you just want to run this by itself, you can provide
+  # .xyz and .csv files from a previous aimless shooting. Otherwise, the output_name given
+  # in aimless_inputs will be used if these are null or excluded
+  csv_input: null
+  xyz_input: null
+
+# Inputs for likelihood maximization
+likelihood_inputs:
+  # Set the maximum length of the set of CVs to be considered. If null, all may be
+  # considered if the improvement for length i to i+1 is enough as given by Peters
+  max_cvs: null
+  # File to put results of maximization in
+  output_name: './results_files/maximizer_results.csv'
+
+  # OPTIONAL - if you just want to run this by itself, you can provide
+  # COLVAR and .csv files from a previous aimless shooting. Otherwise, the output_name given
+  # in aimless_inputs will be used for the CSV and the output_name given in colvar_inputs
+  # used for the COLVAR if these are null or excluded
+  csv_input: null
+  colvar_input: null
+
+  # OPTIONAL - parameters for tuning the global optimization
+  # global optimization is done by basinhopping. This is the number of local
+  # optimizations to perform per global optimizations. Defaults to 100 if not given.
+  n_iter: 100
+  # Set to true if you want to use use the analytical calculation for the jacobian
+  # during optimization, which generally is faster. Set to false to use a finite
+  # difference approximation.
+  use_jac: true

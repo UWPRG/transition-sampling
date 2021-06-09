@@ -1,0 +1,96 @@
+&FORCE_EVAL
+  METHOD FIST
+  &MM
+    &FORCEFIELD
+      &CHARGE
+        ATOM Ca
+        CHARGE 2.0
+      &END
+      &CHARGE
+        ATOM Cl
+        CHARGE -1.0
+      &END
+      &NONBONDED
+        &LENNARD-JONES
+          atoms Cl Cl
+          EPSILON [eV] 0.00434
+          SIGMA 4.401
+          RCUT 8.4
+        &END LENNARD-JONES
+        &LENNARD-JONES
+          atoms Ca Ca
+          EPSILON [eV] 0.00434
+          SIGMA 2.895
+          RCUT 8.4
+        &END LENNARD-JONES
+        &LENNARD-JONES
+          atoms Ca Cl
+          EPSILON [eV] 0.00434
+          SIGMA 3.648
+          RCUT 8.4
+        &END LENNARD-JONES
+      &END NONBONDED
+      &SPLINE
+        EMAX_SPLINE 50
+      &END SPLINE
+    &END FORCEFIELD
+    &POISSON
+      &EWALD
+        EWALD_TYPE none
+      &END EWALD
+    &END POISSON
+  &END MM
+  &SUBSYS
+    &CELL
+      ABC 20 20 20
+    &END CELL
+    &COORD
+      Cl 0 0 0
+      Ca 5 5 5
+      Cl 10 10 10
+    &END COORD
+    &VELOCITY
+    0 0 0
+    -0.002 0 0
+    0 0 0
+    &END VELOCITY
+    &TOPOLOGY
+    &END TOPOLOGY
+  &END SUBSYS
+&END FORCE_EVAL
+&GLOBAL
+  PROJECT ion_int
+  RUN_TYPE md
+&END GLOBAL
+&MOTION
+  &MD
+    ENSEMBLE NVE
+    STEPS 2000
+    TIMESTEP 10.
+    TEMPERATURE 300
+  &END MD
+  &CONSTRAINT
+    &FIXED_ATOMS
+      LIST 1 3  ! Hold atoms 1 and 3 fixed. Atom 2 moves between them
+    &END FIXED_ATOMS
+  &END CONSTRAINT
+  &FREE_ENERGY
+    &METADYN
+        USE_PLUMED TRUE
+        PLUMED_INPUT_FILE plumed.dat
+    &END METADYN
+  &END FREE_ENERGY
+  &PRINT
+   &TRAJECTORY
+     FILENAME file
+     &EACH
+       MD 1
+     &END EACH
+   &END TRAJECTORY
+   &VELOCITIES OFF
+   &END VELOCITIES
+   &FORCES OFF
+   &END FORCES
+  &END PRINT
+&END MOTION
+

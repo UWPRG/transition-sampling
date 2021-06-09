@@ -6,18 +6,20 @@ from unittest import TestCase
 
 import numpy as np
 
-from engines import CP2KEngine
+from transition_sampling.engines import CP2KEngine
 
 ENG_STR = "cp2k"
 CUR_DIR = os.path.dirname(__file__)
 TEST_INPUT = os.path.join(CUR_DIR, "test_data/test_cp2k.inp")
 TEST_PLUMED_FILE = os.path.join(CUR_DIR, "test_data/test_plumed.dat")
-TEST_CMD = "test cmd"
+TEST_CMD = "test md_cmd"
+TEST_DELTA_T = 20
 
 CORRECT_INPUTS = {"engine": ENG_STR,
                   "cp2k_inputs": TEST_INPUT,
-                  "cmd": TEST_CMD,
-                  "plumed_file": TEST_PLUMED_FILE}
+                  "md_cmd": TEST_CMD,
+                  "plumed_file": TEST_PLUMED_FILE,
+                  "delta_t": 20}
 
 
 class CP2KEngineTestCase(TestCase):
@@ -120,6 +122,24 @@ class TestCP2KEngineAtoms(CP2KEngineTestCase):
             self.engine.atoms = ['Co', 'O']
 
 
+class TestCP2KEngineBoxsize(CP2KEngineTestCase):
+    def test_box_getting(self):
+        """
+        Test that the correct box size is returned
+        """
+        correct_size = [10.10, 11.11, 12.12]
+        for expected, actual in zip(correct_size, self.engine.box_size):
+            self.assertEqual(expected, actual, msg="Box size not correct")
+
+    def test_box_setting(self):
+        """
+        Test that temperature cannot be set
+        """
+        with self.assertRaises(AttributeError,
+                               msg="Box size should not be allowed assignment"):
+            self.engine.box_size = (1, 2, 3)
+
+
 class TestCP2KEnginePositions(CP2KEngineTestCase):
     def test_set_positions_wrong_num_atoms(self):
         """
@@ -182,3 +202,12 @@ class TestCP2KEngineVelocities(CP2KEngineTestCase):
         """
         vel = np.array([[1.0021, 123.123, 6.23123],
                         [8.12, 6.12381, 0.1232]])
+        self.engine.set_velocities(vel)
+
+    def test_velocities_flip(self):
+        vel = np.array([[1.0021, 123.123, 6.23123],
+                        [8.12, 6.12381, 0.1232]])
+
+        self.engine.set_velocities(vel)
+        self.engine.flip_velocity()  # No way to actually check without writing
+

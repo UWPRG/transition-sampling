@@ -4,6 +4,7 @@ Engine implementation of CP2K
 from __future__ import annotations
 
 import asyncio
+import glob
 import logging
 import os
 import subprocess
@@ -13,8 +14,9 @@ from typing import Sequence
 import numpy as np
 from cp2k_input_tools.parser import CP2KInputParser
 
-from ..abstract_engine import AbstractEngine, ShootingResult
 from . import CP2KInputsHandler, CP2KOutputHandler
+from .. import AbstractEngine, ShootingResult
+from ..plumed import PlumedOutputHandler
 
 
 class CP2KEngine(AbstractEngine):
@@ -40,14 +42,20 @@ class CP2KEngine(AbstractEngine):
         manipulation of the inputs.
     """
 
-    def __init__(self, inputs: dict, working_dir: str = None):
-        super().__init__(inputs, working_dir)
+    def __init__(self, inputs: dict, working_dir: str = None, **kwargs):
+        super().__init__(inputs, working_dir, **kwargs)
 
-        self.cp2k_inputs = CP2KInputsHandler(inputs["cp2k_inputs"])
+        self.cp2k_inputs = CP2KInputsHandler(inputs["cp2k_inputs"], self.logger)
+
+        self.set_delta_t(inputs["delta_t"])
 
     @property
     def atoms(self) -> Sequence[str]:
         return self.cp2k_inputs.atoms
+
+    @property
+    def box_size(self) -> tuple[float]:
+        return tuple(self.cp2k_inputs.box_size)
 
     def set_positions(self, positions: np.ndarray) -> None:
         # Check positions are valid by passing to base class
@@ -60,6 +68,9 @@ class CP2KEngine(AbstractEngine):
         super().set_velocities(velocities)
 
         self.cp2k_inputs.set_velocities(velocities)
+
+    def flip_velocity(self) -> None:
+        self.cp2k_inputs.flip_velocity()
 
     def validate_inputs(self, inputs: dict) -> (bool, str):
         if "cp2k_inputs" not in inputs:
@@ -76,53 +87,22 @@ class CP2KEngine(AbstractEngine):
 
         # Otherwise let the base class validate
         return super().validate_inputs(inputs)
+      
+    def set_delta_t(self, value: float) -> None:
+        # Make CP2K print trajectory after every delta_t amount of time rounded
+        # to the nearest frame. We can then retrieve multiples of delta_t by
+        # looking at printed frames
+        timestep = self.cp2k_inputs.read_timestep()
+        frames_in_dt = int(np.round(value / timestep))
+        self.logger.info("dt of %s fs set, corresponding to %s md frames",
+                         value, frames_in_dt)
 
-    async def run_shooting_point(self) -> ShootingResult:
-        # random project name so we don't overwrite/append anything
-        proj_name = uuid.uuid4().hex
-
-        tasks = (self._launch_traj_fwd(proj_name),
-                 self._launch_traj_rev(proj_name))
-
-        # Wait until both tasks are complete
-        result = await asyncio.gather(asyncio.gather(*tasks))
-
-    @property
-    def delta_t(self) -> float:
-        pass
-
-    @delta_t.setter
-    def delta_t(self, value: float) -> None:
-        pass
+        self.cp2k_inputs.set_traj_print_freq(frames_in_dt)
 
     def get_engine_str(self) -> str:
         return "cp2k"
 
-    async def _launch_traj_fwd(self, projname: str):
-        """Launch a trajectory in the forwards direction
-
-        Parameters
-        ----------
-        projname
-            Root project name
-        """
-        return await self._launch_traj(projname + "_fwd")
-
-    async def _launch_traj_rev(self, projname: str):
-        """Launch a trajectory in the reverse direction
-
-        Parameters
-        ----------
-        projname
-            Root project name
-        """
-        # Flip the velocity. This could cause an issue if we ever parallelize
-        # this method with shared memory, but shouldn't be a problem with a
-        # completely new proc or asyncio (current implementation)
-        self.cp2k_inputs.flip_velocity()
-        return await self._launch_traj(projname + "_rev")
-
-    async def _launch_traj(self, projname: str):
+    async def _launch_traj(self, projname: str) -> dict:
         """Launch a trajectory with the current state to completion.
 
         Launch a trajectory using the current state with the given command in
@@ -136,24 +116,45 @@ class CP2KEngine(AbstractEngine):
 
         Returns
         -------
-        TODO: Parsing output
+        A dictionary with the keys:
+            "commit": basin integer the trajectory committed to or None if it
+                did not commit
+            "frames": np.array with the +delta_t and +2delta_t xyz frames. Has
+                the shape (2, n_atoms, 3)
+
+        Raises
+        ------
+        RuntimeError
+            If CP2K fails to run.
         """
         # Assign the unique project name
         self.cp2k_inputs.set_project_name(projname)
 
-        # Write the plumed file to the working directory location and set it
-        plumed_path = os.path.join(self.working_dir, f"{projname}_plumed.dat")
-        self.cp2k_inputs.set_plumed_file(plumed_path)
-        self.plumed_handler.write_plumed(plumed_path, f"{projname}_plumed.out")
+        # Set the plumed filename in cp2k
+        # We need to just use the file name here because CP2K has a 80 char
+        # limit on this for some reason. CP2K gets launched in the working
+        # directory, and the file of this name will be found there.
+        self.cp2k_inputs.set_plumed_file(f"{projname}_plumed.dat")
 
-        # Write the input to the working directory location
+        # Set the name for the committor output and write the unique plumed file
+        plumed_out_name = f"{projname}_plumed.out"
+        plumed_in_path = os.path.join(self.working_dir,
+                                      f"{projname}_plumed.dat")
+        self.plumed_handler.write_plumed(plumed_in_path, plumed_out_name)
+
+        # Set the trajectory output name
+        traj_out_file = os.path.join(self.working_dir, f"{projname}")
+        self.cp2k_inputs.set_traj_print_file(traj_out_file)
+
+        # Write the cp2k input to the working directory location
         input_path = os.path.join(self.working_dir, f"{projname}.inp")
         self.cp2k_inputs.write_cp2k_inputs(input_path)
 
+        command_list = [*self.md_cmd, "-i", input_path, "-o", f"{projname}.out"]
+        self.logger.debug("Launching trajectory %s with command %s", projname, command_list)
+
         # Start cp2k, expanding the list of commands and setting input/output
-        proc = subprocess.Popen([*self.cmd, "-i", input_path, "-o",
-                                 f"{projname}.out"],
-                                cwd=self.working_dir,
+        proc = subprocess.Popen(command_list, cwd=self.working_dir,
                                 stderr=subprocess.PIPE,
                                 stdout=subprocess.PIPE)
 
@@ -165,8 +166,10 @@ class CP2KEngine(AbstractEngine):
         # Create an output handler for errors and warnings
         output_handler = CP2KOutputHandler(projname, self.working_dir)
 
-        # Check if there was a fatal error
-        if proc.returncode != 0:
+        plumed_out_path = os.path.join(self.working_dir, plumed_out_name)
+        # Check if there was a fatal error that wasn't caused by a committing
+        # basin
+        if proc.returncode != 0 and not os.path.isfile(plumed_out_path):
             stdout, stderr = proc.communicate()
 
             # Copy the output file to a place we can see it
@@ -174,16 +177,55 @@ class CP2KEngine(AbstractEngine):
             output_file = f"{projname}_FATAL.out"
             output_handler.copy_out_file(output_file)
 
+            stdout_msg = stdout.decode('ascii')
+            stderror_msg = stderr.decode('ascii')
+
             # Append the error from stdout to the output file
             with open(output_file, "a") as f:
-                f.write(stdout.decode('ascii'))
+                f.write("\nFAILURE \n")
+                f.write("STDOUT: \n")
+                f.write(stdout_msg)
+                f.write("\nSTDERR: \n")
+                f.write(stderror_msg)
 
-            # TODO: Better exception
-            raise Exception("Process failed")
+            self.logger.warning("Trajectory %s exited fatally:\n  stdout: %s\n  stderr: %s",
+                                projname, stdout_msg, stderror_msg)
+            raise RuntimeError(f"Trajectory {projname} failed")
 
         # Get the output file for warnings. If there are some, log them
         warnings = output_handler.check_warnings()
         if len(warnings) != 0:
-            # TODO: Log warnings better
-            logging.warning("CP2K run of %s generated warnings: %s",
-                            projname, warnings)
+            self.logger.warning("CP2K trajectory %s generated warnings: %s",
+                                projname, warnings)
+
+        parser = PlumedOutputHandler(plumed_out_path)
+        basin = parser.check_basin()
+
+        # Currently if a trajectory commits to a basin, CP2K crashes and has a
+        # core dump. We clean up these core dumps here if necessary, but
+        # hopefully the stopping feature is implemented someday. This code
+        # should still work in that case
+        if basin is not None:
+            self._remove_core_dumps()
+            self.logger.info("Trajectory %s committed to basin %s", projname,
+                             basin)
+        else:
+            self.logger.info("Trajectory %s did not commit before simulation ended",
+                             projname)
+
+        try:
+            return {"commit": basin,
+                    "frames": output_handler.read_frames_2_3()}
+        except EOFError:
+            self.logger.warning("Required frames could not be be read from the"
+                                " output trajectory. This may be cased by a delta_t"
+                                " that is too large where the traj committed to a"
+                                " basin before 2*delta_t fs or a simulation wall time"
+                                " that is too short and exited before reaching 2*delta_t fs")
+            return None
+
+    def _remove_core_dumps(self) -> None:
+        """Remove all core files from the working directory"""
+        pattern = os.path.join(self.working_dir, "core.*")
+        for file in glob.glob(pattern):
+            os.remove(file)

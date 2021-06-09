@@ -1,0 +1,15 @@
+#ft=plumed
+
+d1: DISTANCE ATOMS=1,5
+d2: DISTANCE ATOMS=1,6
+
+COMBINE LABEL=diff ARG=d1,d2 COEFFICIENTS=1.0,-1.0 PERIODIC=NO
+
+COMMITTOR ...
+  ARG=diff
+  BASIN_LL1=.09
+  BASIN_UL1=100
+  # Atom 2 gets close to atom 3, within 7A
+  BASIN_LL2=-100
+  BASIN_UL2=-.09
+... COMMITTOR

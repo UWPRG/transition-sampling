@@ -10,23 +10,33 @@ import re
 
 class PlumedInputHandler:
     """
-    Handles copying and modifying the base plumed file the user has given us.
+    Handles copying and modifying a template plumed file.
+
+    This class is used to read a template plumed file that has exactly one
+    COMMITTOR section, add a given FILE argument to it, and write it to a new
+    location. This can be invoked repeatedly.
+
+    Will not modify the original file. The original file is read once at init
+    and no modifications to it after this object is constructed will carry over.
+
+    Parameters
+    ----------
+    plumed_file
+        path to the plumed file. This file will not be modified.
+
+    Attributes
+    ----------
+    before : str
+        The string to be written before FILE=arg
+    after : str
+        The string to be written after FILE=arg
+
+    Raises
+    ------
+    ValueError
+        If `plumed_file` is not a file.
     """
-
     def __init__(self, plumed_file: str):
-        """
-        Sets the source plumed file that will be used throughout.
-
-        Parameters
-        ----------
-        plumed_file
-            path to the plumed file. This file will not be modified.
-
-        Raises
-        ------
-        ValueError
-            If `plumed_file` is not a file.
-        """
         if not os.path.isfile(plumed_file):
             raise ValueError("plumed file must a valid file")
 
@@ -82,7 +92,11 @@ class PlumedInputHandler:
         # regex to match the start of the committor section. This is where
         # we will insert the FILE arg. Handle the optional ... block format
         # allowed by PLUMED. If \2 matches, we know is format was used.
-        pattern = re.compile(r"(COMMITTOR (\.\.\.\s*\n)?)")
+        # The first section is to state that COMMITTOR must be the first
+        # non-horizontal whitespace in a line, thus ignoring any lines that have
+        # preceding characters (such as comments) and ignoring multi-line breaks
+        # that \s matches.
+        pattern = re.compile(r"^[^\S\r\n]*(COMMITTOR (\.\.\.\s*\n)?)", re.MULTILINE)
 
         # Match is a list of all the matching patterns. Each entry is a tuple,
         # with one entry for each group
@@ -111,3 +125,51 @@ class PlumedInputHandler:
             after = f"\n{split[-1]}"
 
         return ''.join(split[:-1]), after
+
+
+class PlumedOutputHandler:
+    """Reads the output of a plumed committor file.
+
+    Used for parsing which basin the trajectory committed to.
+
+    Parameters
+    ----------
+    plumed_out_file
+        Path of the plumed file that will be output by the committor
+
+    Raises
+    ------
+    ValueError
+        If the passed string is not a file
+    """
+
+    def __init__(self, plumed_out_file: str):
+        if not os.path.isfile(plumed_out_file):
+            raise ValueError("plumed out file must a valid file")
+
+        self.plumed_out_file = plumed_out_file
+
+    def check_basin(self) -> int:
+        """
+        Read the basin of the attached plumed committor output.
+
+        Looks at the plumed output file that this object was created with and
+        returns the basin it committed to.
+
+        Returns
+        -------
+        The basin the attached plumed file committed to. None if did not commit.
+        """
+        # Plumed output has this line followed by the basin number.
+
+        # In all plumed versions 2.6.x and earlier this has been a typo
+        # "COMMITED". However it looks like 2.7 has a patch for this,
+        # so we will keep an extra optional 'T' here to match both versions.
+        pattern = re.compile(r"SET COMMITT?ED TO BASIN (?P<basin>\d+)")
+        with open(self.plumed_out_file) as f:
+            match = pattern.search(f.read())
+
+        if not match:
+            return None
+        else:
+            return int(match.group("basin"))

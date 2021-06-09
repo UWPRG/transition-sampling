@@ -1,0 +1,4 @@
+# System where atoms 1 and 3 are fixed ions and atom 2 is free to move between them
+d1:  DISTANCE ATOMS=1,2
+d2:  DISTANCE ATOMS
+

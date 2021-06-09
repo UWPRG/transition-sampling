@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import os
 from typing import Tuple, Sequence
@@ -5,10 +7,10 @@ from unittest import TestCase
 
 import numpy as np
 
-from engines import AbstractEngine, ShootingResult
+from transition_sampling.engines import AbstractEngine, ShootingResult
 
 TEST_ENG_STR = "TEST_ENGINE"
-TEST_CMD = "test cmd"
+TEST_CMD = "test md_cmd"
 CUR_DIR = os.path.dirname(__file__)
 TEST_PLUMED_FILE = os.path.join(CUR_DIR, "cp2k_tests/test_data/test_plumed.dat")
 
@@ -23,8 +25,9 @@ class AbstractEngineTestCase(TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.correct_inputs = {"engine": TEST_ENG_STR,
-                               "cmd": TEST_CMD,
-                               "plumed_file": TEST_PLUMED_FILE}
+                               "md_cmd": TEST_CMD,
+                               "plumed_file": TEST_PLUMED_FILE,
+                               "delta_t": 20}
 
     def setUp(self) -> None:
         self.editable_inputs = copy.deepcopy(self.correct_inputs)
@@ -36,6 +39,7 @@ class AbstractEngineMock(AbstractEngine):
     Methods we don't care about testing are simply passed to allow full
     implementation of the abstract class, otherwise the base method is called.
     """
+
     def __init__(self, inputs: dict, working_dir: str = None):
         super().__init__(inputs, working_dir)
 
@@ -43,11 +47,18 @@ class AbstractEngineMock(AbstractEngine):
     def atoms(self) -> Sequence[str]:
         return super().atoms
 
+    @property
+    def box_size(self) -> tuple[float]:
+        return super().box_size
+
     def set_positions(self, positions: np.ndarray) -> None:
         super().set_positions(positions)
 
     def set_velocities(self, velocities: np.ndarray) -> None:
         super().set_positions(velocities)
+
+    def flip_velocity(self) -> None:
+        pass
 
     def validate_inputs(self, inputs: dict) -> Tuple[bool, str]:
         return super().validate_inputs(inputs)
@@ -55,12 +66,14 @@ class AbstractEngineMock(AbstractEngine):
     async def run_shooting_point(self) -> ShootingResult:
         pass
 
-    @property
-    def delta_t(self) -> float:
+    def set_delta_t(self, value: float) -> None:
         pass
 
     def get_engine_str(self) -> str:
         return TEST_ENG_STR
+
+    async def _launch_traj(self, projname: str) -> dict:
+        pass
 
 
 class TestAbstractEngineValidation(AbstractEngineTestCase):
@@ -69,12 +82,12 @@ class TestAbstractEngineValidation(AbstractEngineTestCase):
         Command should be a string
         """
         # Remove the command string
-        self.editable_inputs.pop("cmd")
+        self.editable_inputs.pop("md_cmd")
         with self.assertRaises(ValueError, msg="Empty engine name should fail"):
             e = AbstractEngineMock(self.editable_inputs)
 
         # set the command to be a number
-        self.editable_inputs["cmd"] = 10
+        self.editable_inputs["md_cmd"] = 10
         with self.assertRaises(ValueError, msg="Command needs to be a string"):
             e = AbstractEngineMock(self.editable_inputs)
 
