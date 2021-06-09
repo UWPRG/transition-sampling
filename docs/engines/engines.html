@@ -3,9 +3,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>MD Engines &mdash; transition_sampling  documentation</title>
   
@@ -13,10 +14,15 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -26,10 +32,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -37,7 +43,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="CP2K Documentation" href="cp2k.html" />
-    <link rel="prev" title="Welcome to transition_sampling’s documentation!" href="../index.html" /> 
+    <link rel="prev" title="Using transition_sampling" href="../input/input.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -51,7 +57,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> transition_sampling
+            <a href="../index.html" class="icon icon-home"> transition_sampling
           
 
           
@@ -84,8 +90,13 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../workflow/workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">MD Engines</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="cp2k.html">CP2K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gromacs.html">GROMACS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new_engine.html">Implementing a New Engine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#intro-to-engines">Intro to Engines</a></li>
 </ul>
 </li>
@@ -130,6 +141,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -141,7 +154,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/engines/engines.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -155,19 +168,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="md-engines">
+  <section id="md-engines">
 <h1>MD Engines<a class="headerlink" href="#md-engines" title="Permalink to this headline">¶</a></h1>
 <p>Below are all currently supported engines to generate shooting points with.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Available Engines:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="cp2k.html">CP2K</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="cp2k.html#cp2k-specific-inputs">CP2K Specific Inputs</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="cp2k.html">CP2K</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gromacs.html">GROMACS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="new_engine.html">Implementing a New Engine</a></li>
 </ul>
 </div>
-<div class="section" id="intro-to-engines">
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Constant pressure (changing box sizes) is not currently supported</p>
+</div>
+<section id="intro-to-engines">
 <h2>Intro to Engines<a class="headerlink" href="#intro-to-engines" title="Permalink to this headline">¶</a></h2>
 <p>All engines share some common features that need to be specified in
 the inputs. In particular, these are</p>
@@ -179,7 +195,7 @@ the inputs. In particular, these are</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;engine&quot;:</span> <span class="pre">&quot;cp2k&quot;</span></code> - use the cp2k engine implementation</p></li>
 </ul>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">cmd</span></code> - the command line command to invoke the engine</dt><dd><p>The string you would use to run the MD engine from the command line normally, leading
+<dt><code class="docutils literal notranslate"><span class="pre">md_cmd</span></code> - the command line command to invoke the engine</dt><dd><p>The string you would use to run the MD engine from the command line normally, leading
 up to the path of the engine executable. Any additional commands (such as <code class="docutils literal notranslate"><span class="pre">mpirun</span></code>)
 can be prepended, but the final argument should be the engine executable.</p>
 <div class="admonition warning">
@@ -189,8 +205,8 @@ in the PATH environment variable when invoked, or the full path should be given.
 </div>
 <p>Examples of valid commands:</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cmd&quot;:</span> <span class="pre">&quot;/path/to/cp2k/exec&quot;</span></code> - just use the standard cp2k executable.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cmd&quot;:</span> <span class="pre">&quot;mpirun</span> <span class="pre">-n</span> <span class="pre">2</span> <span class="pre">-genv</span> <span class="pre">1</span> <span class="pre">/path/to/cp2k/exec&quot;</span></code> -  Run cp2k with MPI with two processes</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;md_cmd&quot;:</span> <span class="pre">&quot;/path/to/cp2k/exec&quot;</span></code> - just use the standard cp2k executable.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;md_cmd&quot;:</span> <span class="pre">&quot;mpirun</span> <span class="pre">-n</span> <span class="pre">2</span> <span class="pre">-genv</span> <span class="pre">1</span> <span class="pre">/path/to/cp2k/exec&quot;</span></code> -  Run cp2k with MPI with two processes</p>
 <blockquote>
 <div><div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -203,7 +219,7 @@ cores are distributed evenly across the two trajectories.</p>
 </ul>
 <p>Examples of <strong>invalid</strong> commands:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cmd&quot;:</span> <span class="pre">&quot;/path/to/cp2k/exec</span> <span class="pre">-i</span> <span class="pre">my_input_file</span> <span class="pre">-o</span> <span class="pre">my_output_file&quot;</span></code> - arguments after the engine executable should be left to the module</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;md_cmd&quot;:</span> <span class="pre">&quot;/path/to/cp2k/exec</span> <span class="pre">-i</span> <span class="pre">my_input_file</span> <span class="pre">-o</span> <span class="pre">my_output_file&quot;</span></code> - arguments after the engine executable should be left to the module</p></li>
 </ul>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">plumed_file</span></code> - the path to the <a class="reference external" href="https://www.plumed.org/">PLUMED</a> file with the committor basins for the system</dt><dd><p>The plumed file that defines the basins associated with a complete reaction. This should
@@ -216,7 +232,7 @@ the atoms were closer than 0.15nm or further than 1nm apart:</p>
 <span class="n">COMMITTOR</span> <span class="o">...</span>
   <span class="n">ARG</span><span class="o">=</span><span class="n">d1</span>
   <span class="n">BASIN_LL1</span><span class="o">=</span><span class="mi">0</span>
-  <span class="n">BASIN_UL1</span><span class="o">=.</span><span class="mi">15</span>
+  <span class="n">BASIN_UL1</span><span class="o">=</span><span class="mf">.15</span>
   <span class="n">BASIN_LL2</span><span class="o">=</span><span class="mi">1</span>
   <span class="n">BASIN_UL2</span><span class="o">=</span><span class="mi">100</span>
 <span class="o">...</span> <span class="n">COMMITTOR</span>
@@ -228,50 +244,42 @@ the atoms were closer than 0.15nm or further than 1nm apart:</p>
 </div>
 <p>An equivalent plumed file with the <code class="docutils literal notranslate"><span class="pre">COMMITTOR</span></code> on one line could also be used:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d1</span><span class="p">:</span>  <span class="n">DISTANCE</span> <span class="n">ATOMS</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span>
-<span class="n">COMMITTOR</span> <span class="n">ARG</span><span class="o">=</span><span class="n">d1</span> <span class="n">BASIN_LL1</span><span class="o">=</span><span class="mi">0</span> <span class="n">BASIN_UL1</span><span class="o">=.</span><span class="mi">15</span> <span class="n">BASIN_LL2</span><span class="o">=</span><span class="mi">1</span> <span class="n">BASIN_UL2</span><span class="o">=</span><span class="mi">100</span>
+<span class="n">COMMITTOR</span> <span class="n">ARG</span><span class="o">=</span><span class="n">d1</span> <span class="n">BASIN_LL1</span><span class="o">=</span><span class="mi">0</span> <span class="n">BASIN_UL1</span><span class="o">=</span><span class="mf">.15</span> <span class="n">BASIN_LL2</span><span class="o">=</span><span class="mi">1</span> <span class="n">BASIN_UL2</span><span class="o">=</span><span class="mi">100</span>
 </pre></div>
 </div>
 </dd>
 </dl>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="cp2k.html" class="btn btn-neutral float-right" title="CP2K Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to transition_sampling’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="cp2k.html" class="btn btn-neutral float-right" title="CP2K Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../input/input.html" class="btn btn-neutral float-left" title="Using transition_sampling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Isaiah Lemmon
+        &#169; Copyright 2020, Isaiah Lemmon.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

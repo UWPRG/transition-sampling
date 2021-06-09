@@ -1,0 +1,261 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Likelihood Maximization &mdash; transition_sampling  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> transition_sampling
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../engines/engines.html">MD Engines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transition_sampling.html">transition_sampling package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">transition_sampling</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Likelihood Maximization</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/workflow/likelihood.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="likelihood-maximization">
+<h1>Likelihood Maximization<a class="headerlink" href="#likelihood-maximization" title="Permalink to this headline">¶</a></h1>
+<p>With the desired set of calculated collective variables and the corresponding result <code class="docutils literal notranslate"><span class="pre">.csv</span></code> from aimless shooting,
+likelihood maximization can be performed. Here we find a linear combination of a subset of the given collective variables
+that best represents the reaction coordinate for this system.</p>
+<section id="individual-optimization-of-a-set-of-cvs">
+<h2>Individual optimization of a set of CVs<a class="headerlink" href="#individual-optimization-of-a-set-of-cvs" title="Permalink to this headline">¶</a></h2>
+<p>For a single optimization of all CVs in a set, we perform the following:</p>
+<p>The reaction coordinate <span class="math notranslate nohighlight">\(r\)</span> is linear combination of <span class="math notranslate nohighlight">\(m\)</span>
+collective variables <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> defined for a shooting point with weights <span class="math notranslate nohighlight">\(\boldsymbol{\alpha}\)</span>
+plus a constant <span class="math notranslate nohighlight">\(\alpha_0\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[r(\mathbf{x}) = \alpha_0 + \sum_{i=1}^m \alpha_ix_i\]</div>
+<p>The probability that a shooting point is on a transition path (TP) is chosen
+to be modeled as a non-gaussian bell curve and is given by:</p>
+<div class="math notranslate nohighlight">
+\[\Pr(TP|\mathbf{x}) = p_0 (1 - \tanh^2(r(\mathbf{x}))\]</div>
+<p>This probability is maximized for CVs of accepted shooting points and
+minimized for rejected shooting points by optimizing
+<span class="math notranslate nohighlight">\(\boldsymbol{\alpha}\)</span>, <span class="math notranslate nohighlight">\(\alpha_0\)</span>, and <span class="math notranslate nohighlight">\(p_0\)</span> and considering each point to be drawn i.i.d.</p>
+<div class="math notranslate nohighlight">
+\[\arg\max_{\boldsymbol{\alpha}, \alpha_0, p_0} \prod_{\mathbf{x} \in \text{Accepted}}\Pr(TP|\mathbf{x}) \prod_{\mathbf{x} \not\in \text{Accepted}} 1 - \Pr(TP|\mathbf{x})\]</div>
+<p>The log-likelihood <span class="math notranslate nohighlight">\(l\)</span> is evaluated, as it has an equivalent solution.</p>
+<p>This is a constrained (<span class="math notranslate nohighlight">\(p_0 \in (0, 1]\)</span>) non-convex optimization, so we use <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.basinhopping.html">basin-hopping</a> to perform a series of local
+optimizations in attempt to find a global maximum, the number of iterations for which can be set with <code class="docutils literal notranslate"><span class="pre">n_iter</span></code>.</p>
+</section>
+<section id="optimization-of-all-candidate-cvs">
+<h2>Optimization of all candidate CVs<a class="headerlink" href="#optimization-of-all-candidate-cvs" title="Permalink to this headline">¶</a></h2>
+<p>It’s likely that some candidate CVs will contribute more to the likelihood than others. We don’t want to include CVs that
+don’t significantly increase it - we want to find the minimal set of CVs that make a good reaction coordinate. To facilitate
+this, we start by evaluating the above objective function with only one CV in the available set. We take the maximum value
+as the best combination for length <span class="math notranslate nohighlight">\(i\)</span>, (where <span class="math notranslate nohighlight">\(i=1\)</span> initially). Then:</p>
+<ol class="arabic">
+<li><p>Evaluate the objective function of each combination of length <span class="math notranslate nohighlight">\(i+1\)</span>. Take the best value.</p></li>
+<li><p>If the best value for length <span class="math notranslate nohighlight">\(i+1\)</span> increased by more than <span class="math notranslate nohighlight">\(0.5 \ln (N)\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of
+sample shooting points:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Then repeat with <span class="math notranslate nohighlight">\(i=i+1\)</span> for all combinations of the next highest length</p></li>
+<li><p>Otherwise, this is our optimal solution</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="likelihood-maximization-results">
+<h2>Likelihood maximization results<a class="headerlink" href="#likelihood-maximization-results" title="Permalink to this headline">¶</a></h2>
+<p>The result file for likelihood maximization is <code class="docutils literal notranslate"><span class="pre">.csv</span></code> that stores the results of all maximized combinations, not just the
+final maximum. It has columns <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">of</span> <span class="pre">CVs,</span> <span class="pre">obj.</span> <span class="pre">func.</span> <span class="pre">value,</span> <span class="pre">p0,</span> <span class="pre">alpha0,</span> <span class="pre">&lt;one</span> <span class="pre">column</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">weight</span> <span class="pre">of</span> <span class="pre">each</span> <span class="pre">CV&gt;</span></code>.
+For CVs that are not included in a row’s optimization, their value is empty or <code class="docutils literal notranslate"><span class="pre">nan</span></code></p>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Isaiah Lemmon.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

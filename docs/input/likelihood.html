@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>likelihood_inputs (Optional) &mdash; transition_sampling  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> transition_sampling
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../engines/engines.html">MD Engines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transition_sampling.html">transition_sampling package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">transition_sampling</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">likelihood_inputs</span></code> (Optional)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/input/likelihood.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="likelihood-inputs-optional">
+<h1><code class="docutils literal notranslate"><span class="pre">likelihood_inputs</span></code> (Optional)<a class="headerlink" href="#likelihood-inputs-optional" title="Permalink to this headline">¶</a></h1>
+<p>These are the required inputs to perform likelihood maximization on the results of aimless shooting and calculated CVs
+If this section is excluded, likelihood maximization will not be performed and the program will exit after completing
+any preceding sections.</p>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">max_cvs</span></code>: <cite>int</cite> (Optional)</dt><dd><p>Set the maximum length of the set of CVs to be considered. If null or missing, all may be
+considered if the improvement for length i to i+1 is enough as given by Peters.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">output_name</span></code><span class="classifier"><cite>str</cite> (Required)</span></dt><dd><p>Path to the file to put results of maximization in.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">csv_input</span></code><span class="classifier"><cite>str</cite> (Optional)</span></dt><dd><p>If you’ve excluded <code class="docutils literal notranslate"><span class="pre">md_inputs</span></code> and don’t want to run it, you need to explicitly
+set the file name of the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file produced by a previous run. If <code class="docutils literal notranslate"><span class="pre">md_inputs</span></code>
+is defined and this field is missing or <code class="docutils literal notranslate"><span class="pre">null</span></code>, the file name will be inferred from
+the <code class="docutils literal notranslate"><span class="pre">md_inputs</span></code> section.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">colvar_input</span></code><span class="classifier"><cite>str</cite> (Optional)</span></dt><dd><p>If you’ve excluded <code class="docutils literal notranslate"><span class="pre">colvar_inputs</span></code> and don’t want to run it, you need to explicitly
+set the file name of the <code class="docutils literal notranslate"><span class="pre">COLVAR</span></code> file produced by a previous run. If <code class="docutils literal notranslate"><span class="pre">colvar_inputs</span></code>
+is defined and this field is missing or <code class="docutils literal notranslate"><span class="pre">null</span></code>, the file name will be inferred from
+the <code class="docutils literal notranslate"><span class="pre">colvar_inputs</span></code> section.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">n_iter</span></code><span class="classifier"><cite>int</cite> (Optional)</span></dt><dd><p>Global optimization is performed by basinhopping. This is the number of local optimization to perform per global
+optimizations. If missing, defaults to <code class="docutils literal notranslate"><span class="pre">100</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">use_jac</span></code><span class="classifier"><cite>bool</cite> (Optional)</span></dt><dd><p>Set to <code class="docutils literal notranslate"><span class="pre">true</span></code> if you want to use use the analytical calculation for the jacobian
+during optimization, which generally is faster. Set to <code class="docutils literal notranslate"><span class="pre">false</span></code> to use a finite
+difference approximation. Defaults to <code class="docutils literal notranslate"><span class="pre">true</span></code> if excluded.</p>
+</dd>
+</dl>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Isaiah Lemmon.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

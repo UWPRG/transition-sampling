@@ -3,9 +3,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>CP2K Documentation &mdash; transition_sampling  documentation</title>
   
@@ -13,10 +14,15 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -26,17 +32,18 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="transition_sampling API" href="../transition_sampling.html" />
+    <link rel="next" title="GROMACS Documentation" href="gromacs.html" />
     <link rel="prev" title="MD Engines" href="engines.html" /> 
 </head>
 
@@ -51,7 +58,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> transition_sampling
+            <a href="../index.html" class="icon icon-home"> transition_sampling
           
 
           
@@ -84,15 +91,22 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../workflow/workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="engines.html">MD Engines</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">CP2K</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#cp2k-specific-inputs">CP2K Specific Inputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cp2k-outputs">CP2K Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-logging">Additional Logging</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="gromacs.html">GROMACS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new_engine.html">Implementing a New Engine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="engines.html#intro-to-engines">Intro to Engines</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../transition_sampling.html">transition_sampling API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transition_sampling.html">transition_sampling package</a></li>
 </ul>
 
             
@@ -133,6 +147,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -146,7 +162,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/engines/cp2k.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -160,58 +176,73 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="cp2k-documentation">
+  <section id="cp2k-documentation">
 <h1>CP2K Documentation<a class="headerlink" href="#cp2k-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<div class="section" id="cp2k-specific-inputs">
+<section id="cp2k-specific-inputs">
 <h2>CP2K Specific Inputs<a class="headerlink" href="#cp2k-specific-inputs" title="Permalink to this headline">¶</a></h2>
 <p>In addition to the inputs required by all <a class="reference internal" href="engines.html"><span class="doc">engines</span></a>, the CP2K specific inputs are listed below.</p>
-<dl class="simple">
+<dl>
 <dt><code class="docutils literal notranslate"><span class="pre">cp2k_inputs</span></code> - path of the CP2K input file</dt><dd><p>The path to a well formed CP2K input file that describes the system you want to run. This original file will not be
 modified. An exception will be thrown if this does not pass the linter provided by
-<a class="reference external" href="https://github.com/cp2k/cp2k-input-tools">cp2k-input-tools</a></p>
+<a class="reference external" href="https://github.com/cp2k/cp2k-input-tools">cp2k-input-tools</a>. All existing parameters will be used, except:</p>
+<ol class="arabic simple">
+<li><p>Any velocity generation - Aimless shooting will generate its own starting velocities</p></li>
+<li><p>The trajectory print frequency - This is modified for individual shootings to extract to relevant <span class="math notranslate nohighlight">\(\Delta t\)</span> positions</p></li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>At the time being, the coordinates of all atoms need to be specified in the <code class="docutils literal notranslate"><span class="pre">&amp;COORD</span></code> section of the input file
+in order to define the present atoms. The coordinates do not need to reflect a transition state, but the atoms
+and their indices are fixed by this.</p>
+</div>
 </dd>
 </dl>
-</div>
-</div>
+</section>
+<section id="cp2k-outputs">
+<h2>CP2K Outputs<a class="headerlink" href="#cp2k-outputs" title="Permalink to this headline">¶</a></h2>
+<p>If CP2K exits with a non-zero exit code, the output file is copied from the engine’s working directory with the name
+<code class="docutils literal notranslate"><span class="pre">{projname}_FATAL.out</span></code>, where <code class="docutils literal notranslate"><span class="pre">projname</span></code> is the root name of that shooting point. Additionally, all std out and std
+err is logged as a warning, with a note that this simulation failed. Note that this is not necessarily terminal, as
+multiple velocities are resampled. If many of these are occurring, something is likely wrong.</p>
+<p>CP2K .out files are parsed for warnings, barring those about filename length. If any are found, they are logged.</p>
+</section>
+<section id="additional-logging">
+<h2>Additional Logging<a class="headerlink" href="#additional-logging" title="Permalink to this headline">¶</a></h2>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">log_level</span> <span class="pre">=</span> <span class="pre">DEBUG</span></code> will log the individual commands used for each simulation so you can ensure they match
+your expectations.</p>
+</section>
+</section>
 
 
            </div>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../transition_sampling.html" class="btn btn-neutral float-right" title="transition_sampling API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="engines.html" class="btn btn-neutral float-left" title="MD Engines" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="gromacs.html" class="btn btn-neutral float-right" title="GROMACS Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="engines.html" class="btn btn-neutral float-left" title="MD Engines" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Isaiah Lemmon
+        &#169; Copyright 2020, Isaiah Lemmon.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

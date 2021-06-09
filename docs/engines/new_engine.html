@@ -1,0 +1,392 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Implementing a New Engine &mdash; transition_sampling  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="transition_sampling package" href="../transition_sampling.html" />
+    <link rel="prev" title="GROMACS Documentation" href="gromacs.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> transition_sampling
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../workflow/workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="engines.html">MD Engines</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cp2k.html">CP2K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gromacs.html">GROMACS</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Implementing a New Engine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#suggested-workflow">Suggested Workflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#define-the-additional-inputs-your-engine-requires">Define the additional inputs your engine requires</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#return-atoms">Return atoms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#store-and-write-positions">Store and write positions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#store-and-write-velocities">Store and write velocities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#return-delta-t-2-delta-t-output-frames">Return <span class="math notranslate nohighlight">\(\Delta t, \ 2\Delta t\)</span> output frames</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#figure-out-how-to-integrate-plumed">Figure out how to integrate PLUMED</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-a-simulation-with-launch-traj">Run a simulation with <code class="xref py py-func docutils literal notranslate"><span class="pre">_launch_traj()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="engines.html#intro-to-engines">Intro to Engines</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../transition_sampling.html">transition_sampling package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">transition_sampling</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="engines.html">MD Engines</a> &raquo;</li>
+        
+      <li>Implementing a New Engine</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/engines/new_engine.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="implementing-a-new-engine">
+<h1>Implementing a New Engine<a class="headerlink" href="#implementing-a-new-engine" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>Implementing a new engine only requires figuring out how to fulfill the methods of
+<a class="reference internal" href="../transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine" title="transition_sampling.engines.abstract_engine.AbstractEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractEngine</span></code></a> and adding it as case in
+<a class="reference internal" href="../transition_sampling.html#transition_sampling.driver.parse_engine" title="transition_sampling.driver.parse_engine"><code class="xref py py-func docutils literal notranslate"><span class="pre">parse_engine()</span></code></a>. It should then seamlessly work with existing aimless shooting
+infrastructure.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A note on <strong>units</strong>: You are free to internally use whatever units are easiest to interact with your engine, however
+anything received or returned to aimless shooting via the public methods defined in
+<a class="reference internal" href="../transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine" title="transition_sampling.engines.abstract_engine.AbstractEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractEngine</span></code></a> are expected to be in Å (coordinates, box lengths)
+and m/s (velocities). You must convert between them yourself if you use any other units.</p>
+</div>
+<section id="suggested-workflow">
+<h2>Suggested Workflow<a class="headerlink" href="#suggested-workflow" title="Permalink to this headline">¶</a></h2>
+<section id="define-the-additional-inputs-your-engine-requires">
+<h3>Define the additional inputs your engine requires<a class="headerlink" href="#define-the-additional-inputs-your-engine-requires" title="Permalink to this headline">¶</a></h3>
+<p>Think about running an MD simulation by hand. Aimless shooting essentially requires that you can change the starting
+coordinates and velocities of a simulation. What’s the closest level of input you can get to running a simulation while
+still being able to change those parameters? Examples of existing engines:</p>
+<ul>
+<li><dl class="simple">
+<dt>CP2K:</dt><dd><p>In CP2K, everything is specified in a <code class="docutils literal notranslate"><span class="pre">.inp</span></code> file, including coordinates and velocities. Therefore, we can take
+a template <code class="docutils literal notranslate"><span class="pre">.inp</span></code> file that contains all the other simulation parameters and just modify the coords and vels as necessary.
+When we’re ready to run a new simulation, we can write out an updated version of the original <code class="docutils literal notranslate"><span class="pre">.inp</span></code> file and pass that
+to the CP2K executable.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>GROMACS:</dt><dd><p>GROMACS has multiple stages to running a simulation. For example, a <code class="docutils literal notranslate"><span class="pre">.top</span></code> file needs to be generated from a <code class="docutils literal notranslate"><span class="pre">.pdb</span></code>.
+Then a <code class="docutils literal notranslate"><span class="pre">.gro</span></code> (coordinates and velocities), a <code class="docutils literal notranslate"><span class="pre">.mdp</span></code> file (parameters) and <code class="docutils literal notranslate"><span class="pre">.top</span></code> (topology) need to be
+compiled into a <code class="docutils literal notranslate"><span class="pre">.tpr</span></code> with <code class="docutils literal notranslate"><span class="pre">gmx</span> <span class="pre">grompp</span></code>. Finally, this <code class="docutils literal notranslate"><span class="pre">.tpr</span></code> can be run with <code class="docutils literal notranslate"><span class="pre">gmx</span> <span class="pre">mdrun</span></code>.</p>
+<p>Bonds are not changing during aimless shooting so we can use a static <code class="docutils literal notranslate"><span class="pre">.top</span></code> file. However, to change coordinates
+and velocities, we need to modify the <code class="docutils literal notranslate"><span class="pre">.gro</span></code> file, which requires recompiling with <code class="docutils literal notranslate"><span class="pre">grompp</span></code>. Therefore, the
+additional inputs we will need are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">top_file</span></code>: constant file used to compile a new simulation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mdp_file</span></code>: parameter file used to compile a new simulation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gro_file</span></code>: coordinate file that gets modified for each shooting point before recompiling</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grompp_cmd</span></code>: command to compile the above into a new <code class="docutils literal notranslate"><span class="pre">.tpr</span></code> to run</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The inputs you define can then be passed in in the <code class="docutils literal notranslate"><span class="pre">inputs</span></code> dictionary. You can then require and validate them by
+adding them as cases in <a class="reference internal" href="../transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.validate_inputs" title="transition_sampling.engines.abstract_engine.AbstractEngine.validate_inputs"><code class="xref py py-func docutils literal notranslate"><span class="pre">validate_inputs()</span></code></a></p>
+</section>
+<section id="return-atoms">
+<h3>Return atoms<a class="headerlink" href="#return-atoms" title="Permalink to this headline">¶</a></h3>
+<p>To override <a class="reference internal" href="../transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.atoms" title="transition_sampling.engines.abstract_engine.AbstractEngine.atoms"><code class="xref py py-func docutils literal notranslate"><span class="pre">atoms()</span></code></a>, you need to return a sequence of
+the atoms in your system as strings of their periodic table representation (e.g. Argon -&gt; <code class="docutils literal notranslate"><span class="pre">&quot;Ar&quot;</span></code>).</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>CP2K</dt><dd><p>The template <code class="docutils literal notranslate"><span class="pre">.inp</span></code> file has its <code class="docutils literal notranslate"><span class="pre">&amp;COORD</span></code> section parsed to read the element names</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>GROMACS</dt><dd><p>The template <code class="docutils literal notranslate"><span class="pre">.gro</span></code> file has the atom names extracted from it.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="store-and-write-positions">
+<h3>Store and write positions<a class="headerlink" href="#store-and-write-positions" title="Permalink to this headline">¶</a></h3>
+<p>Your engine needs to be able to hold coordinates as internal state and then pass them to the simulation when requested
+to run. These are passed to you in Å in <a class="reference internal" href="../transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.set_positions" title="transition_sampling.engines.abstract_engine.AbstractEngine.set_positions"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_positions()</span></code></a>.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>CP2K</dt><dd><p><code class="docutils literal notranslate"><span class="pre">CP2KEngine</span></code> stores the template <code class="docutils literal notranslate"><span class="pre">.inp</span></code> file in memory as a dictionary and stores positions by modifying the
+<code class="docutils literal notranslate"><span class="pre">&amp;COORDS</span></code> section. This dictionary is written out with the updated coordinates when running a simulation.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>GROMACS</dt><dd><p><code class="docutils literal notranslate"><span class="pre">GROMACSEngine</span></code> stores the template <code class="docutils literal notranslate"><span class="pre">.gro</span></code> file in memory and stores positions by modifying the positions array
+A new <code class="docutils literal notranslate"><span class="pre">.gro</span></code> file is written out with the updated coordinates when running a simulation.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="store-and-write-velocities">
+<h3>Store and write velocities<a class="headerlink" href="#store-and-write-velocities" title="Permalink to this headline">¶</a></h3>
+<p>Your engine needs to be able to hold velocities as internal state and then pass them to the simulation when requested
+to run. These are passed to you in m/s in <a class="reference internal" href="../transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.set_velocities" title="transition_sampling.engines.abstract_engine.AbstractEngine.set_velocities"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_velocities()</span></code></a>,
+and will likely have a similar solution to setting positions.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>CP2K</dt><dd><p><code class="docutils literal notranslate"><span class="pre">CP2KEngine</span></code> stores the template <code class="docutils literal notranslate"><span class="pre">.inp</span></code> file in memory as a dictionary and stores velocities by modifying the
+<code class="docutils literal notranslate"><span class="pre">&amp;VELOCITY</span></code> section. This dictionary is written out with the updated coordinates when running a simulation.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>GROMACS</dt><dd><p><code class="docutils literal notranslate"><span class="pre">GROMACSEngine</span></code> stores the template <code class="docutils literal notranslate"><span class="pre">.gro</span></code> file in memory and stores velocities by modifying the velocities array
+A new <code class="docutils literal notranslate"><span class="pre">.gro</span></code> file is written out with the updated velocities when running a simulation.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="return-delta-t-2-delta-t-output-frames">
+<h3>Return <span class="math notranslate nohighlight">\(\Delta t, \ 2\Delta t\)</span> output frames<a class="headerlink" href="#return-delta-t-2-delta-t-output-frames" title="Permalink to this headline">¶</a></h3>
+<p>After running a single simulation with <code class="xref py py-func docutils literal notranslate"><span class="pre">_launch_traj()</span></code>,
+you need to return the coordinates of the <span class="math notranslate nohighlight">\(\Delta t, \ 2\Delta t\)</span> frames, as defined by when
+<a class="reference internal" href="../transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine.set_delta_t" title="transition_sampling.engines.abstract_engine.AbstractEngine.set_delta_t"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_delta_t()</span></code></a> is called. The easiest way to do this has
+been to set the print frequency of the trajectory to be the number of frames equivalent to <span class="math notranslate nohighlight">\(\Delta t\)</span>. Then, the
+second printed frame will be at <span class="math notranslate nohighlight">\(\Delta t\)</span> and the third printed frame will be at <span class="math notranslate nohighlight">\(2\Delta t\)</span> (the first
+printed frame is generally the starting position). The problem then boils down to two parts:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Setting the print frequency correctly</p></li>
+<li><p>Reading the printed trajectory</p></li>
+</ol>
+</div></blockquote>
+<p>In both CP2K and GROMACS, the simulation timestep is parsed (from the <code class="docutils literal notranslate"><span class="pre">.inp</span></code> and <code class="docutils literal notranslate"><span class="pre">.mdp</span></code> respectively). The number of
+frames corresponding to one <span class="math notranslate nohighlight">\(\Delta t\)</span> is then calculated, and this set as trajectory print frequency in the
+parameter file.</p>
+<p>After the simulation completes, <code class="docutils literal notranslate"><span class="pre">mdtraj</span></code> is already included and can be used to parse the trajectory. Prefer to use the
+low level readers so that only the first three frames need to be read before closing the file. Ensure the coordinates
+are converted to Å before returning them.</p>
+</section>
+<section id="figure-out-how-to-integrate-plumed">
+<h3>Figure out how to integrate PLUMED<a class="headerlink" href="#figure-out-how-to-integrate-plumed" title="Permalink to this headline">¶</a></h3>
+<p>The base engine is given a <a class="reference internal" href="../transition_sampling.engines.html#transition_sampling.engines.plumed.PlumedInputHandler" title="transition_sampling.engines.plumed.PlumedInputHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlumedInputHandler</span></code></a> that handles moving the plumed
+file around. You can write a unique plumed file for the trajectory by calling
+<a class="reference internal" href="../transition_sampling.engines.html#transition_sampling.engines.plumed.PlumedInputHandler.write_plumed" title="transition_sampling.engines.plumed.PlumedInputHandler.write_plumed"><code class="xref py py-func docutils literal notranslate"><span class="pre">write_plumed()</span></code></a> with the desired location and output file name.</p>
+<p>The simulation then needs to be told to use this file. In GROMACS, this is just the <code class="docutils literal notranslate"><span class="pre">-plumed</span></code> flag added to the command
+list, while in CP2K, the <code class="docutils literal notranslate"><span class="pre">.inp</span></code> file has to be modified before being written.</p>
+<p>After the simulation is complete, <a class="reference internal" href="../transition_sampling.engines.html#transition_sampling.engines.plumed.PlumedOutputHandler" title="transition_sampling.engines.plumed.PlumedOutputHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlumedOutputHandler</span></code></a> can be used to determine
+which basin was committed to.</p>
+</section>
+<section id="run-a-simulation-with-launch-traj">
+<h3>Run a simulation with <code class="xref py py-func docutils literal notranslate"><span class="pre">_launch_traj()</span></code><a class="headerlink" href="#run-a-simulation-with-launch-traj" title="Permalink to this headline">¶</a></h3>
+<p>With all the above figured out, this should be just slight modifications of existing implementations. Essentially</p>
+<ol class="arabic">
+<li><p>Write all needed input files to the unique name for this trajectory (given by <code class="docutils literal notranslate"><span class="pre">projname</span></code>)</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>If necessary as with GROMACS, preprocess these</p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>Run asynchronously with the given <code class="docutils literal notranslate"><span class="pre">md_cmd</span></code> by opening a subprocess and periodically checking for completion,
+<code class="docutils literal notranslate"><span class="pre">await</span></code> ing in the interim to allow other shootings to process.</p></li>
+<li><p>Check for any errors or warnings, log or copy files as appropriate</p></li>
+<li><p>Read the committed basins and <span class="math notranslate nohighlight">\(\Delta t, \ 2\Delta t\)</span> output frames and return in the specified dictionary</p></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../transition_sampling.html" class="btn btn-neutral float-right" title="transition_sampling package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="gromacs.html" class="btn btn-neutral float-left" title="GROMACS Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Isaiah Lemmon.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

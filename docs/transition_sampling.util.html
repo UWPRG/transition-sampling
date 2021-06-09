@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>transition_sampling.util package &mdash; transition_sampling  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="transition_sampling.util.atomic_masses package" href="transition_sampling.util.atomic_masses.html" />
+    <link rel="prev" title="transition_sampling.likelihood package" href="transition_sampling.likelihood.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> transition_sampling
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="workflow/workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input/input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input/input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engines/engines.html">MD Engines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="transition_sampling.html">transition_sampling package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="transition_sampling.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.algo.html">transition_sampling.algo package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.colvar.html">transition_sampling.colvar package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.engines.html">transition_sampling.engines package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.likelihood.html">transition_sampling.likelihood package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">transition_sampling.util package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-transition_sampling.util.periodic_table">transition_sampling.util.periodic_table module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-transition_sampling.util.xyz">transition_sampling.util.xyz module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-transition_sampling.util">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.html#module-transition_sampling.driver">transition_sampling.driver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.html#module-transition_sampling">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">transition_sampling</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="transition_sampling.html">transition_sampling package</a> &raquo;</li>
+        
+      <li>transition_sampling.util package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/transition_sampling.util.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="transition-sampling-util-package">
+<h1>transition_sampling.util package<a class="headerlink" href="#transition-sampling-util-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="transition_sampling.util.atomic_masses.html">transition_sampling.util.atomic_masses package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.util.atomic_masses.html#module-transition_sampling.util.atomic_masses">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-transition_sampling.util.periodic_table">
+<span id="transition-sampling-util-periodic-table-module"></span><h2>transition_sampling.util.periodic_table module<a class="headerlink" href="#module-transition_sampling.util.periodic_table" title="Permalink to this headline">¶</a></h2>
+<p>Submodule that handles the generation of periodic table information.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.util.periodic_table.atomic_symbols_to_mass">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.util.periodic_table.</span></span><span class="sig-name descname"><span class="pre">atomic_symbols_to_mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.util.periodic_table.atomic_symbols_to_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts atomic symbols to their atomic masses in amu.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>atoms</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – List of atomic symbols</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>List of atomic masses</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-transition_sampling.util.xyz">
+<span id="transition-sampling-util-xyz-module"></span><h2>transition_sampling.util.xyz module<a class="headerlink" href="#module-transition_sampling.util.xyz" title="Permalink to this headline">¶</a></h2>
+<p>Utilities for parsing xyz files</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.util.xyz.read_xyz_file">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.util.xyz.</span></span><span class="sig-name descname"><span class="pre">read_xyz_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.util.xyz.read_xyz_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads xyz files into an atom list and xyz array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – path to xyz file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>xyz</em> – 3d array of (n_frames, n_atoms, xyz)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.util.xyz.read_xyz_frame">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.util.xyz.</span></span><span class="sig-name descname"><span class="pre">read_xyz_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.util.xyz.read_xyz_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a single frame from XYZ file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ifile</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">IO</span></code>) – opened file ready for reading, positioned at the num atoms line</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>xyz</em> – Coordinates of the frame</p></li>
+<li><p><em>eof</em> – true if end of file has been reached.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.util.xyz.write_xyz_frame">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.util.xyz.</span></span><span class="sig-name descname"><span class="pre">write_xyz_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.util.xyz.write_xyz_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a single xyz frame to the given file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">IO</span></code>) – Open file for writing to</p></li>
+<li><p><strong>atoms</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – list of atom names</p></li>
+<li><p><strong>frame</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – array with shape (n_atoms, 3)</p></li>
+<li><p><strong>comment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – string to be placed in the comment line. Defaults to empty.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the # of atoms does not match the size of the 1st dimension
+    of the frame</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-transition_sampling.util">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-transition_sampling.util" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="transition_sampling.util.atomic_masses.html" class="btn btn-neutral float-right" title="transition_sampling.util.atomic_masses package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="transition_sampling.likelihood.html" class="btn btn-neutral float-left" title="transition_sampling.likelihood package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Isaiah Lemmon.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

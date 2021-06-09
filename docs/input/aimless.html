@@ -1,0 +1,272 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>md_inputs (Optional) &mdash; transition_sampling  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> transition_sampling
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../engines/engines.html">MD Engines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transition_sampling.html">transition_sampling package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">transition_sampling</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">md_inputs</span></code> (Optional)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/input/aimless.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="md-inputs-optional">
+<h1><code class="docutils literal notranslate"><span class="pre">md_inputs</span></code> (Optional)<a class="headerlink" href="#md-inputs-optional" title="Permalink to this headline">¶</a></h1>
+<p>These are the required inputs for running aimless shooting and generating new shooting points with MD. If this section
+is excluded, MD will not be run and we will continue to the next present part.</p>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">engine_inputs</span></code></dt><dd><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">engine</span></code><span class="classifier"><cite>str</cite> (Required)</span></dt><dd><p>Define what MD engine will be used. Currently only <code class="docutils literal notranslate"><span class="pre">cp2k</span></code> and <code class="docutils literal notranslate"><span class="pre">gromacs</span></code></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">engine_dir</span></code><span class="classifier"><cite>str</cite> (Required)</span></dt><dd><p>Directory where temporary files created by engine (e.g. md.out) will be placed. If running over multiple nodes,
+all nodes must be able to access this (i.e. <code class="docutils literal notranslate"><span class="pre">/tmp/*</span></code> may not work). Files here will not be deleted, so they
+can be inspected afterwards if anything went wrong.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This should be the full path.</p>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">md_cmd</span></code><span class="classifier"><cite>str</cite> (Required)</span></dt><dd><p>Command to launch one simulation with, excluding any specific input or output files</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">plumed_file</span></code><span class="classifier"><cite>str</cite> (Required)</span></dt><dd><p>Path to the PLUMED file containing COMMITTOR basins</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">delta_t</span></code><span class="classifier"><cite>float</cite> (Required)</span></dt><dd><p>The <span class="math notranslate nohighlight">\(\Delta t\)</span> as defined in aimless shooting, in femtoseconds.</p>
+</dd>
+</dl>
+<p><strong>Other required engine specific inputs: see</strong> <a class="reference internal" href="../engines/engines.html"><span class="doc">MD Engines</span></a></p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">aimless_inputs</span></code></p>
+<blockquote>
+<div><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">starts_dir</span></code><span class="classifier"><cite>str</cite> (Required)</span></dt><dd><p>Path to directory containing <code class="docutils literal notranslate"><span class="pre">.xyz</span></code> files (in Å) of initial starting guesses</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">output_name</span></code><span class="classifier"><cite>str</cite> (Required)</span></dt><dd><p>Prefix to the output names. Two files will be created, <code class="docutils literal notranslate"><span class="pre">&lt;output_name&gt;.xyz</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;output_name&gt;</span></code>.csv.
+Note that this string should not include an extension.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">temp</span></code><span class="classifier"><cite>float</cite> (Required)</span></dt><dd><p>Temperature to generate initial velocities at in Kelvin</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">n_parallel</span></code><span class="classifier"><cite>int</cite> (Required)</span></dt><dd><p>Number of aimless shootings to run in parallel. Total number of simulations
+running at any given point is given by <code class="docutils literal notranslate"><span class="pre">n_parallel</span> <span class="pre">*</span> <span class="pre">2</span></code></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">n_points</span></code><span class="classifier"><cite>int</cite> (Required)</span></dt><dd><p>Number of accepted shooting points to be generated by a single aimless shooting before considered “done”</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">n_state_tries</span></code><span class="classifier"><cite>int</cite> (Required)</span></dt><dd><p>Number of times to reselect a known accepting state on failure to accept</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">n_vel_tries</span></code><span class="classifier"><cite>int</cite> (Required)</span></dt><dd><p>Number of times to resample velocities after getting a rejected shooting point
+before retrying known accepting states</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">acceptor</span></code> (Optional - can be defined, excluded, or null. In the latter two cases, uses <code class="docutils literal notranslate"><span class="pre">default</span></code>)</dt><dd><p>Used to define what cases of committing should be considered accepted.</p>
+<dl>
+<dt><code class="docutils literal notranslate"><span class="pre">type</span></code><span class="classifier"><cite>str</cite> (<code class="docutils literal notranslate"><span class="pre">default</span></code> or <code class="docutils literal notranslate"><span class="pre">multibasin</span></code>)</span></dt><dd><ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">default</span></code>, accept if the forward and reverse trajectories commit to any different basins</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">multibasin</span></code>, accept if the forward and reverse trajectories commit to a product basin and a
+reactant basin, which must be defined as lists below.</p></li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">reactants</span></code><span class="classifier"><cite>list[int]</cite> (Required if <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">multibasin</span></code>)</span></dt><dd><p>The basins to be considered as “reactants”</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">products</span></code><span class="classifier"><cite>list[int]</cite> (Required if <code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">multibasin</span></code>)</span></dt><dd><p>The basins to be considered as “products”</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Isaiah Lemmon.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

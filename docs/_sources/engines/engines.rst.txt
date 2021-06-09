@@ -3,10 +3,15 @@ MD Engines
 Below are all currently supported engines to generate shooting points with.
 
 ..  toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Available Engines:
 
     CP2K <cp2k>
+    GROMACS <gromacs>
+    Implementing a New Engine <new_engine>
+
+.. warning::
+    Constant pressure (changing box sizes) is not currently supported
 
 Intro to Engines
 ----------------
@@ -21,7 +26,7 @@ the inputs. In particular, these are
 
     * ``"engine": "cp2k"`` - use the cp2k engine implementation
 
-``cmd`` - the command line command to invoke the engine
+``md_cmd`` - the command line command to invoke the engine
     The string you would use to run the MD engine from the command line normally, leading
     up to the path of the engine executable. Any additional commands (such as ``mpirun``)
     can be prepended, but the final argument should be the engine executable.
@@ -32,8 +37,8 @@ the inputs. In particular, these are
 
     Examples of valid commands:
 
-    * ``"cmd": "/path/to/cp2k/exec"`` - just use the standard cp2k executable.
-    * ``"cmd": "mpirun -n 2 -genv 1 /path/to/cp2k/exec"`` -  Run cp2k with MPI with two processes
+    * ``"md_cmd": "/path/to/cp2k/exec"`` - just use the standard cp2k executable.
+    * ``"md_cmd": "mpirun -n 2 -genv 1 /path/to/cp2k/exec"`` -  Run cp2k with MPI with two processes
 
         ..  note::
             Since the aimless shooting algorithm runs the forwards and backwards trajectories
@@ -42,7 +47,7 @@ the inputs. In particular, these are
 
     Examples of **invalid** commands:
 
-    * ``"cmd": "/path/to/cp2k/exec -i my_input_file -o my_output_file"`` - arguments after the engine executable should be left to the module
+    * ``"md_cmd": "/path/to/cp2k/exec -i my_input_file -o my_output_file"`` - arguments after the engine executable should be left to the module
 
 ``plumed_file`` - the path to the `PLUMED <https://www.plumed.org/>`_ file with the committor basins for the system
     The plumed file that defines the basins associated with a complete reaction. This should

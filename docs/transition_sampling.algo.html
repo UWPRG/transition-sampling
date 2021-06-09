@@ -1,0 +1,786 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>transition_sampling.algo package &mdash; transition_sampling  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="transition_sampling.colvar package" href="transition_sampling.colvar.html" />
+    <link rel="prev" title="transition_sampling package" href="transition_sampling.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> transition_sampling
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="workflow/workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input/input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input/input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engines/engines.html">MD Engines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="transition_sampling.html">transition_sampling package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="transition_sampling.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">transition_sampling.algo package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-transition_sampling.algo.acceptors">transition_sampling.algo.acceptors module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-transition_sampling.algo.aimless_shooting">transition_sampling.algo.aimless_shooting module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-transition_sampling.algo">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.colvar.html">transition_sampling.colvar package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.engines.html">transition_sampling.engines package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.likelihood.html">transition_sampling.likelihood package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.util.html">transition_sampling.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.html#module-transition_sampling.driver">transition_sampling.driver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.html#module-transition_sampling">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">transition_sampling</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="transition_sampling.html">transition_sampling package</a> &raquo;</li>
+        
+      <li>transition_sampling.algo package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/transition_sampling.algo.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="transition-sampling-algo-package">
+<h1>transition_sampling.algo package<a class="headerlink" href="#transition-sampling-algo-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-transition_sampling.algo.acceptors">
+<span id="transition-sampling-algo-acceptors-module"></span><h2>transition_sampling.algo.acceptors module<a class="headerlink" href="#module-transition_sampling.algo.acceptors" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="transition_sampling.algo.acceptors.AbstractAcceptor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">transition_sampling.algo.acceptors.</span></span><span class="sig-name descname"><span class="pre">AbstractAcceptor</span></span><a class="headerlink" href="#transition_sampling.algo.acceptors.AbstractAcceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Abstract class that defines what shooting points should be accepted</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="transition_sampling.algo.acceptors.AbstractAcceptor.is_accepted">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">is_accepted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.acceptors.AbstractAcceptor.is_accepted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a ShootingResult should be accepted or rejected</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.ShootingResult" title="transition_sampling.engines.abstract_engine.ShootingResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShootingResult</span></code></a>) – The ShootingResult to be tested</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>True if it should be accepted, False otherwise.</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="transition_sampling.algo.acceptors.DefaultAcceptor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">transition_sampling.algo.acceptors.</span></span><span class="sig-name descname"><span class="pre">DefaultAcceptor</span></span><a class="headerlink" href="#transition_sampling.algo.acceptors.DefaultAcceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#transition_sampling.algo.acceptors.AbstractAcceptor" title="transition_sampling.algo.acceptors.AbstractAcceptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">transition_sampling.algo.acceptors.AbstractAcceptor</span></code></a></p>
+<p>Accepts as long as both trajectories committed to different basins</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="transition_sampling.algo.acceptors.DefaultAcceptor.is_accepted">
+<span class="sig-name descname"><span class="pre">is_accepted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.acceptors.DefaultAcceptor.is_accepted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a ShootingResult should be accepted or rejected</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.ShootingResult" title="transition_sampling.engines.abstract_engine.ShootingResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShootingResult</span></code></a>) – The ShootingResult to be tested</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>True if it should be accepted, False otherwise.</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="transition_sampling.algo.acceptors.MultiBasinAcceptor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">transition_sampling.algo.acceptors.</span></span><span class="sig-name descname"><span class="pre">MultiBasinAcceptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">products</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.acceptors.MultiBasinAcceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#transition_sampling.algo.acceptors.AbstractAcceptor" title="transition_sampling.algo.acceptors.AbstractAcceptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">transition_sampling.algo.acceptors.AbstractAcceptor</span></code></a></p>
+<p>Acceptor with basins split into reactants and products.</p>
+<p>To be accepted, both trajectories must have committed and must commit to
+a different basin type, e.g. one to reactants and one to products, but not
+both to products.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reactants</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Set of basins to be considered as reactants, as defined in the plumed
+input</p></li>
+<li><p><strong>products</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Set of basins to be considered as products, as defined in the plumed
+input</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.acceptors.MultiBasinAcceptor.reactants">
+<span class="sig-name descname"><span class="pre">reactants</span></span><a class="headerlink" href="#transition_sampling.algo.acceptors.MultiBasinAcceptor.reactants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set of basins to be considered as reactants, as defined in the plumed
+input</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.acceptors.MultiBasinAcceptor.products">
+<span class="sig-name descname"><span class="pre">products</span></span><a class="headerlink" href="#transition_sampling.algo.acceptors.MultiBasinAcceptor.products" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set of basins to be considered as products, as defined in the plumed
+input</p>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the intersection of reactants and products is not empty, i.e. there
+    is a basin shared by both.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="transition_sampling.algo.acceptors.MultiBasinAcceptor.is_accepted">
+<span class="sig-name descname"><span class="pre">is_accepted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.acceptors.MultiBasinAcceptor.is_accepted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a ShootingResult should be accepted or rejected</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.ShootingResult" title="transition_sampling.engines.abstract_engine.ShootingResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShootingResult</span></code></a>) – The ShootingResult to be tested</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>True if it should be accepted, False otherwise.</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-transition_sampling.algo.aimless_shooting">
+<span id="transition-sampling-algo-aimless-shooting-module"></span><h2>transition_sampling.algo.aimless_shooting module<a class="headerlink" href="#module-transition_sampling.algo.aimless_shooting" title="Permalink to this headline">¶</a></h2>
+<p>Implementation of the aimless shooting algorithm</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AimlessShootingDriver">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">transition_sampling.algo.aimless_shooting.</span></span><span class="sig-name descname"><span class="pre">AimlessShootingDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceptor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AimlessShootingDriver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Driver to run one or multiple aimless shootings.</p>
+<p>Given parameters are copied and used for each shooting, making the only
+difference the randomness that the aimless shooting algorithm introduces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>engine</strong> (<a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine" title="transition_sampling.engines.abstract_engine.AbstractEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractEngine</span></code></a>) – Engine to be used. This specific engine will not be modified, but deep
+copies of it made for each parallel shooting.</p></li>
+<li><p><strong>position_dir</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Directory containing starting xyz positions</p></li>
+<li><p><strong>temp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The temperature in Kelvin to generate initial velocities for</p></li>
+<li><p><strong>log_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Base name for the log (csv and xyz) files. A call to run will generate
+<code class="docutils literal notranslate"><span class="pre">log_name</span></code>.csv and <code class="docutils literal notranslate"><span class="pre">log_name</span></code>.xyz files that hold results from all
+shootings. For each parallel shooting, there will be an additional
+<code class="docutils literal notranslate"><span class="pre">log_name{i}</span></code>.csv and <code class="docutils literal notranslate"><span class="pre">log_name{i}</span></code>.xyz files that track results from
+that specific shooting.</p></li>
+<li><p><strong>acceptor</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#transition_sampling.algo.acceptors.AbstractAcceptor" title="transition_sampling.algo.acceptors.AbstractAcceptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractAcceptor</span></code></a>]) – An acceptor that implements an <cite>is_accepted</cite> method to determine if a
+shooting point should be considered accepted or not. Deep copied and
+used as a template for all parallel shootings.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AimlessShootingDriver.base_engine">
+<span class="sig-name descname"><span class="pre">base_engine</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AimlessShootingDriver.base_engine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Engine template to be used for all shootings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine" title="transition_sampling.engines.abstract_engine.AbstractEngine">AbstractEngine</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AimlessShootingDriver.position_dir">
+<span class="sig-name descname"><span class="pre">position_dir</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AimlessShootingDriver.position_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Directory containing starting xyz positions to be used for all shootings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AimlessShootingDriver.temp">
+<span class="sig-name descname"><span class="pre">temp</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AimlessShootingDriver.temp" title="Permalink to this definition">¶</a></dt>
+<dd><p>The temperature in Kelvin to generate initial velocities for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AimlessShootingDriver.log_name">
+<span class="sig-name descname"><span class="pre">log_name</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AimlessShootingDriver.log_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root name for all logging</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AimlessShootingDriver.base_acceptor">
+<span class="sig-name descname"><span class="pre">base_acceptor</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AimlessShootingDriver.base_acceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acceptor template to be used for all shootings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#transition_sampling.algo.acceptors.AbstractAcceptor" title="transition_sampling.algo.acceptors.AbstractAcceptor">AbstractAcceptor</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AimlessShootingDriver.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_parallel</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">run_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AimlessShootingDriver.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run multiple AimlessShootings in parallel.</p>
+<p>Note that calling this method after completion will start new aimless
+shootings, not continue them from the previous call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_parallel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of parallel AimlessShootings to execute. Note this will lead
+to 2 * <cite>n_parallel</cite> simulations running simultaneously.</p></li>
+<li><p><strong>run_args</strong> – Keyword arguments to pass to each aimless shootings <cite>run</cite> method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">transition_sampling.algo.aimless_shooting.</span></span><span class="sig-name descname"><span class="pre">AsyncAimlessShooting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceptor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Aimless Shooting runner.</p>
+<p>Implements the aimless shooting algorithm by interacting with a given
+engine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>engine</strong> (<a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine" title="transition_sampling.engines.abstract_engine.AbstractEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractEngine</span></code></a>) – The specific engine (e.g. CP2KEngine) that will run the simulations</p></li>
+<li><p><strong>position_dir</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – A directory containing only xyz positions of guesses at transition
+states. These positions will be used to try to kickstart the algorithm.</p></li>
+<li><p><strong>temp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The temperature in Kelvin to generate initial velocities for</p></li>
+<li><p><strong>results_logger</strong> (<a class="reference internal" href="#transition_sampling.algo.aimless_shooting.ResultsLogger" title="transition_sampling.algo.aimless_shooting.ResultsLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResultsLogger</span></code></a>) – Logger to write xyz and csv results to. Use a logger with a defined
+<cite>base_logger</cite> to record these in more than one location.</p></li>
+<li><p><strong>acceptor</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#transition_sampling.algo.acceptors.AbstractAcceptor" title="transition_sampling.algo.acceptors.AbstractAcceptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractAcceptor</span></code></a>]) – An acceptor that implements an <cite>is_accepted</cite> method to determine if a
+shooting point should be considered accepted or not. If None, the
+DefaultAcceptor is used, which accepts if both trajectories commit to
+different basins.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.engine">
+<span class="sig-name descname"><span class="pre">engine</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.engine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Engine used to run the simulations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine" title="transition_sampling.engines.abstract_engine.AbstractEngine">AbstractEngine</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.position_dir">
+<span class="sig-name descname"><span class="pre">position_dir</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.position_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Directory containing initial xyz guesses of transition states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.temp">
+<span class="sig-name descname"><span class="pre">temp</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.temp" title="Permalink to this definition">¶</a></dt>
+<dd><p>The temperature in Kelvin to generate initial velocities for</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.current_offset">
+<span class="sig-name descname"><span class="pre">current_offset</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.current_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>-1, 0 or +1. The delta-t offset the point being run with engine
+currently represents for purposes of choosing the next point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.results_logger">
+<span class="sig-name descname"><span class="pre">results_logger</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.results_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logger to write xyz and csv results to. Log function is invoked on every
+successful shooting point, no matter if it is accepted or unaccepted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#transition_sampling.algo.aimless_shooting.ResultsLogger" title="transition_sampling.algo.aimless_shooting.ResultsLogger">ResultsLogger</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.current_start">
+<span class="sig-name descname"><span class="pre">current_start</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.current_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>xyz array of the current starting position. Has shape (num_atoms, 3)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.accepted_states">
+<span class="sig-name descname"><span class="pre">accepted_states</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.accepted_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of the accepted positions. Contains duplicates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list[np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.acceptor">
+<span class="sig-name descname"><span class="pre">acceptor</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.acceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>An acceptor that implements an <cite>is_accepted</cite> method to determine if a
+shooting point should be considered accepted or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#transition_sampling.algo.acceptors.AbstractAcceptor" title="transition_sampling.algo.acceptors.AbstractAcceptor">AbstractAcceptor</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.is_accepted">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">is_accepted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.is_accepted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a ShootingResult should be accepted or rejected</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.ShootingResult" title="transition_sampling.engines.abstract_engine.ShootingResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShootingResult</span></code></a>) – The ShootingResult to be tested</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>True if it should be accepted, False otherwise.</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.pick_starting">
+<span class="sig-name descname"><span class="pre">pick_starting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.pick_starting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pick the next point to be used as a starting position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.ShootingResult" title="transition_sampling.engines.abstract_engine.ShootingResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShootingResult</span></code></a>) – A valid ShootingResult that we will pick a new starting position
+from</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>A randomly selected new starting position based on the current time</em></p></li>
+<li><p><em>offset.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.run">
+<em class="property"><span class="pre">async</span> </em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_state_tries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vel_tries</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.AsyncAimlessShooting.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the aimless shooting algorithm to generate n_points.</p>
+<p>Each state that is generated is written as a .xyz to the given results
+directory.</p>
+<p>There are two loops of tries before failing to generate a new transition
+state. The outer loop is over starting positions and the inner loop is
+over resampled velocities.</p>
+<p>This implementation works as described below:</p>
+<ol class="arabic">
+<li><p>Pick a starting state</p></li>
+<li><p>For that starting state, try n_vel_tries number of times to get it
+accepted by regenerating the velocities each time it is rejected.</p></li>
+<li><p>Either:</p>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li><p>An accepted state was found. Pick the next starting point from
+this accepted state and repeat from 1.</p></li>
+<li><p>An accepted state was not found. Randomly select a state we know
+has worked before and repeat from 1.</p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>If 3b occurs n_state_tries in a row without generating a new accepted
+state, we’ve failed. Raise an exception.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_points</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of total points to generate</p></li>
+<li><p><strong>n_state_tries</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of consecutive states to try resampling before failing
+completely</p></li>
+<li><p><strong>n_vel_tries</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of times to try resampling velocities on a single state
+before moving on to try a new state</p></li>
+<li><p><strong>kwargs</strong> – All other kwargs are ignored</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.ResultsLogger">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">transition_sampling.algo.aimless_shooting.</span></span><span class="sig-name descname"><span class="pre">ResultsLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.ResultsLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for logging everything from aimless shooting with multiple levels.</p>
+<p>An instance of this class is passed to an AimlessShooting instance in order
+to log the results to an xyz file and csv file. If constructed with another
+ResultLogger, that logger is invoked at the same time and duplicates to its
+respective files.</p>
+<p>This allows one “parent” logger to keep all results in a single pair of
+files, while many “child loggers” are attached to parallel shootings, each
+recording only their respective results in a separate pair of files.</p>
+<p>The tracked files are <cite>name</cite>.csv and <cite>name</cite>.xyz. If these files already exist,
+they are appended to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The root name of the xyz and csv file</p></li>
+<li><p><strong>base_logger</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#transition_sampling.algo.aimless_shooting.ResultsLogger" title="transition_sampling.algo.aimless_shooting.ResultsLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResultsLogger</span></code></a>]) – An optional “parent” logger to pass logs up to. If not None, everything
+logged to this logger is also logged by the <cite>base_logger</cite></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.ResultsLogger.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.ResultsLogger.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The root name of the xyz and csv file to use, e.g. “results”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.ResultsLogger.base_logger">
+<span class="sig-name descname"><span class="pre">base_logger</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.ResultsLogger.base_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>An optional “parent” logger to pass logs up to. If not None, everything
+logged to this logger is also logged by the <cite>base_logger</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#transition_sampling.algo.aimless_shooting.ResultsLogger" title="transition_sampling.algo.aimless_shooting.ResultsLogger">ResultsLogger</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.ResultsLogger.cur_index">
+<span class="sig-name descname"><span class="pre">cur_index</span></span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.ResultsLogger.cur_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>The next index that will be written in the CSV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.ResultsLogger.csv_name">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">csv_name</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.ResultsLogger.csv_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the CSV file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.ResultsLogger.log_result">
+<span class="sig-name descname"><span class="pre">log_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.ResultsLogger.log_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log results to xyz and csv. Invoke the base logger if we have one.</p>
+<p>This writes all the passed results synchronously to the corresponding
+XYZ and CSV. The base logger is also invoked, allowing synchronous
+logging to it as well.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result</strong> (<a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.ShootingResult" title="transition_sampling.engines.abstract_engine.ShootingResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShootingResult</span></code></a>) – The shooting result we’re logging</p></li>
+<li><p><strong>atoms</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Periodic table format sequence of atom names</p></li>
+<li><p><strong>frame</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – xyz frame we’re logging, each row corresponding to the atoms</p></li>
+<li><p><strong>accepted</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – True if this result was accepted, false otherwise</p></li>
+<li><p><strong>box_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – x, y, z of the box size used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.ResultsLogger.xyz_name">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">xyz_name</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.ResultsLogger.xyz_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the XYZ file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.algo.aimless_shooting.generate_velocities">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.algo.aimless_shooting.</span></span><span class="sig-name descname"><span class="pre">generate_velocities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.algo.aimless_shooting.generate_velocities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates velocities for atoms at a temperature from MB distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – A list of the atoms to generate velocities for. Strings in periodic
+table format (e.g. Ar = Argon).</p></li>
+<li><p><strong>temp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Temperature in Kelvin</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>An array of velocities generated randomly from the Maxwell-Boltzmann</em></p></li>
+<li><p><em>distribution. Has the shape (n_atoms, 3), where 3 is the x,y,z directions.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-transition_sampling.algo">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-transition_sampling.algo" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="transition_sampling.colvar.html" class="btn btn-neutral float-right" title="transition_sampling.colvar package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="transition_sampling.html" class="btn btn-neutral float-left" title="transition_sampling package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Isaiah Lemmon.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

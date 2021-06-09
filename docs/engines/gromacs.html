@@ -1,0 +1,289 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>GROMACS Documentation &mdash; transition_sampling  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Implementing a New Engine" href="new_engine.html" />
+    <link rel="prev" title="CP2K Documentation" href="cp2k.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> transition_sampling
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../workflow/workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="engines.html">MD Engines</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cp2k.html">CP2K</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GROMACS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gromacs-specific-inputs">GROMACS Specific Inputs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#template-input-files">Template Input Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#additional-commands">Additional Commands</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#gromacs-outputs">GROMACS Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-logging">Additional Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="new_engine.html">Implementing a New Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engines.html#intro-to-engines">Intro to Engines</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../transition_sampling.html">transition_sampling package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">transition_sampling</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="engines.html">MD Engines</a> &raquo;</li>
+        
+      <li>GROMACS Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/engines/gromacs.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="gromacs-documentation">
+<h1>GROMACS Documentation<a class="headerlink" href="#gromacs-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="gromacs-specific-inputs">
+<h2>GROMACS Specific Inputs<a class="headerlink" href="#gromacs-specific-inputs" title="Permalink to this headline">¶</a></h2>
+<p>In addition to the inputs required by all <a class="reference internal" href="engines.html"><span class="doc">engines</span></a>, the GROMACS specific inputs are listed below.</p>
+<section id="template-input-files">
+<h3>Template Input Files<a class="headerlink" href="#template-input-files" title="Permalink to this headline">¶</a></h3>
+<p>These three files make up the base case simulation. None of the original files will be modified</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">mdp_file</span></code> - path to the .mdp file to be used</dt><dd><p>The path to a well formed GROMACS .mdp file that specifies the simulation parameters. All existing parameters will be
+used, except:</p>
+<ol class="arabic simple">
+<li><p>Any velocity generation - Aimless shooting will generate its own starting velocities</p></li>
+<li><p>The trajectory print frequency - This is modified for individual shootings to extract to relevant <span class="math notranslate nohighlight">\(\Delta t\)</span> positions</p></li>
+</ol>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">gro_file</span></code> - path to a template .gro file to be used</dt><dd><p>The path to a corresponding .gro file. The coordinates and velocities of atoms do not need to reflect a transition state,
+this file is primarily used to define the atoms and their indices. Starting positions will be initialized from the
+start directory, and new velocities will be generated by aimless shooting.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">top_file</span></code> - path to a .top file corresponding to the system.</dt><dd><p>Nothing in this file will be modified.</p>
+</dd>
+</dl>
+</section>
+<section id="additional-commands">
+<h3>Additional Commands<a class="headerlink" href="#additional-commands" title="Permalink to this headline">¶</a></h3>
+<dl>
+<dt>For <code class="docutils literal notranslate"><span class="pre">md_cmd</span></code>, you should include <code class="docutils literal notranslate"><span class="pre">mdrun</span></code>, e.g.:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;md_cmd&quot;:</span> <span class="pre">&quot;gmx_mpi</span> <span class="pre">mdrun&quot;</span></code></p></li>
+</ul>
+<p>This should use the number of cores desired for <cite>one</cite> simulation. Each parallel simulation will be pinned to different
+cores (if enough are available) automatically by aimless shooting.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">grompp_cmd</span></code> - command to compile a simulation to a .tpr</dt><dd><p>This command will be used to compile a .mdp, a .gro, and a .top file into a .tpr before running a simulation, e.g.:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;grompp_cmd&quot;:</span> <span class="pre">&quot;gmx_mpi</span> <span class="pre">grompp&quot;</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+<section id="gromacs-outputs">
+<h2>GROMACS Outputs<a class="headerlink" href="#gromacs-outputs" title="Permalink to this headline">¶</a></h2>
+<p>If GROMACS <code class="docutils literal notranslate"><span class="pre">grompp</span></code> or <code class="docutils literal notranslate"><span class="pre">mdrun</span></code> exits with a non-zero exit code, the output file is copied from the engine’s working
+directory with the name <code class="docutils literal notranslate"><span class="pre">{projname}_FATAL.log</span></code>, where <code class="docutils literal notranslate"><span class="pre">projname</span></code> is the root name of that shooting point.
+Additionally, all std out and std err is logged as a warning, with a note that this simulation failed. Note that this is
+not necessarily terminal, as multiple velocities are resampled. If many of these are occurring, something is likely wrong.</p>
+<p>At this time, warnings are not checked in either <code class="docutils literal notranslate"><span class="pre">grompp</span></code> or <code class="docutils literal notranslate"><span class="pre">mdrun</span></code>’s output.</p>
+</section>
+<section id="additional-logging">
+<h2>Additional Logging<a class="headerlink" href="#additional-logging" title="Permalink to this headline">¶</a></h2>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">log_level</span> <span class="pre">=</span> <span class="pre">DEBUG</span></code> will log the individual commands used for each <code class="docutils literal notranslate"><span class="pre">grompp</span></code> and <code class="docutils literal notranslate"><span class="pre">mdrun</span></code> so you can ensure
+they match your expectations.</p>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="new_engine.html" class="btn btn-neutral float-right" title="Implementing a New Engine" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cp2k.html" class="btn btn-neutral float-left" title="CP2K Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Isaiah Lemmon.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

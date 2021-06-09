@@ -3,9 +3,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>transition_sampling package &mdash; transition_sampling  documentation</title>
   
@@ -13,10 +14,15 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -26,18 +32,18 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="transition_sampling.engines package" href="transition_sampling.engines.html" />
-    <link rel="prev" title="CP2K Documentation" href="engines/cp2k.html" /> 
+    <link rel="next" title="transition_sampling.algo package" href="transition_sampling.algo.html" />
+    <link rel="prev" title="Implementing a New Engine" href="engines/new_engine.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -51,7 +57,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> transition_sampling
+            <a href="index.html" class="icon icon-home"> transition_sampling
           
 
           
@@ -84,12 +90,21 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="workflow/workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input/input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input/input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
 <li class="toctree-l1"><a class="reference internal" href="engines/engines.html">MD Engines</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">transition_sampling package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.algo.html">transition_sampling.algo package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.colvar.html">transition_sampling.colvar package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="transition_sampling.engines.html">transition_sampling.engines package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.likelihood.html">transition_sampling.likelihood package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.util.html">transition_sampling.util package</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-transition_sampling.driver">transition_sampling.driver module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-transition_sampling">Module contents</a></li>
 </ul>
 </li>
@@ -133,6 +148,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -144,7 +161,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/transition_sampling.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -158,15 +175,41 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="transition-sampling-package">
+  <section id="transition-sampling-package">
 <h1>transition_sampling package<a class="headerlink" href="#transition-sampling-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="subpackages">
+<section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="transition_sampling.algo.html">transition_sampling.algo package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.algo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.algo.html#module-transition_sampling.algo.acceptors">transition_sampling.algo.acceptors module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.algo.html#module-transition_sampling.algo.aimless_shooting">transition_sampling.algo.aimless_shooting module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.algo.html#module-transition_sampling.algo">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transition_sampling.colvar.html">transition_sampling.colvar package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.colvar.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.colvar.html#module-transition_sampling.colvar.plumed_driver">transition_sampling.colvar.plumed_driver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.colvar.html#module-transition_sampling.colvar">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="transition_sampling.engines.html">transition_sampling.engines package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="transition_sampling.engines.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="transition_sampling.engines.cp2k.html">transition_sampling.engines.cp2k package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.engines.cp2k.html">transition_sampling.engines.cp2k package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.engines.cp2k.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k.CP2K_engine">transition_sampling.engines.cp2k.CP2K_engine module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k.CP2K_inputs">transition_sampling.engines.cp2k.CP2K_inputs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k.CP2K_outputs">transition_sampling.engines.cp2k.CP2K_outputs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.engines.cp2k.html#module-transition_sampling.engines.cp2k">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.engines.gromacs.html">transition_sampling.engines.gromacs package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.engines.gromacs.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.engines.gromacs.html#module-transition_sampling.engines.gromacs.mdp">transition_sampling.engines.gromacs.mdp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.engines.gromacs.html#module-transition_sampling.engines.gromacs">Module contents</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="transition_sampling.engines.html#submodules">Submodules</a></li>
@@ -175,50 +218,209 @@
 <li class="toctree-l2"><a class="reference internal" href="transition_sampling.engines.html#module-transition_sampling.engines">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="transition_sampling.likelihood.html">transition_sampling.likelihood package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.likelihood.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.likelihood.html#module-transition_sampling.likelihood.likelihood_max">transition_sampling.likelihood.likelihood_max module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.likelihood.html#module-transition_sampling.likelihood.optimization">transition_sampling.likelihood.optimization module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.likelihood.html#module-transition_sampling.likelihood">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transition_sampling.util.html">transition_sampling.util package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.util.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.util.atomic_masses.html">transition_sampling.util.atomic_masses package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.util.atomic_masses.html#module-transition_sampling.util.atomic_masses">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.util.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.util.html#module-transition_sampling.util.periodic_table">transition_sampling.util.periodic_table module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.util.html#module-transition_sampling.util.xyz">transition_sampling.util.xyz module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.util.html#module-transition_sampling.util">Module contents</a></li>
+</ul>
+</li>
 </ul>
 </div>
-</div>
-<div class="section" id="module-transition_sampling">
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-transition_sampling.driver">
+<span id="transition-sampling-driver-module"></span><h2>transition_sampling.driver module<a class="headerlink" href="#module-transition_sampling.driver" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.driver.execute">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.driver.</span></span><span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.driver.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run from the yml input parsed as a dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – yml file in dictionary format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.driver.main">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.driver.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.driver.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.driver.parse_aimless">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.driver.</span></span><span class="sig-name descname"><span class="pre">parse_aimless</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aimless_inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.driver.parse_aimless" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate aimless_inputs section of input file and create the Driver.</p>
+<p>Defines global variables for xyz and csv to be used in later sections if
+not explicitly set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aimless_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – The “aimless_inputs” dictionary of the input file</p></li>
+<li><p><strong>engine</strong> (<a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine" title="transition_sampling.engines.abstract_engine.AbstractEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractEngine</span></code></a>) – The corresponding AbstractEngine created from the “engine_inputs” section</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="transition_sampling.algo.html#transition_sampling.algo.aimless_shooting.AimlessShootingDriver" title="transition_sampling.algo.aimless_shooting.AimlessShootingDriver"><code class="xref py py-class docutils literal notranslate"><span class="pre">AimlessShootingDriver</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>The AimlessShootingDriver that is ready to be run.</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.driver.parse_colvar">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.driver.</span></span><span class="sig-name descname"><span class="pre">parse_colvar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colvar_inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.driver.parse_colvar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate colvar_inputs section of input file.</p>
+<p>If xyz and csv files are not explicitly in the inputs, checks the globals
+set above, then errors if those are not set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>colvar_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – The “engine_inputs” dictionary of the input file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.driver.parse_engine">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.driver.</span></span><span class="sig-name descname"><span class="pre">parse_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine_inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.driver.parse_engine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate engine_inputs section of input file and create the engine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>engine_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – The “engine_inputs” dictionary of the input file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="transition_sampling.engines.html#transition_sampling.engines.abstract_engine.AbstractEngine" title="transition_sampling.engines.abstract_engine.AbstractEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractEngine</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>The AbstractEngine representation of this input section</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.driver.parse_likelihood">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.driver.</span></span><span class="sig-name descname"><span class="pre">parse_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">likelihood_inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.driver.parse_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate likelihood_inputs section of input file.</p>
+<p>If colvar and csv files are not explicitly in the inputs, checks the globals
+set above, then errors if those are not set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>likelihood_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – The “likelihood_inputs” dictionary of the input file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.driver.read_and_run">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.driver.</span></span><span class="sig-name descname"><span class="pre">read_and_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_yml</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.driver.read_and_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the yml input and run</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_yml</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Path to the yml file to parse</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.driver.run_aimless">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.driver.</span></span><span class="sig-name descname"><span class="pre">run_aimless</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">md_inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.driver.run_aimless" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate and run the aimless shooting section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>md_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – The “md_inputs” dictionary of the input file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.driver.run_colvar">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.driver.</span></span><span class="sig-name descname"><span class="pre">run_colvar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colvar_inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.driver.run_colvar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate and run the colvar section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>colvar_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – The “colvar_inputs” dictionary of the input file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.driver.run_likelihood">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.driver.</span></span><span class="sig-name descname"><span class="pre">run_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">likelihood_inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.driver.run_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate and run the likelihood section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>likelihood_inputs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – The “likelihood_inputs” dictionary of the input file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-transition_sampling">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-transition_sampling" title="Permalink to this headline">¶</a></h2>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="transition_sampling.engines.html" class="btn btn-neutral float-right" title="transition_sampling.engines package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="engines/cp2k.html" class="btn btn-neutral float-left" title="CP2K Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="transition_sampling.algo.html" class="btn btn-neutral float-right" title="transition_sampling.algo package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="engines/new_engine.html" class="btn btn-neutral float-left" title="Implementing a New Engine" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Isaiah Lemmon
+        &#169; Copyright 2020, Isaiah Lemmon.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>transition_sampling.util.atomic_masses package &mdash; transition_sampling  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="transition_sampling.util package" href="transition_sampling.util.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> transition_sampling
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="workflow/workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input/input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input/input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engines/engines.html">MD Engines</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="transition_sampling.html">transition_sampling package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="transition_sampling.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.algo.html">transition_sampling.algo package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.colvar.html">transition_sampling.colvar package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.engines.html">transition_sampling.engines package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transition_sampling.likelihood.html">transition_sampling.likelihood package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="transition_sampling.util.html">transition_sampling.util package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="transition_sampling.util.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.util.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.util.html#module-transition_sampling.util.periodic_table">transition_sampling.util.periodic_table module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.util.html#module-transition_sampling.util.xyz">transition_sampling.util.xyz module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="transition_sampling.util.html#module-transition_sampling.util">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.html#module-transition_sampling.driver">transition_sampling.driver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition_sampling.html#module-transition_sampling">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">transition_sampling</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="transition_sampling.html">transition_sampling package</a> &raquo;</li>
+        
+          <li><a href="transition_sampling.util.html">transition_sampling.util package</a> &raquo;</li>
+        
+      <li>transition_sampling.util.atomic_masses package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/transition_sampling.util.atomic_masses.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="transition-sampling-util-atomic-masses-package">
+<h1>transition_sampling.util.atomic_masses package<a class="headerlink" href="#transition-sampling-util-atomic-masses-package" title="Permalink to this headline">¶</a></h1>
+<section id="module-transition_sampling.util.atomic_masses">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-transition_sampling.util.atomic_masses" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="transition_sampling.util.atomic_masses.get_atomic_mass_dict">
+<span class="sig-prename descclassname"><span class="pre">transition_sampling.util.atomic_masses.</span></span><span class="sig-name descname"><span class="pre">get_atomic_mass_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#transition_sampling.util.atomic_masses.get_atomic_mass_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a dictionary of atomic symbols as keys and masses as values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>Dict of atomic symbols and masses</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="transition_sampling.util.html" class="btn btn-neutral float-left" title="transition_sampling.util package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Isaiah Lemmon.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

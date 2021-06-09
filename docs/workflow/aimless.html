@@ -1,0 +1,287 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Aimless Shooting &mdash; transition_sampling  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> transition_sampling
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Transition Sampling Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html">Using transition_sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../input/input.html#inputs-yml-format"><code class="docutils literal notranslate"><span class="pre">inputs.yml</span></code> Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../engines/engines.html">MD Engines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transition_sampling.html">transition_sampling package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">transition_sampling</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Aimless Shooting</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/workflow/aimless.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="aimless-shooting">
+<h1>Aimless Shooting<a class="headerlink" href="#aimless-shooting" title="Permalink to this headline">¶</a></h1>
+<p>For exact specifications, refer to the original paper by Peters and Trout,
+<a class="reference external" href="https://aip.scitation.org/doi/10.1063/1.2234477">10.1063/1.2234477</a></p>
+<section id="generation-of-shooting-points">
+<h2>Generation of shooting points<a class="headerlink" href="#generation-of-shooting-points" title="Permalink to this headline">¶</a></h2>
+<p>Aimless shooting takes an initial (or multiple) configuration that are guessed to be near the transition state, or on
+the dividing surface between two or more stable basins. Velocities are randomly generated from the Maxwell-Boltzmann
+distribution and two trajectories are launched in parallel</p>
+<ol class="arabic simple">
+<li><p>One with the initial velocities set as generated. This is the <em>forward</em> trajectory</p></li>
+<li><p>One with the generated velocities flipped (multiplied by -1). This is the <em>reverse</em> trajectory</p></li>
+</ol>
+<p>These simulations are run until committing to one of the defined basins, or until completing the number of steps
+specified in the MD parameters. If the two trajectories commit to different basins (or different categories of basins in
+the case of multiple reactant or product states), this shooting point is considered as <em>accepted</em>. Otherwise, its said
+to be <em>rejected</em>. The core ideas of aimless shooting are that</p>
+<ol class="arabic simple">
+<li><p>An accepted shooting point is more likely to be on the dividing surface than a rejected shooting point</p></li>
+<li><p>If we take an accepted shooting point and perturb its configuration slightly, it’s likely to result in another accepted
+shooting point. I.e., it should remain close to the dividing surface because the perturbation was small.</p></li>
+</ol>
+<p>Using these principles, we generate more accepted shooting points by randomly perturbing an already accepted shooting point
+along it’s forward or reverse trajectory by <span class="math notranslate nohighlight">\(\Delta t\)</span>, where <span class="math notranslate nohighlight">\(\Delta t\)</span> is a time values that’s a small
+proportion of the overall reaction time. The specifics of this are defined in the above paper, but it essentially results
+in trying the new shooting point randomly from one of the configurations in <span class="math notranslate nohighlight">\(-2\Delta t \ -\Delta t, \ 0, \ +\Delta t, \ +2\Delta t\)</span>
+from the previous accepted shooting point’s forward and reverse trajectories. It’s therefore possible that the old shooting
+point could be chosen again as the new one.</p>
+<p>If a shooting point is not accepted, it’s not clear what step should be taken next. If a new shooting point is rejected,
+we try resampling the velocities up to <code class="docutils literal notranslate"><span class="pre">n_vel_tries</span></code>. If one of these is accepted, the shooting point is immediatley
+considered accepted. If all of these are rejected, the shooting point is entirely rejected. The results of each shooting
+are considered because they are still useful in the likelihood maximization. For example, a shooting point that is rejected
+3 times and accepted on the 4th time indicates that it is further from the dividing surface than one that immediately accepts.</p>
+<p>When a shooting point is entirely rejected, it is again unclear what to do. In our case, we keep a list of all shooting
+points that have ever been accepted and randomly select one of them to restart with after a complete rejection of a point.
+There’s then an additional parameter <code class="docutils literal notranslate"><span class="pre">n_state_tries</span></code> that controls how many total rejections can happen in a row before
+totally failing and exiting.</p>
+</section>
+<section id="initial-starting">
+<h2>Initial starting<a class="headerlink" href="#initial-starting" title="Permalink to this headline">¶</a></h2>
+<p>A directory of initial starting guesses (containing one or more <code class="docutils literal notranslate"><span class="pre">.xyz</span></code> files that store coordinates in Å) is used to
+‘seed’ the aimless shooting processes. These should be points you believe to be on the dividing surface. Each point will
+try to be accepted up to <code class="docutils literal notranslate"><span class="pre">n_vel_tries</span></code> by resampling velocities. If all of these attempts are rejected, the point
+will be considered rejected. At least one of your starting guesses needs to be accepted in order to proceed, otherwise the
+program will exit.</p>
+</section>
+<section id="parallel-shootings">
+<h2>Parallel shootings<a class="headerlink" href="#parallel-shootings" title="Permalink to this headline">¶</a></h2>
+<p>One instance of aimless shooting can only run two MD simulations at a time (forwards and reverse) because new shooting
+points are generated sequentially. If you have more computational resources, you can run <em>multiple</em> aimless shootings
+independently in parallel, and their configurations are recombined at the end. For example, you could run 4 parallel
+aimless shootings to have 8 MD simulations running simultaneously. All parallel shootings are started from the same
+initial configurations, but will diverge since velocities are randomly generated.</p>
+<p>Each parallel instance will generate its own pair of <a class="reference internal" href="#aimless-shooting-outputs">result files</a>, as well as one
+cumulative combined pair of result files.</p>
+</section>
+<section id="basins">
+<h2>Basins<a class="headerlink" href="#basins" title="Permalink to this headline">¶</a></h2>
+<p>One or more stable basins are defined using PLUMED’s
+<a class="reference external" href="https://www.plumed.org/doc-v2.7/user-doc/html/_c_o_m_m_i_t_t_o_r.html">COMMITTOR directive</a> in a <code class="docutils literal notranslate"><span class="pre">plumed.dat</span></code> file.
+This allows the flexibility to define any basin in terms of existing PLUMED CVs, while also ending a simulation upon
+reaching one of these basins.</p>
+</section>
+<section id="aimless-shooting-outputs">
+<h2>Aimless shooting outputs<a class="headerlink" href="#aimless-shooting-outputs" title="Permalink to this headline">¶</a></h2>
+<p>Our aimless shooting results in two files: a <code class="docutils literal notranslate"><span class="pre">.csv</span></code> and a <code class="docutils literal notranslate"><span class="pre">.xyz</span></code>.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">.xyz</span></code></dt><dd><p>stores coordinates of attempted shooting points in Å appended to one another. Each velocity resampling records to
+this file, so it’s not uncommon to see multiple of the same configuration in a row.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.csv</span></code></dt><dd><p>Each row corresponds to the configuration on the <code class="docutils literal notranslate"><span class="pre">.xyz</span></code> file and stores metadata about it. It stores if that
+configuration was considered to be accepted, the integer of the basin the forward trajectory committed to, the basin
+the reverse trajectory committed to, and the PBC box size (in Å) of the configuration. If a trajectory did not
+commit, <code class="docutils literal notranslate"><span class="pre">None</span></code> is stored.</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Isaiah Lemmon.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
