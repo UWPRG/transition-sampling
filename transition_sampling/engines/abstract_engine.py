@@ -359,13 +359,14 @@ class AbstractEngine(ABC):
     @abstractmethod
     def set_delta_t(self, value: float) -> None:
         """Set the time offset of this engine.
-        Set the value of the time offset of frame to save in seconds. If this
+        Set the value of the time offset of frame to save in femtoseconds. If this
         isn't a multiple of the engine's time step, the closest frame will be
         taken.
+
         Parameters
         ----------
         value:
-            Time offset in seconds
+            Time offset in femtoseconds
         """
         pass
 

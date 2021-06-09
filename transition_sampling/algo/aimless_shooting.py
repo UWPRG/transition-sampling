@@ -37,9 +37,9 @@ class AimlessShootingDriver:
         The temperature in Kelvin to generate initial velocities for
     log_name
         Base name for the log (csv and xyz) files. A call to run will generate
-        `log_name`.csv and `log_name`.xyz files that hold results from all
+        ``log_name``.csv and ``log_name``.xyz files that hold results from all
         shootings. For each parallel shooting, there will be an additional
-        `log_name`{i}.csv and `log_name`{i}.xyz files that track results from
+        ``log_name{i}``.csv and ``log_name{i}``.xyz files that track results from
         that specific shooting.
     acceptor
         An acceptor that implements an `is_accepted` method to determine if a
@@ -202,16 +202,21 @@ class AsyncAimlessShooting:
         over resampled velocities.
 
         This implementation works as described below:
-        1. Pick a starting state
-        2. For that starting state, try n_vel_tries number of times to get it
-            accepted by regenerating the velocities each time it is rejected.
-        3. Either:
+
+        #. Pick a starting state
+
+        #. For that starting state, try n_vel_tries number of times to get it
+           accepted by regenerating the velocities each time it is rejected.
+
+        #. Either:
+
             a. An accepted state was found. Pick the next starting point from
-                this accepted state and repeat from 1.
+               this accepted state and repeat from 1.
             b. An accepted state was not found. Randomly select a state we know
-                has worked before and repeat from 1.
-        4. If 3b occurs n_state_tries in a row without generating a new accepted
-            state, we've failed. Raise an exception.
+               has worked before and repeat from 1.
+
+        #. If 3b occurs n_state_tries in a row without generating a new accepted
+           state, we've failed. Raise an exception.
 
         Parameters
         ----------

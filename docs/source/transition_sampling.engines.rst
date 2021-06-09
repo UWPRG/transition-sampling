@@ -5,9 +5,10 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 4
 
    transition_sampling.engines.cp2k
+   transition_sampling.engines.gromacs
 
 Submodules
 ----------
