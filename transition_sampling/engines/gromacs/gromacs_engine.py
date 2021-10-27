@@ -9,6 +9,7 @@ import subprocess
 from typing import Sequence
 
 import numpy as np
+import parmed
 from parmed.gromacs import GromacsGroFile
 from mdtraj.formats import TRRTrajectoryFile
 
@@ -74,6 +75,14 @@ class GromacsEngine(AbstractEngine):
         self.mdp = MDPHandler(inputs["mdp_file"])
 
         self.gro_struct = GromacsGroFile.parse(inputs["gro_file"], skip_bonds=True)
+
+        # This is a hacky way of getting around parmed's Structure. Structure
+        # implements a correct deep copy in __copy__, but does not implement
+        # __deepcopy__, and the default behavior is incorrect. Since
+        # GromacsEngine gets deep copied, we need the correct version to be called.
+        # See https://github.com/ParmEd/ParmEd/issues/1205 for if this can be
+        # safely removed
+        self.gro_struct.__deepcopy__ = lambda memo_dict: self.gro_struct.__copy__()
 
         with open(inputs["top_file"], "r") as file:
             self.topology = file.read()

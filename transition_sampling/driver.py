@@ -4,7 +4,7 @@ import numbers
 import os
 
 from .colvar import PlumedDriver
-from .engines import CP2KEngine, AbstractEngine
+from .engines import AbstractEngine, CP2KEngine, GromacsEngine
 from .algo import AimlessShootingDriver, MultiBasinAcceptor
 from .likelihood import Maximizer
 
@@ -59,6 +59,8 @@ def parse_engine(engine_inputs: dict) -> AbstractEngine:
     # other engine parsing should be handled by the engine
     if engine_inputs["engine"] == "cp2k":
         engine = CP2KEngine(engine_inputs, engine_inputs["engine_dir"])
+    elif engine_inputs["engine"] == "gromacs":
+        engine = GromacsEngine(engine_inputs, engine_inputs["engine_dir"])
     else:
         sys.exit(f"Unsupported engine type: {engine_inputs['engine']}")
 

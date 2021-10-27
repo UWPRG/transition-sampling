@@ -50,7 +50,6 @@ class EngineIntegrationBase(TestCase):
                 engine.set_positions(starting_pos[:, :, i])
                 engine.set_velocities(starting_vels[:, :, i])
 
-                # Run with CP2K
                 result = asyncio.run(engine.run_shooting_point())
 
                 # Compare the expected ShootingResult to the returned one.
@@ -95,7 +94,7 @@ class TestGromacsIntegration(EngineIntegrationBase):
                        "gro_file": os.path.join(CUR_DIR, "../shared_test_data/gromacs.gro"),
                        "top_file": os.path.join(CUR_DIR, "../shared_test_data/gromacs.top"),
                        "mdp_file": os.path.join(CUR_DIR, "../shared_test_data/gromacs.mdp"),
-                       # Location of the cp2k executable in docker image lemmoi:transition_sampling
+                       # Location of the gromacs executables in docker image lemmoi:transition_sampling
                        "md_cmd": "gmx mdrun",
                        "grompp_cmd": "gmx grompp",
                        "plumed_file": TEST_PLUMED,
