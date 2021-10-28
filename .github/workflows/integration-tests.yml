@@ -8,7 +8,7 @@ on:
 jobs:
   cp2k:
     runs-on: ubuntu-latest
-    container: lemmoi/transition_sampling:cp2k_plumed
+    container: lemmoi/transition_sampling:cp2k_gro_plumed
 
     steps:
     - uses: actions/checkout@v2

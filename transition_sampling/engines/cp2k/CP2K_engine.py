@@ -67,6 +67,11 @@ class CP2KEngine(AbstractEngine):
         # Check velocities are valid by passing to base class
         super().set_velocities(velocities)
 
+        # Convert from m/s to CP2K a.u.
+        au_time_factor = 0.0242e-15  # s / au_time
+        bohr_factor = 5.29e-11  # m / bohr
+        velocities *= (au_time_factor / bohr_factor)
+
         self.cp2k_inputs.set_velocities(velocities)
 
     def flip_velocity(self) -> None:

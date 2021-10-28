@@ -603,7 +603,7 @@ class ResultsLogger:
 
 
 def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
-    """Generates velocities for atoms at a temperature from MB distribution.
+    """Generates velocities for atoms in m/s at a temp. from MB distribution
 
     Parameters
     ----------
@@ -615,13 +615,10 @@ def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
 
     Returns
     -------
-    An array of velocities generated randomly from the Maxwell-Boltzmann
+    An array of velocities in m/s generated randomly from the Maxwell-Boltzmann
     distribution. Has the shape (n_atoms, 3), where 3 is the x,y,z directions.
     """
-
     kB = 1.380649e-23  # J / K
-    au_time_factor = 0.0242e-15  # s / au_time
-    bohr_factor = 5.29e-11  # m / bohr
 
     mass = atomic_symbols_to_mass(atoms)
     n_atoms = len(mass)
@@ -649,7 +646,4 @@ def generate_velocities(atoms: Sequence[str], temp: float) -> np.array:
     scale = np.sqrt(temp / temp_shifted)
     v_scaled = v_shifted * scale
 
-    # Convert from m/s to a.u.
-    v_final = v_scaled * au_time_factor / bohr_factor
-
-    return v_final
+    return v_scaled  # m/s

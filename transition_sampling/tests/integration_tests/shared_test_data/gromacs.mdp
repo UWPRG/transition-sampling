@@ -1,0 +1,59 @@
+; RUN CONTROL PARAMETERS
+integrator               = md
+; Start time and timestep in ps
+tinit                    = 0
+dt                       = 0.010
+nsteps                   = 10000
+; For exact run continuation or redoing part of a run
+init_step                = 0
+
+
+; long-range cut-off for switched potentials
+rlistlong                = -1
+cutoff-scheme            = Verlet
+
+; NEIGHBORSEARCHING PARAMETERS
+; nblist update frequency
+nstlist                  = 10
+; ns algorithm (simple or grid)
+ns_type                  = grid
+; Periodic boundary conditions: xyz (default), no (vacuum)
+; or full (infinite systems only)
+pbc                      = xyz
+; nblist cut-off
+verlet-buffer-tolerance = -1
+rlist                    = 0.995
+
+; freeze the edge chloride ions
+freezegrps = CL
+freezedim = Y Y Y
+
+
+; OPTIONS FOR ELECTROSTATICS AND VDW
+; Method for doing electrostatics
+coulombtype              = Cut-off
+rcoulomb-switch          = 0
+rcoulomb                 = 0.85
+; Dielectric constant (DC) for cut-off or DC of reaction field
+epsilon-r                = 1
+; Method for doing Van der Waals
+vdw-type                 = Cut-off
+; cut-off lengths       
+rvdw-switch              = 0
+rvdw                     = 0.85
+; Apply long range dispersion corrections for Energy and Pressure
+DispCorr                 = Enerpres
+; Extension of the potential lookup tables beyond the cut-off
+table-extension          = 1
+; Spacing for the PME/PPPM FFT grid
+fourierspacing           = 0.12
+; FFT grid size, when a value is 0 fourierspacing will be used
+fourier_nx               = 0
+fourier_ny               = 0
+fourier_nz               = 0
+; EWALD/PME/PPPM parameters
+pme_order                = 4
+ewald_rtol               = 1e-05
+ewald_geometry           = 3d
+epsilon_surface          = 0
+optimize_fft             = no

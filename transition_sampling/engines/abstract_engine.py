@@ -36,7 +36,7 @@ class ShootingResult:
         frames : np.ndarray
             An array of the +delta_t and +2*delta_t frames. Has the shape
             (2, n, 3) corresponding to (frames, # of atoms, xyz dimensions).
-            The first frame is the closest to t=0, so +delta_t
+            The first frame is the closest to t=0, so +delta_t. Units of A.
     rev : dict
         Reverse trajectory. Two fields are defined, "commit" and "frames".
 
@@ -201,15 +201,16 @@ class AbstractEngine(ABC):
 
     @abstractmethod
     def set_velocities(self, velocities: np.ndarray) -> None:
-        """Set the velocities of atoms in the engine.
+        """Set the velocities of atoms in the engine in m/s.
 
         Velocities are ordered for n atoms, in shape (n, 3). Rows represent
-        atoms and columns represent (x, y, z) dimensions.
+        atoms and columns represent (x, y, z) dimensions. The engine is
+        responsible for interpreting these into MD internal units correctly.
 
         Parameters
         ----------
         velocities : np.ndarray with shape (n, 3)
-            The velocities for atoms to be set to.
+            The velocities for atoms to be set to in m/s.
 
         Raises
         -------
