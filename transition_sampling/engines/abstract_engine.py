@@ -95,6 +95,18 @@ class AbstractEngine(ABC):
     plumed_handler : PlumedInputHandler
         Handler for the passed input file. The engine can set the FILE arg of
         the COMMITTOR section with this and write the full input to a location
+    total_instances: int
+        How many parallel aimless shootings are occurring at once. This should
+        be set before launching a trajectory. The primary purpose so this engine
+        can be aware of other instances running and not interfere with them
+        (e.g., via pinning threads in gromacs)
+    instance : int
+        The unique number identifying this engine out of all running in parallel.
+        This should be set before launching a trajectory.The ordering is arbitrary,
+        so long as each engine is assigned a unique number starting from 0
+        (inclusive) to set_total_instances (exclusive). The primary purpose so
+        this engine can be aware of other instances running and not interfere
+         with them (e.g., via pinning threads in gromacs)
 
     Raises
     ------
@@ -148,6 +160,10 @@ class AbstractEngine(ABC):
             self.working_dir = "."
         else:
             self.working_dir = working_dir
+
+        # Default values
+        self.instance = None
+        self.total_instances = None
 
     @property
     @abstractmethod
@@ -225,6 +241,40 @@ class AbstractEngine(ABC):
 
         pass
 
+    def set_instance(self, instance_num: int, total_instances: int) -> None:
+        """
+        Set this engine's instance and total number of parallel instances.
+
+        The engine's instance is a unique number identifying this engine
+        out of all running in parallel. The ordering is arbitrary, so long as
+        each engine is assigned a unique number starting from 0 (inclusive) to
+        total_instances (exclusive).
+
+        Parameters
+        ----------
+        instance_num
+            The instance number
+        total_instances
+            The total number of aimless shooting instances that are occurring at
+            once
+
+        Raises
+        ------
+        ValueError
+            if 1. instance_number is < 0; 2. total_instances is < 1; or 3.
+            instance_number is not between 0 (inclusive) and total_instances
+            (exclusive)
+        """
+        if instance_num < 0:
+            raise ValueError(f"Instance number ({instance_num}) must be non-negative")
+        if total_instances < 1:
+            raise ValueError(f"Total instances ({total_instances}) is not greater than 0")
+        if instance_num >= total_instances:
+            raise ValueError("Instance number must be [0, total instances), but was given"
+                             f"instance number: {instance_num} and total instances: {total_instances}")
+        self.total_instances = total_instances
+        self.instance = instance_num
+
     @abstractmethod
     def flip_velocity(self) -> None:
         """Flip the velocities currently held by multiplying by -1"""
@@ -285,7 +335,16 @@ class AbstractEngine(ABC):
         -------
         The positions of the +/- dt frames, as well as the committing
         results of both simulations.
+
+        Raises
+        ------
+        AttributeError
+            if self.instance or self.total_instances has not been set with their
+            respective methods before calling this method
         """
+        if self.instance is None or self.total_instances is None:
+            raise AttributeError("instance and total_instances must be assigned "
+                                 "before running a trajectory")
 
         # Plumed cannot support more than 100 backups. Remove them if they are
         # present in the working directory

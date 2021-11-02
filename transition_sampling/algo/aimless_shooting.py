@@ -104,6 +104,9 @@ class AimlessShootingDriver:
             logger = logging.getLogger(f"{__name__}.{i}")
             logger.setLevel(module_logger.level)
             engine = copy.deepcopy(self.base_engine)
+            # Tell the engine how many parallel aimless shootings we're doing
+            # and what number it is. This may or may not be needed by the engine
+            engine.set_instance(i, n_parallel)
             engine.logger = logger
 
             # I don't think its necessary to copy acceptors with the ones we
