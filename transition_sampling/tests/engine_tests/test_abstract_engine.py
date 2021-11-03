@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import copy
 import os
 from typing import Tuple, Sequence
 from unittest import TestCase
+from unittest.mock import patch, MagicMock, call
 
 import numpy as np
 
@@ -63,9 +65,6 @@ class AbstractEngineMock(AbstractEngine):
     def validate_inputs(self, inputs: dict) -> Tuple[bool, str]:
         return super().validate_inputs(inputs)
 
-    async def run_shooting_point(self) -> ShootingResult:
-        pass
-
     def set_delta_t(self, value: float) -> None:
         pass
 
@@ -124,7 +123,7 @@ class TestAbstractEngineValidation(AbstractEngineTestCase):
         self.assertIsNotNone(AbstractEngineMock(self.correct_inputs))
 
 
-class TestCP2KEngineWorkingDirectory(AbstractEngineTestCase):
+class TestAbstractEngineWorkingDirectory(AbstractEngineTestCase):
     def test_non_existing_dir_throws(self):
         with self.assertRaises(ValueError,
                                msg="Non-existent directory should fail"):
@@ -137,3 +136,57 @@ class TestCP2KEngineWorkingDirectory(AbstractEngineTestCase):
     def test_working_dir_is_set(self):
         e = AbstractEngineMock(self.correct_inputs, CUR_DIR)
         self.assertEqual(e.working_dir, CUR_DIR)
+
+
+class TestAbstractEngineSetInstance(AbstractEngineTestCase):
+    def test_negative_instance_throws(self):
+        with self.assertRaises(ValueError,
+                               msg="Negative instance should fail"):
+            e = AbstractEngineMock(self.correct_inputs)
+            e.set_instance(-1, 1)
+
+    def test_negative_total_instance_throws(self):
+        with self.assertRaises(ValueError,
+                               msg="Total instances should be greater than 0"):
+            e = AbstractEngineMock(self.correct_inputs)
+            e.set_instance(0, 0)
+
+    def test_instance_greater_than_total_instance_throws(self):
+        with self.assertRaises(ValueError,
+                               msg="Instance greater than total instances should fail"):
+            e = AbstractEngineMock(self.correct_inputs)
+            e.set_instance(2, 1)
+
+    def test_instance_correct(self):
+        e = AbstractEngineMock(self.correct_inputs)
+        e.set_instance(0, 1)
+        e.set_instance(1, 2)
+
+
+class TestAbstractEngineLaunchTrajectory(AbstractEngineTestCase):
+    def test_running_without_instance_set_throws(self):
+        with self.assertRaises(AttributeError,
+                               msg="instance must be set before running"):
+            e = AbstractEngineMock(self.correct_inputs)
+            asyncio.run(e.run_shooting_point())
+
+    @patch("glob.glob")
+    def test_running_with_instance_set_succeeds(self, glob_mock: MagicMock):
+        glob_mock.return_value = []  # return empty list so no files are removed
+        e = AbstractEngineMock(self.correct_inputs)
+        e.set_instance(0, 1)
+        asyncio.run(e.run_shooting_point())
+
+    @patch("glob.glob")
+    @patch("os.remove")
+    def test_running_correct_plumed_files_removed(self, remove_mock: MagicMock,
+                                                  glob_mock: MagicMock):
+        e = AbstractEngineMock(self.correct_inputs)
+        e.set_instance(0, 1)
+        glob_mock.return_value = ['test_plumed_backup1', 'test_plumed_backup2']
+        asyncio.run(e.run_shooting_point())
+        glob_mock.assert_called_with(f"./bck.*.PLUMED.OUT")
+
+        remove_mock.assert_has_calls([call(val) for val in glob_mock.return_value])
+
+

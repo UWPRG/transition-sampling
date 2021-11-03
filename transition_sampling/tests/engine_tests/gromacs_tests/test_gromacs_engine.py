@@ -82,6 +82,13 @@ class TestGromacsEngineValidation(TestCase):
                                msg="Missing grompp_cmd field should fail"):
             e = GromacsEngine(self.editable_inputs)
 
+    def test_missing_pin(self):
+        """Check that not having a should_pin flag fails"""
+        self.editable_inputs.pop("should_pin")
+        with self.assertRaises(ValueError,
+                               msg="Missing should_pin field should fail"):
+            e = GromacsEngine(self.editable_inputs)
+
     def test_valid_input_file(self):
         """
         Provided inputs should be valid
