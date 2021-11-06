@@ -90,10 +90,13 @@ class AbstractEngine(ABC):
 
     Attributes
     ----------
-    md_cmd : list[str]
-        A list of tokens that when joined by spaces, represent the command to
-        invoke the actual engine. Additional leading arguments such as mpirun
-        can be included.
+    md_cmd : list[str] | str
+        If the argument substitution string is present in the given command,
+        is simply the given command. Otherwise, it is a list of tokens that when
+        joined by spaces, represent the command to invoke the actual engine.
+        When the argument substitution string is present, this command is run
+        in shell mode (e.g., piping, chaining commands, are all valid). Without
+        it, is run as a single command.
     plumed_handler : PlumedInputHandler
         Handler for the passed input file. The engine can set the FILE arg of
         the COMMITTOR section with this and write the full input to a location
@@ -105,7 +108,7 @@ class AbstractEngine(ABC):
         working directory is not a real directory.
     """
 
-    CMD_SUB = r"%CMD%"
+    ARG_SUB = r"%CMD_ARGS%"
 
     @abstractmethod
     def __init__(self, inputs: dict, working_dir: str = None,
@@ -140,8 +143,8 @@ class AbstractEngine(ABC):
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
 
         # Split command into a list of args
-        self.md_cmd: str = inputs["md_cmd"]
-        if self.md_cmd.find(self.CMD_SUB) == -1:
+        self.md_cmd = inputs["md_cmd"]
+        if self.md_cmd.find(self.ARG_SUB) == -1:
             self.md_cmd = self.md_cmd.split()
 
         # Create the plumed handler for the give plumed file
@@ -338,13 +341,37 @@ class AbstractEngine(ABC):
         self.flip_velocity()
         return await self._launch_traj(projname + "_rev")
 
-    async def _open_process_and_wait(self, command_list: list,
-                                     projname: str) -> subprocess.Popen:
+    async def _open_md_and_wait(self, argument_list: list,
+                                projname: str) -> subprocess.Popen:
+        """
+        Add the passed arguments to the md_cmd, open in a new process, and wait
+
+        If `self.md_cmd` contains the `ARG_SUB` string, the `argument_list` will
+        be directly substituted in its place and the command launched in shell
+        mode. This is useful if desired command needs to be wrapped in quotes,
+        e.g. `sbatch ... --wrap "mpirun cp2k.psmp <ARGS_HERE>"`
+
+        Otherwise, the arguments will be appended directly to the end of the
+        command and launched without shell mode. This is generally safer, and
+        recommended if possible.
+        Parameters
+        ----------
+        argument_list
+            Arguments to substitute `ARG_SUB` with, or append to the end of the
+            md command
+        projname
+            Used for logging purposes to indicate what instance was launched
+
+        Returns
+        -------
+        The resulting subprocess.Popen after it has been completed. If this
+        function is awaited, it will block until the opened process finishes.
+        """
         if isinstance(self.md_cmd, str):
-            command = re.sub(self.CMD_SUB, ' '.join(command_list), self.md_cmd)
+            command = re.sub(self.ARG_SUB, ' '.join(argument_list), self.md_cmd)
             as_shell = True
         else:
-            command = self.md_cmd + command_list
+            command = self.md_cmd + argument_list
             as_shell = False
 
         self.logger.debug("Launching trajectory %s %sin shell mode with command %s",

@@ -215,7 +215,7 @@ class GromacsEngine(AbstractEngine):
         self.plumed_handler.write_plumed(plumed_in_path, plumed_out_name)
 
         # run
-        proc = await self._open_process_and_wait(
+        proc = await self._open_md_and_wait(
             ["-s", tpr_path, "-plumed", plumed_in_path, "-deffnm", projname],
             projname)
 

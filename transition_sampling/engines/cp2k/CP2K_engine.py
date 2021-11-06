@@ -156,7 +156,7 @@ class CP2KEngine(AbstractEngine):
         self.cp2k_inputs.write_cp2k_inputs(input_path)
 
         # run
-        proc = await self._open_process_and_wait(
+        proc = await self._open_md_and_wait(
             ["-i", input_path, "-o", f"{projname}.out"], projname)
 
         # Create an output handler for errors and warnings
