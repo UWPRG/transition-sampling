@@ -9,6 +9,8 @@ import glob
 import logging
 import numbers
 import os
+import re
+import subprocess
 import uuid
 from abc import ABC, abstractmethod
 from typing import Sequence, Tuple
@@ -103,6 +105,8 @@ class AbstractEngine(ABC):
         working directory is not a real directory.
     """
 
+    CMD_SUB = r"%CMD%"
+
     @abstractmethod
     def __init__(self, inputs: dict, working_dir: str = None,
                  logger: logging.Logger = None):
@@ -136,7 +140,9 @@ class AbstractEngine(ABC):
             raise ValueError(f"Invalid inputs: {validation_res[1]}")
 
         # Split command into a list of args
-        self.md_cmd = inputs["md_cmd"].split()
+        self.md_cmd: str = inputs["md_cmd"]
+        if self.md_cmd.find(self.CMD_SUB) == -1:
+            self.md_cmd = self.md_cmd.split()
 
         # Create the plumed handler for the give plumed file
         self.plumed_handler = PlumedInputHandler(inputs["plumed_file"])
@@ -331,6 +337,29 @@ class AbstractEngine(ABC):
         # completely new proc or asyncio (current implementation)
         self.flip_velocity()
         return await self._launch_traj(projname + "_rev")
+
+    async def _open_process_and_wait(self, command_list: list,
+                                     projname: str) -> subprocess.Popen:
+        if isinstance(self.md_cmd, str):
+            command = re.sub(self.CMD_SUB, ' '.join(command_list), self.md_cmd)
+            as_shell = True
+        else:
+            command = self.md_cmd + command_list
+            as_shell = False
+
+        self.logger.debug("Launching trajectory %s %sin shell mode with command %s",
+                          projname, "" if as_shell else "not ", command)
+        proc = subprocess.Popen(command, cwd=self.working_dir, shell=as_shell,
+                                stderr=subprocess.PIPE,
+                                stdout=subprocess.PIPE)
+
+        # Wait for it to finish
+        while proc.poll() is None:
+            # Non-blocking sleep
+            await asyncio.sleep(1)
+
+        # now complete
+        return proc
 
     @abstractmethod
     async def _launch_traj(self, projname: str) -> dict:
