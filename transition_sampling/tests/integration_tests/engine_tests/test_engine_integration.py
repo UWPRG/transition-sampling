@@ -98,7 +98,7 @@ class TestGromacsIntegration(EngineIntegrationBase):
                        "md_cmd": "gmx mdrun",
                        "grompp_cmd": "gmx grompp",
                        "plumed_file": TEST_PLUMED,
-                       "delta_t": 10}
+                       "delta_t": 100}
 
 
 def _generate_fixed_starts(n_tests: int, engine: AbstractEngine) -> None:
