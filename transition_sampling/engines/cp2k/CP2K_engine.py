@@ -5,10 +5,8 @@ from __future__ import annotations
 
 import asyncio
 import glob
-import logging
 import os
 import subprocess
-import uuid
 from typing import Sequence
 
 import numpy as np
@@ -70,7 +68,9 @@ class CP2KEngine(AbstractEngine):
         # Convert from m/s to CP2K a.u.
         au_time_factor = 0.0242e-15  # s / au_time
         bohr_factor = 5.29e-11  # m / bohr
-        velocities *= (au_time_factor / bohr_factor)
+
+        # *= produces different behavior with numpy arrays
+        velocities = velocities * au_time_factor / bohr_factor
 
         self.cp2k_inputs.set_velocities(velocities)
 

@@ -13,6 +13,7 @@ nsteps                   = 1000
 ; Periodic boundary conditions: xyz (default), no (vacuum)
 ; or full (infinite systems only)
 pbc                      = xyz
+comm-mode = None
 
 
 ; freeze the edge chloride ions
