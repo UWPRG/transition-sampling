@@ -95,10 +95,11 @@ class TestGromacsIntegration(EngineIntegrationBase):
                        "top_file": os.path.join(CUR_DIR, "../shared_test_data/gromacs.top"),
                        "mdp_file": os.path.join(CUR_DIR, "../shared_test_data/gromacs.mdp"),
                        # Location of the gromacs executables in docker image lemmoi:transition_sampling
-                       "md_cmd": "gmx mdrun",
+                       "md_cmd": "gmx mdrun -nt 2",
                        "grompp_cmd": "gmx grompp",
                        "plumed_file": TEST_PLUMED,
-                       "delta_t": 10}
+                       "delta_t": 100,
+                       "should_pin": False}
 
 
 def _generate_fixed_starts(n_tests: int, engine: AbstractEngine) -> None:
