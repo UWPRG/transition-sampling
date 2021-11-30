@@ -56,10 +56,10 @@ class EngineIntegrationBase(TestCase):
                 self.assertEqual(sr.fwd["commit"], result.fwd["commit"])
                 self.assertEqual(sr.rev["commit"], result.rev["commit"])
                 np.testing.assert_allclose(sr.fwd["frames"],
-                                           result.fwd["frames"],
+                                           result.fwd["frames"], rtol=1e-5, atol=1e-5,
                                            err_msg=f"Run {i} fwd did not match")
                 np.testing.assert_allclose(sr.rev["frames"],
-                                           result.rev["frames"],
+                                           result.rev["frames"], rtol=1e-5, atol=1e-5,
                                            err_msg=f"Run {i} rev did not match")
 
         # This can be used to generate expected results for new tests if needed
