@@ -51,6 +51,22 @@ class GromacsEngine(AbstractEngine):
             arguments following grompp should be excluded.
             Example: "gmx grompp"
 
+        - should_pin : bool
+            If true, each instance of an mdrun have its threads pinned to an
+            set of cores, minimizing overlap with threads from other instances.
+            This includes within this engine (forwards and reverse) and between
+            other engines that may be running. If this option is used, the
+            number of threads for each mdrun should still be set manually in
+            `md_cmd` with `-nt <# threads>`. If false, no pinning will be done,
+            and resource isolation is the responsibility of `md_cmd.`
+
+            Example: If two Gromacs Engines are run in parallel, there are 4
+            parallel mdruns occurring at once. Setting should_pin=True would assign
+            the threads of <engine_0_fwd> cores (0, 4, 8..),
+            <engine_0_rev> cores (1, 5, 9..), <engine_1_fwd> (2, 6, 10) and
+            <engine_1_rev> cores (3, 7, 11..)
+
+
     Attributes
     ----------
     grompp_cmd : list[str]
@@ -88,6 +104,7 @@ class GromacsEngine(AbstractEngine):
             self.topology = file.read()
 
         self.set_delta_t(inputs["delta_t"])
+        self.should_pin = inputs["should_pin"]
 
     @property
     def atoms(self) -> Sequence[str]:
@@ -124,6 +141,9 @@ class GromacsEngine(AbstractEngine):
         if "grompp_cmd" not in inputs:
             return False, "grompp_cmd required for gromacs"
 
+        if "should_pin" not in inputs:
+            return False, "should_pin required for gromacs"
+
         # Otherwise let the base class validate
         return super().validate_inputs(inputs)
 
@@ -142,6 +162,16 @@ class GromacsEngine(AbstractEngine):
 
     def flip_velocity(self) -> None:
         self.gro_struct.velocities *= -1
+
+    async def _launch_traj_fwd(self, projname: str):
+        # forward gets assigned an offset of instance * 2
+        self.pin_offset = self.instance * 2
+        await super()._launch_traj_fwd(projname)
+
+    async def _launch_traj_rev(self, projname: str):
+        # reverse gets assigned an offset of (instance * 2) + 1
+        self.pin_offset = self.instance * 2 + 1
+        await super()._launch_traj_rev(projname)
 
     async def _run_grompp(self, projname: str) -> str:
         # Writing files for grompp
@@ -206,6 +236,12 @@ class GromacsEngine(AbstractEngine):
             If CP2K fails to run.
         """
 
+        # We are saving the state of the class before calling a method with
+        # async.sleep in a local variable so it is not changed out from underneath
+        # us. Any call to async.sleep gives an opportunity for another async method
+        # to modify this class. All other variables are safe, but the pin_offset
+        # is in contention between the forwards and reverse, so we save it here.
+        pin_offset = str(self.pin_offset)
         tpr_path = await self._run_grompp(projname)
 
         # Set the name for the committor output and write the unique plumed file

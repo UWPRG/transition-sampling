@@ -15,6 +15,7 @@ TEST_PLUMED_FILE = os.path.join(CUR_DIR, "test_data/test_plumed.dat")
 TEST_CMD = "test md_cmd"
 TEST_GROMPP = "test grompp"
 TEST_DELTA_T = 20
+SHOULD_PIN = True
 
 CORRECT_INPUTS = {"engine": ENG_STR,
                   "gro_file": TEST_GRO,
@@ -22,6 +23,7 @@ CORRECT_INPUTS = {"engine": ENG_STR,
                   "mdp_file": TEST_MDP,
                   "md_cmd": TEST_CMD,
                   "grompp_cmd": TEST_GROMPP,
+                  "should_pin": SHOULD_PIN,
                   "plumed_file": TEST_PLUMED_FILE,
                   "delta_t": 20}
 
@@ -78,6 +80,13 @@ class TestGromacsEngineValidation(TestCase):
         self.editable_inputs.pop("grompp_cmd")
         with self.assertRaises(ValueError,
                                msg="Missing grompp_cmd field should fail"):
+            e = GromacsEngine(self.editable_inputs)
+
+    def test_missing_pin(self):
+        """Check that not having a should_pin flag fails"""
+        self.editable_inputs.pop("should_pin")
+        with self.assertRaises(ValueError,
+                               msg="Missing should_pin field should fail"):
             e = GromacsEngine(self.editable_inputs)
 
     def test_valid_input_file(self):
