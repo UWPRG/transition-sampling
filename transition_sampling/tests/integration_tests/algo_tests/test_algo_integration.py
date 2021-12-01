@@ -60,6 +60,8 @@ class TestAimlessShootingIntegration(TestCase):
 
             with tempfile.TemporaryDirectory() as engine_dir:
                 engine = CP2KEngine(INPUTS, engine_dir)
+                # set instance manually since we aren't using the driver
+                engine.set_instance(0, 1)
 
                 algo = AsyncAimlessShooting(engine, STARTS_DIR, TEMP, logger)
 

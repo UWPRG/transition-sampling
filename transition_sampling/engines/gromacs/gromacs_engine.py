@@ -166,12 +166,12 @@ class GromacsEngine(AbstractEngine):
     async def _launch_traj_fwd(self, projname: str):
         # forward gets assigned an offset of instance * 2
         self.pin_offset = self.instance * 2
-        await super()._launch_traj_fwd(projname)
+        return await super()._launch_traj_fwd(projname)
 
     async def _launch_traj_rev(self, projname: str):
         # reverse gets assigned an offset of (instance * 2) + 1
         self.pin_offset = self.instance * 2 + 1
-        await super()._launch_traj_rev(projname)
+        return await super()._launch_traj_rev(projname)
 
     async def _run_grompp(self, projname: str) -> str:
         # Writing files for grompp
@@ -250,10 +250,15 @@ class GromacsEngine(AbstractEngine):
                                       f"{projname}_plumed.dat")
         self.plumed_handler.write_plumed(plumed_in_path, plumed_out_name)
 
+        command_list = ["-s", tpr_path, "-plumed", plumed_in_path, "-deffnm", projname]
+
+        if self.should_pin:
+            # total_instances * 2 because each has a forward and reverse mdrun
+            command_list.extend(["-pinoffset", pin_offset, "-pinstride",
+                                 str(self.total_instances * 2), "-pin", "on"])
+
         # run
-        proc = await self._open_md_and_wait(
-            ["-s", tpr_path, "-plumed", plumed_in_path, "-deffnm", projname],
-            projname)
+        proc = await self._open_md_and_wait(command_list, projname)
 
         plumed_out_path = os.path.join(self.working_dir, plumed_out_name)
         # Check if there was a fatal error that wasn't caused by a committing

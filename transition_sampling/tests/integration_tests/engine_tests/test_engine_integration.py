@@ -45,6 +45,7 @@ class EngineIntegrationBase(TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             engine = self.engine_class(self.inputs, directory)
+            engine.set_instance(0, 1)
             for i, sr in enumerate(expected):
                 # Set this test's starting config
                 engine.set_positions(starting_pos[:, :, i])
