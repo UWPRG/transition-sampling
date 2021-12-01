@@ -1,6 +1,6 @@
 [ defaults ]
 ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ
-  1             1               no              1.0     1.0
+  1             2               no              1.0     1.0
 [ atomtypes ]
 ; opls_412   Ca2+ 20  40.08000     2.000       A    2.41203e-01  1.88136e+00
 ; 1       opls_412    1       CA          CA       1      2        40.08000

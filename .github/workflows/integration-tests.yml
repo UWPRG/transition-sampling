@@ -16,7 +16,7 @@ jobs:
       shell: bash
       run: |
         pip3 install pytest
-        pip3 install -r requirements.txt
+        pip3 install -r transition_sampling/tests/integration_tests/integration_requirements.txt
         pip3 install .
 
     - name: Integration Tests

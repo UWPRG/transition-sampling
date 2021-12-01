@@ -3,8 +3,9 @@ from __future__ import annotations
 import asyncio
 import copy
 import os
+import subprocess
 from typing import Tuple, Sequence
-from unittest import TestCase
+from unittest import TestCase, mock
 from unittest.mock import patch, MagicMock, call
 
 import numpy as np
@@ -136,6 +137,61 @@ class TestAbstractEngineWorkingDirectory(AbstractEngineTestCase):
     def test_working_dir_is_set(self):
         e = AbstractEngineMock(self.correct_inputs, CUR_DIR)
         self.assertEqual(e.working_dir, CUR_DIR)
+
+    @patch("subprocess.Popen")
+    def test_launched_in_working_dir(self, popen_mock):
+        e = AbstractEngineMock(self.correct_inputs, CUR_DIR)
+        asyncio.run(e._open_md_and_wait([], ""))
+        popen_mock.assert_called_with(mock.ANY,
+                                      cwd=CUR_DIR, shell=mock.ANY,
+                                      stderr=subprocess.PIPE,
+                                      stdout=subprocess.PIPE)
+
+
+class TestAbstractEngineOpenMDAndWait(AbstractEngineTestCase):
+    @patch("subprocess.Popen")
+    def test_correct_cmd_no_sub(self, popen_mock: MagicMock):
+        e = AbstractEngineMock(self.correct_inputs)
+        cmd_args = ["-i", "test_arg"]
+        asyncio.run(e._open_md_and_wait(cmd_args, ""))
+        popen_mock.assert_called_with(TEST_CMD.split() + cmd_args,
+                                      cwd=".", shell=False,
+                                      stderr=subprocess.PIPE,
+                                      stdout=subprocess.PIPE)
+
+    @patch("subprocess.Popen")
+    def test_correct_cmd_sub_without_quotes(self, popen_mock: MagicMock):
+        self.editable_inputs["md_cmd"] = "command %CMD_ARGS%"
+        e = AbstractEngineMock(self.editable_inputs)
+        cmd_args = ["-i", "test_arg"]
+        asyncio.run(e._open_md_and_wait(cmd_args, ""))
+        popen_mock.assert_called_with("command -i test_arg",
+                                      cwd=".", shell=True,
+                                      stderr=subprocess.PIPE,
+                                      stdout=subprocess.PIPE)
+
+    @patch("subprocess.Popen")
+    def test_correct_cmd_sub_with_quotes(self, popen_mock: MagicMock):
+        self.editable_inputs["md_cmd"] = 'command "put args here %CMD_ARGS%"'
+        e = AbstractEngineMock(self.editable_inputs)
+        cmd_args = ["-i", "test_arg"]
+        asyncio.run(e._open_md_and_wait(cmd_args, ""))
+        popen_mock.assert_called_with('command "put args here -i test_arg"',
+                                      cwd=".", shell=True,
+                                      stderr=subprocess.PIPE,
+                                      stdout=subprocess.PIPE)
+
+    @patch("subprocess.Popen")
+    def test_returns_process_after_waiting(self, popen_mock: MagicMock):
+        e = AbstractEngineMock(self.correct_inputs)
+        process_mock = mock.Mock()
+        # first poll, not finished. At second poll, it is finished and will
+        # return
+        process_mock.poll.side_effect = [None, True]
+        popen_mock.return_value = process_mock
+        result = asyncio.run(e._open_md_and_wait([], ""))
+        # make sure we get back what we gave it
+        self.assertEqual(result, process_mock)
 
 
 class TestAbstractEngineSetInstance(AbstractEngineTestCase):

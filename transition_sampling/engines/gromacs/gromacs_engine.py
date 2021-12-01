@@ -250,23 +250,10 @@ class GromacsEngine(AbstractEngine):
                                       f"{projname}_plumed.dat")
         self.plumed_handler.write_plumed(plumed_in_path, plumed_out_name)
 
-        command_list = [*self.md_cmd, "-s", tpr_path, "-plumed", plumed_in_path,
-                        "-deffnm", projname]
-
-        if self.should_pin:
-            # total_instances * 2 because each has a forward and reverse mdrun
-            command_list.extend(["-pinoffset", pin_offset, "-pinstride",
-                                 str(self.total_instances * 2), "-pin", "on"])
-
-        self.logger.debug("Launching trajectory %s with command %s", projname, command_list)
-        proc = subprocess.Popen(command_list, cwd=self.working_dir,
-                                stderr=subprocess.PIPE,
-                                stdout=subprocess.PIPE)
-
-        # Wait for it to finish
-        while proc.poll() is None:
-            # Non-blocking sleep
-            await asyncio.sleep(1)
+        # run
+        proc = await self._open_md_and_wait(
+            ["-s", tpr_path, "-plumed", plumed_in_path, "-deffnm", projname],
+            projname)
 
         plumed_out_path = os.path.join(self.working_dir, plumed_out_name)
         # Check if there was a fatal error that wasn't caused by a committing

@@ -5,10 +5,8 @@ from __future__ import annotations
 
 import asyncio
 import glob
-import logging
 import os
 import subprocess
-import uuid
 from typing import Sequence
 
 import numpy as np
@@ -70,7 +68,9 @@ class CP2KEngine(AbstractEngine):
         # Convert from m/s to CP2K a.u.
         au_time_factor = 0.0242e-15  # s / au_time
         bohr_factor = 5.29e-11  # m / bohr
-        velocities *= (au_time_factor / bohr_factor)
+
+        # *= produces different behavior with numpy arrays
+        velocities = velocities * au_time_factor / bohr_factor
 
         self.cp2k_inputs.set_velocities(velocities)
 
@@ -155,18 +155,9 @@ class CP2KEngine(AbstractEngine):
         input_path = os.path.join(self.working_dir, f"{projname}.inp")
         self.cp2k_inputs.write_cp2k_inputs(input_path)
 
-        command_list = [*self.md_cmd, "-i", input_path, "-o", f"{projname}.out"]
-        self.logger.debug("Launching trajectory %s with command %s", projname, command_list)
-
-        # Start cp2k, expanding the list of commands and setting input/output
-        proc = subprocess.Popen(command_list, cwd=self.working_dir,
-                                stderr=subprocess.PIPE,
-                                stdout=subprocess.PIPE)
-
-        # Wait for it to finish
-        while proc.poll() is None:
-            # Non-blocking sleep
-            await asyncio.sleep(1)
+        # run
+        proc = await self._open_md_and_wait(
+            ["-i", input_path, "-o", f"{projname}.out"], projname)
 
         # Create an output handler for errors and warnings
         output_handler = CP2KOutputHandler(projname, self.working_dir)
