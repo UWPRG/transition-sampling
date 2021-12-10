@@ -30,7 +30,6 @@ class TestCP2KOutputHandler(TestCase):
                                         temp_file.name), "files were not equal")
 
     def test_output_handler_catches_warnings(self):
-        print(self.out_handler.check_warnings())
         self.assertEqual(len(self.out_handler.check_warnings()), 1,
                          "Warnings were not caught")
 
