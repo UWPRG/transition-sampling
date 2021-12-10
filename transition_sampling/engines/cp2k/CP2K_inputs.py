@@ -112,16 +112,16 @@ class CP2KInputsHandler:
 
         # Assign all the velocities
         for i in range(velocities.shape[0]):
-            for j in range(3):
-                vel[i][j] = velocities[i, j]
+            # yeah, im gonna type it out so the typing system doesn't complain
+            vel[i] = (velocities[i, 0], velocities[i, 1], velocities[i, 2])
 
     def flip_velocity(self) -> None:
         """Modify state by multiplying every velocity component by -1
         """
         vel = self._get_velocity()
         for i in range(len(vel)):
-            for j in range(3):
-                vel[i][j] = -1 * vel[i][j]
+            # AND I'D DO IT AGAIN!
+            vel[i] = (-1 * vel[i][0], -1 * vel[i][1], -1 * vel[i][2])
 
     def set_project_name(self, projname: str) -> None:
         """Set the CP2K project name of the inputs
@@ -229,7 +229,7 @@ class CP2KInputsHandler:
         """
         return self._get_subsys()["+coord"]["*"]
 
-    def _get_velocity(self) -> list[list[float, float, float]]:
+    def _get_velocity(self) -> list[tuple[float, float, float]]:
         """Gets the velocity section of the stored cp2k inputs.
 
         Velocities are represented as a list of lists, where the outer index
