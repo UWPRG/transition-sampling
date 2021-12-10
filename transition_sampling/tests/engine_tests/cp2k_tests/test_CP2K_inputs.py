@@ -135,7 +135,7 @@ class TestCP2KInputsVelocities(CP2KInputsTestCase):
         for s, v in zip(actual, expected):
             # Convert numpy array to list for assertListEquals
             v = v.tolist()
-            self.assertListEqual(v, s, "Velocities were not equal")
+            self.assertSequenceEqual(v, s, "Velocities were not equal")
 
 
 class TestCP2KInputsWritePlumed(CP2KInputsTestCase):
