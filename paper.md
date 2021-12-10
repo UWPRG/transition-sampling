@@ -16,7 +16,8 @@ authors:
     orcid: 0000-0001-6727-2957
     affiliation: 1
 affiliations:
-  - Department of Chemical Engineering, University of Washington, Seattle, Washington 98195, USA
+  - name: Department of Chemical Engineering, University of Washington, Seattle, Washington 98195, USA
+    index: 1
 date: 01 December 2021
 bibliography: paper.bib
 ---
