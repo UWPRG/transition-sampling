@@ -1,5 +1,5 @@
 ---
-title: 'An MD Engine Agnostic Implementation of Aimless-Shooting Likelihood Maximization'
+title: 'transition-sampling: An MD Engine Agnostic Implementation of Aimless-Shooting Likelihood Maximization'
 tags:
   - Python
   - Molecular Dynamics
@@ -7,10 +7,16 @@ tags:
   - Aimless Shooting
 authors:
   - name: Isaiah Lemmon
+    orcid: 0000-0002-2660-7535
+    affiliation: 1
   - name: Luke Gibson
+    orcid: 0000-0002-8696-1878
+    affiliation: 1
   - name: Jim Pfaendtner
+    orcid: 0000-0001-6727-2957
+    affiliation: 1
 affiliations:
-  - as
+  - Department of Chemical Engineering, University of Washington, Seattle, Washington 98195, USA
 date: 01 December 2021
 bibliography: paper.bib
 ---
@@ -33,13 +39,13 @@ users, `transition-sampling` was designed to expose a simple and flexible Python
 engine. This interface allows the algorithm to be applied reusably to any simulation engine, with specifics like
 launching a simulation and reading its output abstracted away. There is existing support for `CP2K` [@cp2k] and `GROMACS` [@gromacs], along
 with a detailed guide for implementing any additional engines. Two other implementations of aimless-shooting, `ATESA` [@atesa] and
-`openpath-sampling` [@ops1, @ops2], have support for `AMBER` [@amber] and `GROMACS` respectively.
+`openpath-sampling` [@ops1; @ops2], have support for `AMBER` [@amber] and `GROMACS` respectively.
 
 On top of the choice of molecular dynamics engine,
 there is an enormous number of potential collective variables (CVs) that can be applied to a chemical system. CVs are
 any differentiable function of the system’s atomic coordinates, and finding a reaction coordinate requires calculating
 many of them for screening. Rather than attempt to implement these, `transition-sampling` relies on `PLUMED`, an actively
-developed and widely used plugin that specifically supports robust and efficient CV calculation [@plumed]. CVs are defined in a
+developed and widely used plugin that specifically supports robust and efficient CV calculation [@plumed2]. CVs are defined in a
 familiar format, exactly as they would be for `PLUMED`. If a user wants to use a CV that PLUMED doesn’t support, they can
 either implement it themselves via the extensive developer documentation, or submit a request to the `PLUMED` developers.
 Additionally, for engines that support `PLUMED` integration, simulations can be stopped once they reach their target,
