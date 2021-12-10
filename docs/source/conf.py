@@ -19,7 +19,7 @@ sys.setrecursionlimit(1500)
 # -- Project information -----------------------------------------------------
 
 project = 'transition_sampling'
-copyright = '2020, Isaiah Lemmon'
+copyright = '2021, Isaiah Lemmon'
 author = 'Isaiah Lemmon'
 
 # -- General configuration ---------------------------------------------------

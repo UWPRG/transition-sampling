@@ -32,8 +32,8 @@ aimless-shooting algorithm is independent of any specific engine’s implementat
 users, `transition-sampling` was designed to expose a simple and flexible Python interface that can be implemented for any
 engine. This interface allows the algorithm to be applied reusably to any simulation engine, with specifics like
 launching a simulation and reading its output abstracted away. There is existing support for `CP2K` [@cp2k] and `GROMACS` [@gromacs], along
-with a detailed guide for implementing any additional engines. Two other implementations of aimless-shooting, `ATESA` and
-`openpath-sampling`, have support for `AMBER` [@amber] and `GROMACS` respectively.
+with a detailed guide for implementing any additional engines. Two other implementations of aimless-shooting, `ATESA` [@atesa] and
+`openpath-sampling` [@ops1, @ops2], have support for `AMBER` [@amber] and `GROMACS` respectively.
 
 On top of the choice of molecular dynamics engine,
 there is an enormous number of potential collective variables (CVs) that can be applied to a chemical system. CVs are
