@@ -1,4 +1,6 @@
+import os.path
 from setuptools import setup, find_packages
+
 
 setup(
     name='transition_sampling',
@@ -8,6 +10,16 @@ setup(
     entry_points={
         'console_scripts': ['aimless_driver=transition_sampling.driver:main'],
     },
+    install_requires=['cp2k-input-tools',
+                      'cp2k-output-tools',
+                      'numpy',
+                      'pandas',
+                      'mdtraj',
+                      'scipy',
+                      'pyyaml',
+                      'schema',
+                      'parmed'],
+    package_data={'transition-sampling': [os.path.join('data', '*')]},
     url='',
     license='MIT',
     author='Isaiah Lemmon',
